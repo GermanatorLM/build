@@ -55,7 +55,7 @@ die Regression eingeführt hat.
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target | integriert, Build ausstehend |
 | Bootformat | extlinux | integriert |
-| Firmware | 9 gepinnte PHY/Wi-Fi-Payloads + vorhandene MT7988-WED-Blobs | integriert |
+| Firmware | `pinned` / `latest` / `ref`, 9 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
 | Hardwaretest | UART/SD/Netzwerk/PCIe/Wi-Fi | noch offen |
 
@@ -131,6 +131,58 @@ Die beiden vorhandenen MT7988-WED-Firmwaredateien
 `mt7988_wo_0.bin` und `mt7988_wo_1.bin` werden weiterhin aus Armbians
 vorhandenem Filogic-Blobbestand übernommen.
 
+### Firmware-Build-Flags
+
+Standard bleibt der fest gepinnte Stand:
+
+```text
+BPI_R4PRO8X_FIRMWARE_MODE=pinned
+```
+
+Ohne Angabe des Flags wird automatisch `pinned` verwendet.
+
+Aktuellsten Firmwarestand aus dem **kanonischen**
+`git.kernel.org/.../linux-firmware.git` verwenden:
+
+```bash
+BPI_R4PRO8X_FIRMWARE_MODE=latest
+```
+
+Bestimmten Commit, Tag oder Branch verwenden:
+
+```bash
+BPI_R4PRO8X_FIRMWARE_MODE=ref
+BPI_R4PRO8X_FIRMWARE_REF=<commit-tag-oder-branch>
+```
+
+Beispiel als vollständiger Build:
+
+```bash
+./compile.sh build \
+  BOARD=bananapir4pro8x \
+  BRANCH=current \
+  RELEASE=trixie \
+  BUILD_MINIMAL=yes \
+  BUILD_DESKTOP=no \
+  KERNEL_CONFIGURE=no \
+  BPI_R4PRO8X_FIRMWARE_MODE=latest
+```
+
+Bei `latest` und `ref` wird der gewählte Ref zuerst auf einen konkreten
+40-stelligen Commit aufgelöst. Dieser wird zusammen mit den tatsächlich
+installierten Git-Blob-IDs, Größen und SHA256-Werten im Image abgelegt:
+
+```text
+/usr/share/doc/bpi-r4pro8x-firmware/SOURCE
+/usr/share/doc/bpi-r4pro8x-firmware/RESOLVED_MANIFEST.tsv
+/usr/share/doc/bpi-r4pro8x-firmware/SHA256SUMS
+```
+
+Damit ist `latest` zwar als Build-Eingabe absichtlich beweglich, das erzeugte
+Image bleibt aber exakt auf den tatsächlich verwendeten Firmwarecommit
+zurückverfolgbar. Für reproduzierbare Vergleichstests mit `ref` sollte
+vorzugsweise direkt ein vollständiger Commit-SHA verwendet werden.
+
 ## Kernel-Ergänzungen für R4 Pro
 
 Die R4-Pro-spezifischen Optionen bleiben board-lokal und verändern die normale
@@ -180,7 +232,18 @@ Nachtragen der eigenen SHA.
 | 08 | `97438f1` | Firmware-Bundle in den Board-Image-Build eingebunden | `bananapir4pro8x.csc` | implementiert |
 | 09 | `9152ca5` | Automatischen statischen Preflight-Check ergänzt | `tools/bpi-r4pro8x-check.sh` | implementiert |
 | 10 | `02c323d` | Build-, UART- und Hardware-Bring-up-Checkliste ergänzt | `docs/bpi-r4pro8x-bringup.md` | dokumentiert |
-| 11 | `SELF` | README zum R4-Pro-Entwicklungsjournal umgebaut und Chronik-Regel eingeführt | `README.md` | dokumentiert |
+| 11 | `458570c` | README zum R4-Pro-Entwicklungsjournal umgebaut und Chronik-Regel eingeführt | `README.md` | dokumentiert |
+| 12 | `d73fac1` | Manifest um einen expliziten `latest`-Ref erweitert | `manifest.tsv` | implementiert |
+| 13 | `76bac9d` | Firmware-Installer um `pinned`, `latest` und frei wählbaren `ref` erweitert; verwendeter Commit wird auditiert | `install.sh` | implementiert |
+| 14 | `c181c0c` | Firmware-Auswahl als Armbian-Build-Flags in den Board-Build verdrahtet | `bananapir4pro8x.csc` | implementiert |
+| 15 | `94f7f02` | Preflight-Check um Firmware-Modi und Image-Auditprüfung erweitert | `bpi-r4pro8x-check.sh` | implementiert |
+| 16 | `92c34e6` | Beim vorherigen Checker-Edit beschädigten TSV-Loop repariert | `bpi-r4pro8x-check.sh` | korrigiert |
+| 17 | `4519df7` | Kconfig-Symbolprüfung im Checker präzisiert | `bpi-r4pro8x-check.sh` | korrigiert |
+| 18 | `5ce7924` | Dynamische Firmwarequelle von der gepinnten Mirror-Quelle getrennt; `latest/ref` auf kanonisches linux-firmware gelegt | `manifest.tsv` | implementiert |
+| 19 | `baf158c` | Installer löst `latest/ref` über `git.kernel.org` auf und lädt vom aufgelösten Commit | `install.sh` | implementiert |
+| 20 | `5161209` | Preflight prüft die kanonische dynamische Firmwarequelle | `bpi-r4pro8x-check.sh` | implementiert |
+| 21 | `8ca4003` | Build- und Bring-up-Doku um Firmware-Auswahlflags und Auditpfade ergänzt | `docs/bpi-r4pro8x-bringup.md` | dokumentiert |
+| 22 | `SELF` | README um Firmware-Build-Flags erweitert und Chronik bis zum aktuellen Stand fortgeführt | `README.md` | dokumentiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
