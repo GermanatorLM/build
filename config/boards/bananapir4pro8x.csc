@@ -37,7 +37,14 @@ function post_family_tweaks__bpi_r4pro_8x() {
 	local r4pro_firmware_installer="${SRC}/packages/bpi-r4pro8x-firmware/install.sh"
 	[[ -f "${r4pro_firmware_installer}" ]] ||
 		exit_with_error "BPI-R4 Pro firmware installer missing" "${r4pro_firmware_installer}"
-	bash "${r4pro_firmware_installer}" "${SDCARD}" "${SRC}/cache/bpi-r4pro8x-firmware" ||
+	local r4pro_firmware_mode="${BPI_R4PRO8X_FIRMWARE_MODE:-pinned}"
+	local r4pro_firmware_ref="${BPI_R4PRO8X_FIRMWARE_REF:-}"
+
+	display_alert "${BOARD}" "Firmware mode=${r4pro_firmware_mode} ref=${r4pro_firmware_ref:-<default>}" "info"
+
+	BPI_R4PRO8X_FIRMWARE_MODE="${r4pro_firmware_mode}" \
+	BPI_R4PRO8X_FIRMWARE_REF="${r4pro_firmware_ref}" \
+		bash "${r4pro_firmware_installer}" "${SDCARD}" "${SRC}/cache/bpi-r4pro8x-firmware" ||
 		exit_with_error "BPI-R4 Pro firmware installation failed"
 
 	[[ -f "${SDCARD}${sd_overlay}" ]] ||
