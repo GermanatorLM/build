@@ -1,77 +1,256 @@
-<h3 align="center">
-  <a href=#><img src="https://raw.githubusercontent.com/armbian/.github/master/profile/logosmall.png" alt="Armbian logo"></a>
-  <br><br>
-</h3>
+# Armbian für Banana Pi BPI-R4 Pro 8X
 
-## Purpose of This Repository
+Dieses Repository ist ein Entwicklungs-Fork des Armbian Build Frameworks für
+den **Banana Pi BPI-R4 Pro 8X (MT7988A, 8 GiB DDR4)**.
 
-The **Armbian Linux Build Framework** creates customizable OS images based on **Debian** or **Ubuntu** for **single-board computers (SBCs)** and embedded devices.
+Der aktuelle Entwicklungsbranch ist:
 
-It builds a complete Linux system including kernel, bootloader, and root filesystem, giving you control over versions, configuration, firmware, device trees, and system optimizations.
-
-The framework supports **native**, **cross**, and **containerized** builds for multiple architectures (`x86_64`, `aarch64`, `armhf`, `riscv64`) and is suitable for development, testing, production, or automation.
-
-> **Looking for prebuilt images?** Use [Armbian Imager](https://github.com/armbian/imager/releases) — the easiest way to download and flash Armbian to your SD card or USB drive. Available for Linux, macOS, and Windows.
-
-## Quick Start
-
-```bash
-git clone https://github.com/armbian/build
-cd build
-./compile.sh
+```text
+bpi-r4pro-8x
 ```
 
-<a href="#how-to-build-an-image-or-a-kernel"><img src=".github/README.gif" alt="Build demonstration" width="100%"></a>
+> **Bring-up-Status:** Der Port ist strukturell angelegt und um ein gepinntes
+> Firmware-Bundle, statische Checks und eine Hardware-Bring-up-Checkliste
+> ergänzt. Ein erfolgreicher vollständiger Image-Build oder Hardware-Boot ist
+> damit noch nicht behauptet. Jede erreichte Stufe wird hier nachgetragen.
 
-## Build Host Requirements
+## Zielbild
 
-### Hardware
-- **RAM:** ≥8GB (less with `KERNEL_BTF=no`)
-- **Disk:** ~50GB free space
-- **Architecture:** x86_64, aarch64, or riscv64
+Die erste stabile Zielkette ist bewusst klein gehalten:
 
-### Operating System
-- **Native builds:** Armbian/Debian 13 (Trixie)
-- **Containerized:** Any Docker-capable Linux
-- **Windows:** WSL2 with Armbian/Debian 13 (Trixie)
+```text
+BootROM
+  -> BL2 / MediaTek ATF
+  -> U-Boot
+  -> SD-Karte
+  -> extlinux
+  -> Linux 6.18
+  -> Debian Trixie / Armbian Login
+```
 
-### Software
-- Superuser privileges (`sudo` or root)
-- Up-to-date system (outdated Docker or other tools can cause failures)
+Danach erfolgt der Hardware-Bring-up einzeln und in dieser Reihenfolge:
 
-## Resources
+```text
+Management-Ethernet
+  -> interne 2.5G PHYs
+  -> Aeonsemi AS21xxx / 10G
+  -> MaxLinear MxL862xx DSA
+  -> PCIe / NVMe
+  -> MT7996 Wi-Fi 7
+```
 
-- **[Documentation](https://docs.armbian.com/Developer-Guide_Overview/)** — Comprehensive guides for building, configuring, and customizing
-- **[Website](https://www.armbian.com)** — News, features, and board information
-- **[Blog](https://blog.armbian.com)** — Development updates and technical articles
-- **[Forums](https://forum.armbian.com)** — Community support and discussions
+Damit bleibt bei Fehlern erkennbar, welcher Commit und welche Hardwarestufe
+die Regression eingeführt hat.
 
-## Contributing
+## Aktueller technischer Aufbau
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on reporting issues, submitting changes, and contributing code.
+| Bereich | Auswahl | Status |
+|---|---|---|
+| Board | Banana Pi BPI-R4 Pro 8X | implementiert |
+| SoC | MediaTek MT7988A | implementiert |
+| RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
+| Distribution | Debian Trixie | vorgesehen |
+| Kernel | Frank Wunderlich `BPI-Router-Linux`, `6.18-main` | integriert, Build ausstehend |
+| Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
+| SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
+| U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target | integriert, Build ausstehend |
+| Bootformat | extlinux | integriert |
+| Firmware | 9 gepinnte PHY/Wi-Fi-Payloads + vorhandene MT7988-WED-Blobs | integriert |
+| Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
+| Hardwaretest | UART/SD/Netzwerk/PCIe/Wi-Fi | noch offen |
 
-## Support
+## Schnellstart
 
-### Community Forums
-Get help from users and contributors on troubleshooting, configuration, and development.
-👉 [forum.armbian.com](https://forum.armbian.com)
+```bash
+git clone https://github.com/GermanatorLM/build.git
+cd build
+git switch bpi-r4pro-8x
 
-### Real-time Chat
-Join discussions with developers and community members on IRC or Discord.
-👉 [Community Chat](https://docs.armbian.com/Community_IRC/)
+bash tools/bpi-r4pro8x-check.sh
 
-### Paid Consultation
-For commercial projects, guaranteed response times, or advanced needs, paid support is available from Armbian maintainers.
-👉 [Contact us](https://www.armbian.com/contact)
+./compile.sh build \
+  BOARD=bananapir4pro8x \
+  BRANCH=current \
+  RELEASE=trixie \
+  BUILD_MINIMAL=yes \
+  BUILD_DESKTOP=no \
+  KERNEL_CONFIGURE=no
+```
 
-## Contributors
+Die vollständige Build-, Flash-, UART- und Hardware-Checkliste steht in:
 
-Thank you to everyone who has contributed to Armbian!
+```text
+docs/bpi-r4pro8x-bringup.md
+```
 
-<a href="https://github.com/armbian/build/graphs/contributors">
-  <img alt="Contributors" src="https://contrib.rocks/image?repo=armbian/build" />
-</a>
+## Firmware-Bundle
 
-## Armbian Partners
+Die R4-Pro-spezifischen Binärblobs werden nicht unversioniert über einen
+`latest`-Link geholt. Das Manifest liegt unter:
 
-Our [partnership program](https://forum.armbian.com/subscriptions) supports Armbian's development and community. Learn more about [our Partners](https://armbian.com/partners).
+```text
+packages/bpi-r4pro8x-firmware/manifest.tsv
+```
+
+Der Installer:
+
+```text
+packages/bpi-r4pro8x-firmware/install.sh
+```
+
+verwendet einen **festen Git-Snapshot**
+
+```text
+hhd-dev/linux-firmware
+17c8530777b28c3b909dc505b95cf895159bd8b9
+```
+
+und prüft jeden Download gegen **Dateigröße und Git-Blob-ID**. Damit führt eine
+spätere Änderung des Remote-Branches nicht stillschweigend zu anderen
+Firmware-Dateien.
+
+Im fertigen Image wird zusätzlich eine SHA256-Auditliste erzeugt:
+
+```text
+/usr/share/doc/bpi-r4pro8x-firmware/SHA256SUMS
+```
+
+Enthalten sind:
+
+- Aeonsemi `as21x1x_fw.bin`
+- MT7988 internes 2.5G-PHY-PMB
+- MT7987 `i2p5ge-phy-DSPBitTb.bin`
+- MT7987 `i2p5ge-phy-pmb.bin`
+- MT7996 DSP
+- MT7996 EEPROM 233
+- MT7996 ROM Patch 233
+- MT7996 WA 233
+- MT7996 WM 233
+
+Die beiden vorhandenen MT7988-WED-Firmwaredateien
+`mt7988_wo_0.bin` und `mt7988_wo_1.bin` werden weiterhin aus Armbians
+vorhandenem Filogic-Blobbestand übernommen.
+
+## Kernel-Ergänzungen für R4 Pro
+
+Die R4-Pro-spezifischen Optionen bleiben board-lokal und verändern die normale
+BPI-R4-Konfiguration nicht global:
+
+```text
+CONFIG_NET_DSA_MXL862=y
+CONFIG_NET_DSA_TAG_MXL862_8021Q=y
+CONFIG_AS21XXX_PHY=y
+CONFIG_MEDIATEK_2P5GE_PHY=y
+CONFIG_NET_MEDIATEK_SOC_WED=y
+```
+
+## Warum U-Boot zunächst minimal ist
+
+Für den ersten Bring-up muss U-Boot nur zuverlässig:
+
+1. UART initialisieren,
+2. die SD-Karte lesen,
+3. Armbians GPT/extlinux-Layout starten.
+
+PCIe, Switch, 10G-PHY und Wi-Fi müssen im Bootloader noch nicht funktionieren.
+Nach dem Kernelstart übernimmt Franks vollständiger Linux-Device-Tree die
+Hardwarebeschreibung. Dadurch werden frühe Bootfehler nicht mit
+Netzwerk-/PCIe-Problemen vermischt.
+
+# Entwicklungs-Chronik
+
+Diese Tabelle ist die zentrale Änderungsakte für den R4-Pro-Port. **Jede weitere
+funktionale Änderung, jeder Fix und jede neue Hardwarestufe muss hier als neue
+Zeile ergänzt werden.**
+
+Für bereits vorhandene Commits ist die kurze SHA eingetragen. Bei einem neuen
+Commit darf in derselben Commit-Zeile `SELF` stehen; der Commit-Subject macht
+die Zeile eindeutig und verhindert einen sinnlosen Folgecommit nur zum
+Nachtragen der eigenen SHA.
+
+| Nr. | Commit | Grobschritt | Wesentliche Dateien | Stand |
+|---:|---|---|---|---|
+| 01 | `c4cc3bc` | Board-Target angelegt | `config/boards/bananapir4pro8x.csc` | implementiert |
+| 02 | `e97354e` | R4-Pro-Family mit Frank-Kernel und 8-GB-ATF angelegt | `config/sources/families/filogic-r4pro.conf` | implementiert |
+| 03 | `8a2a1a3` | Kernel-Patchsteuerung korrigiert: leerer Patchsatz statt erfundener Disable-Variable | `filogic-r4pro.conf` | korrigiert |
+| 04 | `aa1d0e3` | Minimalen R4-Pro-U-Boot-SD-Target ergänzt | `451-add-bpi-r4pro-8x.patch` | implementiert |
+| 05 | `85e919b` | Falsche Hunk-Zeilenanzahl im U-Boot-Patch korrigiert | U-Boot-Patch | korrigiert |
+| 06 | `be3394e` | Gepinntes Firmware-Manifest mit 9 Payloads ergänzt | `packages/bpi-r4pro8x-firmware/manifest.tsv` | implementiert |
+| 07 | `e7e03e7` | Firmware-Downloader/Verifier/Installer ergänzt | `packages/bpi-r4pro8x-firmware/install.sh` | implementiert |
+| 08 | `97438f1` | Firmware-Bundle in den Board-Image-Build eingebunden | `bananapir4pro8x.csc` | implementiert |
+| 09 | `9152ca5` | Automatischen statischen Preflight-Check ergänzt | `tools/bpi-r4pro8x-check.sh` | implementiert |
+| 10 | `02c323d` | Build-, UART- und Hardware-Bring-up-Checkliste ergänzt | `docs/bpi-r4pro8x-bringup.md` | dokumentiert |
+| 11 | `SELF` | README zum R4-Pro-Entwicklungsjournal umgebaut und Chronik-Regel eingeführt | `README.md` | dokumentiert |
+
+## Verbindliche Regel für kommende Änderungen
+
+Ab jetzt gilt für diesen Branch:
+
+1. **Eine technische Änderung = ein nachvollziehbarer Grobschritt.**
+2. Jeder Fix bekommt eine eigene Chronikzeile; alte Fehler werden nicht aus der
+   Historie „wegdokumentiert“.
+3. Jede neue Hardwarefunktion wird erst als **HW PASS** markiert, wenn sie nach
+   einem Cold Boot reproduzierbar funktioniert.
+4. Ein erfolgreicher Compile ohne Hardwaretest wird nur als **BUILD PASS**
+   bezeichnet.
+5. Ein reiner statischer Check wird nur als **STATIC PASS** bezeichnet.
+6. Neue Firmwarestände müssen Quelle, Pin und Verifikation dokumentieren.
+7. Neue Kernel-/U-Boot-/ATF-Pins werden mit Grund und erwarteter Wirkung
+   eingetragen.
+8. Solange der Bring-up läuft, soll die Historie nicht so gesquasht werden, dass
+   die einzelnen Debugschritte nicht mehr nachvollziehbar sind.
+
+## Statusbegriffe
+
+| Status | Bedeutung |
+|---|---|
+| `IMPLEMENTED` | Code ist vorhanden, aber noch nicht vollständig gebaut/getestet |
+| `STATIC PASS` | lokale/statische Validierung bestanden |
+| `BUILD PASS` | Armbian-Image wurde erfolgreich erzeugt |
+| `BOOT PASS` | Bootkette bis Login reproduzierbar |
+| `HW PASS` | konkrete Hardwarefunktion nach Cold Boot reproduzierbar |
+| `BLOCKED` | reproduzierbarer Fehler, nächster Debugschritt dokumentiert |
+
+## Relevante Dateien
+
+```text
+config/boards/bananapir4pro8x.csc
+config/sources/families/filogic-r4pro.conf
+patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch
+packages/bpi-r4pro8x-firmware/manifest.tsv
+packages/bpi-r4pro8x-firmware/install.sh
+tools/bpi-r4pro8x-check.sh
+docs/bpi-r4pro8x-bringup.md
+README.md
+```
+
+## Nächster Meilenstein
+
+Der nächste sinnvolle Stand ist:
+
+```text
+STATIC PASS
+  -> vollständiger Trixie-Minimal-Build
+  -> SD-Image
+  -> UART-Log
+  -> BL2
+  -> U-Boot
+  -> extlinux
+  -> Linux 6.18
+  -> Login
+```
+
+Erst danach werden Netzwerk, NVMe und Wi-Fi einzeln als Hardware-Meilensteine
+abgearbeitet.
+
+---
+
+## Upstream Armbian
+
+Dieses Repository basiert auf dem
+[Armbian Build Framework](https://github.com/armbian/build). Die allgemeine
+Armbian-Dokumentation befindet sich unter
+[docs.armbian.com](https://docs.armbian.com/Developer-Guide_Overview/).
+
+Für Änderungen, die nicht spezifisch zum BPI-R4 Pro 8X gehören, gelten weiterhin
+die Upstream-Armbian-Konventionen und `CONTRIBUTING.md`.
