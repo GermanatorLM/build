@@ -243,7 +243,9 @@ Nachtragen der eigenen SHA.
 | 19 | `baf158c` | Installer löst `latest/ref` über `git.kernel.org` auf und lädt vom aufgelösten Commit | `install.sh` | implementiert |
 | 20 | `5161209` | Preflight prüft die kanonische dynamische Firmwarequelle | `bpi-r4pro8x-check.sh` | implementiert |
 | 21 | `8ca4003` | Build- und Bring-up-Doku um Firmware-Auswahlflags und Auditpfade ergänzt | `docs/bpi-r4pro8x-bringup.md` | dokumentiert |
-| 22 | `SELF` | README um Firmware-Build-Flags erweitert und Chronik bis zum aktuellen Stand fortgeführt | `README.md` | dokumentiert |
+| 22 | `438088f` | README um Firmware-Build-Flags erweitert und Chronik bis zum aktuellen Stand fortgeführt | `README.md` | dokumentiert |
+| 23 | `4477252` | GitHub-Actions-Workflow für statischen Preflight und vollständigen gepinnten Trixie-Minimal-Build ergänzt | `.github/workflows/bpi-r4pro8x-build.yml` | implementiert |
+| 24 | `SELF` | README-Chronik um den ausführbaren CI-Buildpfad ergänzt | `README.md` | dokumentiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -286,6 +288,28 @@ tools/bpi-r4pro8x-check.sh
 docs/bpi-r4pro8x-bringup.md
 README.md
 ```
+
+## CI-Buildpfad
+
+Für reproduzierbare Remote-Tests existiert zusätzlich:
+
+```text
+.github/workflows/bpi-r4pro8x-build.yml
+```
+
+Der Workflow führt zwei voneinander abhängige Jobs aus:
+
+```text
+R4 Pro static preflight
+        |
+        v
+R4 Pro Trixie minimal image (pinned firmware)
+```
+
+Der Image-Build läuft über Armbians Docker-CLI und verwendet standardmäßig
+`BPI_R4PRO8X_FIRMWARE_MODE=pinned`. Logs werden auch bei Fehlern als
+GitHub-Actions-Artefakt gesichert; ein erfolgreich erzeugtes Image wird separat
+als kurzlebiges CI-Artefakt abgelegt.
 
 ## Nächster Meilenstein
 
