@@ -74,6 +74,10 @@ while IFS=$'\t' read -r blob size path; do
 done < "${firmware_manifest}"
 
 grep -q '^# source_latest_ref=' "${firmware_manifest}" || fail "latest firmware ref missing from manifest"
+grep -q '^# dynamic_source_repository=https://git.kernel.org/' "${firmware_manifest}" ||
+	fail "canonical dynamic linux-firmware repository missing from manifest"
+grep -q '^# dynamic_raw_base=https://git.kernel.org/' "${firmware_manifest}" ||
+	fail "canonical dynamic linux-firmware raw endpoint missing from manifest"
 grep -q 'pinned|latest|ref' "${firmware_installer}" || fail "firmware selection modes missing from installer"
 grep -q 'BPI_R4PRO8X_FIRMWARE_MODE' "${board}" || fail "firmware mode build flag is not wired into board"
 grep -q 'BPI_R4PRO8X_FIRMWARE_REF' "${board}" || fail "firmware ref build flag is not wired into board"
