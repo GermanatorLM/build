@@ -1,0 +1,25 @@
+# BPI-R4 Pro 8X firmware manifest
+#
+# The source is pinned to an immutable linux-firmware snapshot. Each payload is
+# verified against its Git blob object id before it is copied into the image.
+# Columns: git_blob_sha1<TAB>size_bytes<TAB>path_below_lib_firmware
+#
+# source_repository=https://github.com/hhd-dev/linux-firmware.git
+# source_ref=17c8530777b28c3b909dc505b95cf895159bd8b9
+# raw_base=https://raw.githubusercontent.com/hhd-dev/linux-firmware
+# verification=git-blob-sha1
+#
+# Aeonsemi AS21x1x 1/2.5/5/10G PHY
+aae8a03dd01328b978146cd4cf4fdfcca37d7262	290272	aeonsemi/as21x1x_fw.bin
+#
+# MediaTek internal 2.5G PHY firmware (MT7988 + newer MT7987 driver payloads)
+e2baa07cb6f3ccbc96d020bedf7f499929735ddd	131072	mediatek/mt7988/i2p5ge-phy-pmb.bin
+5b0e44c524f35591288c79c5941f33cf74c27e4b	28672	mediatek/mt7987/i2p5ge-phy-DSPBitTb.bin
+2eaf41096bdbd43c4a90a773f24791e79a4d8650	98304	mediatek/mt7987/i2p5ge-phy-pmb.bin
+#
+# MediaTek MT7996 "233" Wi-Fi 7 firmware set used by Frank's BPI-R4 images
+fed33fb5bccc9ec6971711241ecf112e2bde51ab	192688	mediatek/mt7996/mt7996_dsp.bin
+11eaa85f4682f751da129a86dca7e842a78b6948	7680	mediatek/mt7996/mt7996_eeprom_233.bin
+f3ab3c14e750264338cfdced394b5bd08599d87e	37216	mediatek/mt7996/mt7996_rom_patch_233.bin
+e620ef142a71d99a93c0850216918f3a7ee01e3d	510000	mediatek/mt7996/mt7996_wa_233.bin
+f701831c480a3c69f2a979c1afc311b29b234cfa	2681656	mediatek/mt7996/mt7996_wm_233.bin
