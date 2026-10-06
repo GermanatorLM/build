@@ -80,7 +80,7 @@ grep -q 'BPI_R4PRO8X_FIRMWARE_REF' "${board}" || fail "firmware ref build flag i
 pass "firmware manifest and selectable pinned/latest/ref modes"
 
 for symbol in NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
-	grep -q ""${symbol}"" "${board}" || fail "kernel config symbol missing: ${symbol}"
+	grep -q "\"${symbol}\"" "${board}" || fail "kernel config symbol missing: ${symbol}"
 done
 pass "R4 Pro network Kconfig additions"
 
