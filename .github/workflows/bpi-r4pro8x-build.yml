@@ -1,0 +1,96 @@
+name: "BPI-R4 Pro 8X: Preflight and build"
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "config/boards/bananapir4pro8x.csc"
+      - "config/sources/families/filogic-r4pro.conf"
+      - "patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
+      - "packages/bpi-r4pro8x-firmware/**"
+      - "tools/bpi-r4pro8x-check.sh"
+      - "docs/bpi-r4pro8x-bringup.md"
+      - ".github/workflows/bpi-r4pro8x-build.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: bpi-r4pro8x-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    name: R4 Pro static preflight
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Run R4 Pro preflight
+        run: bash tools/bpi-r4pro8x-check.sh
+
+  build-pinned:
+    name: R4 Pro Trixie minimal image (pinned firmware)
+    needs: preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 180
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Free runner disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc || true
+          docker system prune -af || true
+          df -h
+
+      - name: Build image in Armbian Docker environment
+        env:
+          BPI_R4PRO8X_FIRMWARE_MODE: pinned
+        run: |
+          set -o pipefail
+          ./compile.sh docker             BOARD=bananapir4pro8x             BRANCH=current             RELEASE=trixie             BUILD_MINIMAL=yes             BUILD_DESKTOP=no             KERNEL_CONFIGURE=no             BPI_R4PRO8X_FIRMWARE_MODE=pinned             2>&1 | tee bpi-r4pro8x-build.log
+
+      - name: Collect result summary
+        if: always()
+        run: |
+          {
+            echo "## BPI-R4 Pro 8X build"
+            echo
+            echo "- commit: \`${GITHUB_SHA}\`"
+            echo "- firmware mode: \`pinned\`"
+            echo
+            echo "### Output images"
+            find output/images -maxdepth 1 -type f -printf '%f\n' 2>/dev/null || true
+            echo
+            echo "### Disk usage"
+            df -h
+          } >> "${GITHUB_STEP_SUMMARY}"
+
+      - name: Upload build logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpi-r4pro8x-build-logs-${{ github.sha }}
+          if-no-files-found: warn
+          retention-days: 7
+          path: |
+            bpi-r4pro8x-build.log
+            output/logs/**
+
+      - name: Upload built image
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bpi-r4pro8x-trixie-pinned-${{ github.sha }}
+          if-no-files-found: error
+          retention-days: 3
+          compression-level: 0
+          path: output/images/**
