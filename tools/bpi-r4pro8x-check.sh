@@ -72,7 +72,11 @@ while IFS=$'\t' read -r blob size path; do
 	[[ "${size}" =~ ^[0-9]+$ ]] || fail "invalid size in manifest for ${path}: ${size}"
 	[[ -n "${path}" ]] || fail "empty firmware path in manifest"
 done < "${firmware_manifest}"
-pass "firmware manifest structure (9 pinned, size-checked Git blobs)"
+grep -q '^# source_latest_ref=' "${firmware_manifest}" || fail "latest firmware ref missing from manifest"
+grep -q 'pinned|latest|ref' "${firmware_installer}" || fail "firmware selection modes missing from installer"
+grep -q 'BPI_R4PRO8X_FIRMWARE_MODE' "${board}" || fail "firmware mode build flag is not wired into board"
+grep -q 'BPI_R4PRO8X_FIRMWARE_REF' "${board}" || fail "firmware ref build flag is not wired into board"
+pass "firmware manifest and selectable pinned/latest/ref modes"
 
 for symbol in NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
 	grep -q ""${symbol}"" "${board}" || fail "kernel config symbol missing: ${symbol}"
@@ -82,23 +86,45 @@ pass "R4 Pro network Kconfig additions"
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"
 
-	while IFS=$'\t' read -r blob size path; do
+	doc_dir="${image_root}/usr/share/doc/bpi-r4pro8x-firmware"
+	source_meta="${doc_dir}/SOURCE"
+	resolved_manifest="${doc_dir}/RESOLVED_MANIFEST.tsv"
+	checksums="${doc_dir}/SHA256SUMS"
+
+	[[ -f "${source_meta}" ]] || fail "firmware SOURCE metadata missing"
+	[[ -f "${resolved_manifest}" ]] || fail "resolved firmware manifest missing"
+	[[ -f "${checksums}" ]] || fail "firmware SHA256 audit file missing"
+
+	firmware_mode="$(sed -n 's/^mode=//p' "${source_meta}" | head -n1)"
+	resolved_commit="$(sed -n 's/^resolved_commit=//p' "${source_meta}" | head -n1)"
+	[[ "${firmware_mode}" =~ ^(pinned|latest|ref)$ ]] || fail "invalid firmware mode recorded in image: ${firmware_mode}"
+	[[ "${resolved_commit}" =~ ^[0-9a-f]{40}$ ]] || fail "invalid resolved firmware commit in image"
+
+	while IFS=
+
+printf '\nBPI-R4 Pro 8X static checks completed successfully.\n'
+\t' read -r blob size path; do
 		[[ -z "${blob}" || "${blob}" == \#* ]] && continue
 		[[ -f "${image_root}/lib/firmware/${path}" ]] || fail "firmware missing in image: ${path}"
-		[[ "$(stat -c '%s' "${image_root}/lib/firmware/${path}")" == "${size}" ]] ||
-			fail "firmware size mismatch in image: ${path}"
+
+		# Only pinned mode promises the exact sizes/blob ids from manifest.tsv.
+		if [[ "${firmware_mode}" == "pinned" ]]; then
+			[[ "$(stat -c '%s' "${image_root}/lib/firmware/${path}")" == "${size}" ]] ||
+				fail "pinned firmware size mismatch in image: ${path}"
+		fi
 	done < "${firmware_manifest}"
-	pass "all pinned firmware payloads are present in image root"
+
+	(
+		cd "${image_root}/lib/firmware"
+		sha256sum --check --status "${checksums}"
+	) || fail "firmware SHA256 audit verification failed"
+	pass "firmware payloads and audit metadata (${firmware_mode}, ${resolved_commit})"
 
 	extlinux="${image_root}/boot/extlinux/extlinux.conf"
 	[[ -f "${extlinux}" ]] || fail "extlinux.conf missing in image root"
 	grep -q 'mt7988a-bananapi-bpi-r4-pro-8x.dtb' "${extlinux}" || fail "8X DTB not referenced by extlinux"
 	grep -q 'mt7988a-bananapi-bpi-r4-pro-sd.dtbo' "${extlinux}" || fail "SD overlay not referenced by extlinux"
 	pass "extlinux selects 8X base DTB plus R4 Pro SD overlay"
-
-	[[ -f "${image_root}/usr/share/doc/bpi-r4pro8x-firmware/SHA256SUMS" ]] ||
-		fail "firmware SHA256 audit file missing"
-	pass "firmware audit metadata present"
 fi
 
 printf '\nBPI-R4 Pro 8X static checks completed successfully.\n'
