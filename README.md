@@ -251,7 +251,9 @@ Nachtragen der eigenen SHA.
 | 27 | `85d1326` | README-Chronik um ersten CI-Lauf und Docker-CLI-Fix ergänzt | `README.md` | dokumentiert |
 | 28 | `CI #3` | Preflight erneut erfolgreich; `./compile.sh build` wird auf GitHub automatisch zu Docker relaunch'ed und endet weiterhin im Docker-in-Docker-Guard | GitHub Actions Run `37544227560` | STATIC PASS / BUILD BLOCKED |
 | 29 | `2673b53` | CI setzt `PREFER_DOCKER=no`, damit Armbian den nativen sudo-Buildpfad statt des problematischen Docker-Relaunchs nutzt | `.github/workflows/bpi-r4pro8x-build.yml` | korrigiert |
-| 30 | `SELF` | README-Chronik um zweiten CI-Befund und nativen Buildpfad ergänzt | `README.md` | dokumentiert |
+| 30 | `442e396` | README-Chronik um zweiten CI-Befund und nativen Buildpfad ergänzt | `README.md` | dokumentiert |
+| 31 | `CI #5` | Preflight erfolgreich; Build weiterhin im Docker-Guard, weil der gespeicherte Workflow trotz früherer Absicht noch tatsächlich `./compile.sh docker` enthielt | GitHub Actions Run `37544731262` | STATIC PASS / BUILD BLOCKED |
+| 32 | `SELF` | Tatsächlichen Workflow-Command auf `./compile.sh build ... PREFER_DOCKER=no` korrigiert und CI-Doku präzisiert | `.github/workflows/bpi-r4pro8x-build.yml`, `README.md` | korrigiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -312,7 +314,8 @@ R4 Pro static preflight
 R4 Pro Trixie minimal image (pinned firmware)
 ```
 
-Der Image-Build läuft über Armbians Docker-CLI und verwendet standardmäßig
+Der Image-Build ruft `./compile.sh build` mit `PREFER_DOCKER=no` auf und
+verwendet damit im GitHub-Runner bewusst Armbians nativen/sudo-Pfad. Standardmäßig
 `BPI_R4PRO8X_FIRMWARE_MODE=pinned`. Logs werden auch bei Fehlern als
 GitHub-Actions-Artefakt gesichert; ein erfolgreich erzeugtes Image wird separat
 als kurzlebiges CI-Artefakt abgelegt.

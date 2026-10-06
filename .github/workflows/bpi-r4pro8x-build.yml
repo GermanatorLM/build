@@ -51,13 +51,13 @@ jobs:
           docker system prune -af || true
           df -h
 
-      - name: Build image in Armbian Docker environment
+      - name: Build image via Armbian native/sudo path
         env:
           BPI_R4PRO8X_FIRMWARE_MODE: pinned
           PREFER_DOCKER: "no"
         run: |
           set -o pipefail
-          ./compile.sh docker             BOARD=bananapir4pro8x             BRANCH=current             RELEASE=trixie             BUILD_MINIMAL=yes             BUILD_DESKTOP=no             KERNEL_CONFIGURE=no             BPI_R4PRO8X_FIRMWARE_MODE=pinned             2>&1 | tee bpi-r4pro8x-build.log
+          ./compile.sh build             BOARD=bananapir4pro8x             BRANCH=current             RELEASE=trixie             BUILD_MINIMAL=yes             BUILD_DESKTOP=no             KERNEL_CONFIGURE=no             PREFER_DOCKER=no             BPI_R4PRO8X_FIRMWARE_MODE=pinned             2>&1 | tee bpi-r4pro8x-build.log
 
       - name: Collect result summary
         if: always()
