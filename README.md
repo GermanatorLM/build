@@ -248,7 +248,10 @@ Nachtragen der eigenen SHA.
 | 24 | `ee04f57` | README-Chronik um den ausführbaren CI-Buildpfad ergänzt | `README.md` | dokumentiert |
 | 25 | `CI #1` | Erster Remote-Preflight erfolgreich; erster Vollbuild scheitert vor dem eigentlichen Armbian-Build durch doppelte Docker-CLI (`docker` innerhalb Docker) | GitHub Actions Run `37543735463` | STATIC PASS / BUILD BLOCKED |
 | 26 | `08090e2` | CI-Aufruf von `./compile.sh docker` auf `./compile.sh build` korrigiert; Armbian darf selbst nach Docker relaunch'en | `.github/workflows/bpi-r4pro8x-build.yml` | korrigiert |
-| 27 | `SELF` | README-Chronik um ersten CI-Lauf und Docker-CLI-Fix ergänzt | `README.md` | dokumentiert |
+| 27 | `85d1326` | README-Chronik um ersten CI-Lauf und Docker-CLI-Fix ergänzt | `README.md` | dokumentiert |
+| 28 | `CI #3` | Preflight erneut erfolgreich; `./compile.sh build` wird auf GitHub automatisch zu Docker relaunch'ed und endet weiterhin im Docker-in-Docker-Guard | GitHub Actions Run `37544227560` | STATIC PASS / BUILD BLOCKED |
+| 29 | `2673b53` | CI setzt `PREFER_DOCKER=no`, damit Armbian den nativen sudo-Buildpfad statt des problematischen Docker-Relaunchs nutzt | `.github/workflows/bpi-r4pro8x-build.yml` | korrigiert |
+| 30 | `SELF` | README-Chronik um zweiten CI-Befund und nativen Buildpfad ergänzt | `README.md` | dokumentiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
