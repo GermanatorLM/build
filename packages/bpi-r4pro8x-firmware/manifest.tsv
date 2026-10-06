@@ -7,6 +7,8 @@
 # source_repository=https://github.com/hhd-dev/linux-firmware.git
 # source_ref=17c8530777b28c3b909dc505b95cf895159bd8b9
 # source_latest_ref=HEAD
+# dynamic_source_repository=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git
+# dynamic_raw_base=https://git.kernel.org/pub/scm/linux/kernel/git/firmware/linux-firmware.git/plain
 # raw_base=https://raw.githubusercontent.com/hhd-dev/linux-firmware
 # verification=git-blob-sha1
 #
