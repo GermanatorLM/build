@@ -32,6 +32,14 @@ function post_family_tweaks__bpi_r4pro_8x() {
 	cp -v "${SRC}/packages/blobs/filogic/firmware/mediatek/mt7988/mt7988_wo_0.bin" 		"${SDCARD}/lib/firmware/mediatek/mt7988/mt7988_wo_0.bin"
 	cp -v "${SRC}/packages/blobs/filogic/firmware/mediatek/mt7988/mt7988_wo_1.bin" 		"${SDCARD}/lib/firmware/mediatek/mt7988/mt7988_wo_1.bin"
 
+	# R4-Pro-specific PHY and Wi-Fi 7 firmware. The installer uses an immutable
+	# linux-firmware snapshot and verifies every payload before installing it.
+	local r4pro_firmware_installer="${SRC}/packages/bpi-r4pro8x-firmware/install.sh"
+	[[ -f "${r4pro_firmware_installer}" ]] ||
+		exit_with_error "BPI-R4 Pro firmware installer missing" "${r4pro_firmware_installer}"
+	bash "${r4pro_firmware_installer}" "${SDCARD}" "${SRC}/cache/bpi-r4pro8x-firmware" ||
+		exit_with_error "BPI-R4 Pro firmware installation failed"
+
 	[[ -f "${SDCARD}${sd_overlay}" ]] ||
 		exit_with_error "BPI-R4 Pro SD overlay missing from kernel package" "${SDCARD}${sd_overlay}"
 	[[ -f "${extlinux_conf}" ]] ||
