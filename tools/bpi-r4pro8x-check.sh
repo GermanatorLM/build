@@ -72,6 +72,7 @@ while IFS=$'\t' read -r blob size path; do
 	[[ "${size}" =~ ^[0-9]+$ ]] || fail "invalid size in manifest for ${path}: ${size}"
 	[[ -n "${path}" ]] || fail "empty firmware path in manifest"
 done < "${firmware_manifest}"
+
 grep -q '^# source_latest_ref=' "${firmware_manifest}" || fail "latest firmware ref missing from manifest"
 grep -q 'pinned|latest|ref' "${firmware_installer}" || fail "firmware selection modes missing from installer"
 grep -q 'BPI_R4PRO8X_FIRMWARE_MODE' "${board}" || fail "firmware mode build flag is not wired into board"
@@ -100,14 +101,10 @@ if [[ -n "${image_root}" ]]; then
 	[[ "${firmware_mode}" =~ ^(pinned|latest|ref)$ ]] || fail "invalid firmware mode recorded in image: ${firmware_mode}"
 	[[ "${resolved_commit}" =~ ^[0-9a-f]{40}$ ]] || fail "invalid resolved firmware commit in image"
 
-	while IFS=
-
-printf '\nBPI-R4 Pro 8X static checks completed successfully.\n'
-\t' read -r blob size path; do
+	while IFS=$'\t' read -r blob size path; do
 		[[ -z "${blob}" || "${blob}" == \#* ]] && continue
 		[[ -f "${image_root}/lib/firmware/${path}" ]] || fail "firmware missing in image: ${path}"
 
-		# Only pinned mode promises the exact sizes/blob ids from manifest.tsv.
 		if [[ "${firmware_mode}" == "pinned" ]]; then
 			[[ "$(stat -c '%s' "${image_root}/lib/firmware/${path}")" == "${size}" ]] ||
 				fail "pinned firmware size mismatch in image: ${path}"
