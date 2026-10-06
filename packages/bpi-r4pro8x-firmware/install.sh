@@ -38,13 +38,16 @@ manifest_meta() {
 	sed -n "s/^# ${key}=//p" "${manifest}" | head -n1
 }
 
-source_repository="$(manifest_meta source_repository)"
+pinned_source_repository="$(manifest_meta source_repository)"
+dynamic_source_repository="$(manifest_meta dynamic_source_repository)"
 pinned_ref="$(manifest_meta source_ref)"
 latest_ref="$(manifest_meta source_latest_ref)"
-raw_base="$(manifest_meta raw_base)"
+pinned_raw_base="$(manifest_meta raw_base)"
+dynamic_raw_base="$(manifest_meta dynamic_raw_base)"
 verification="$(manifest_meta verification)"
 
-[[ -n "${source_repository}" && -n "${pinned_ref}" && -n "${raw_base}" ]] || {
+[[ -n "${pinned_source_repository}" && -n "${dynamic_source_repository}" &&
+	-n "${pinned_ref}" && -n "${pinned_raw_base}" && -n "${dynamic_raw_base}" ]] || {
 	echo "ERROR: firmware source metadata missing in ${manifest}" >&2
 	exit 1
 }
@@ -110,8 +113,11 @@ resolve_git_ref() {
 	printf '%s\n' "${sha,,}"
 }
 
-if [[ "${firmware_mode}" != "pinned" ]]; then
-	resolved_ref="$(resolve_git_ref "${source_repository}" "${selected_ref}")"
+if [[ "${firmware_mode}" == "pinned" ]]; then
+	selected_source_repository="${pinned_source_repository}"
+else
+	selected_source_repository="${dynamic_source_repository}"
+	resolved_ref="$(resolve_git_ref "${selected_source_repository}" "${selected_ref}")"
 fi
 
 echo "Firmware mode: ${firmware_mode}"
@@ -193,7 +199,11 @@ install_one() {
 	if [[ ! -f "${cached_file}" ]]; then
 		mkdir -p "$(dirname -- "${cached_file}")"
 		tmp_file="${cached_file}.tmp.$$"
-		url="${raw_base}/${resolved_ref}/${relative_path}"
+		if [[ "${firmware_mode}" == "pinned" ]]; then
+			url="${pinned_raw_base}/${resolved_ref}/${relative_path}"
+		else
+			url="${dynamic_raw_base}/${relative_path}?id=${resolved_ref}"
+		fi
 
 		echo "Downloading firmware: ${relative_path}"
 		rm -f "${tmp_file}"
@@ -244,8 +254,12 @@ install -m 0644 "${resolved_manifest_tmp}" "${doc_dir}/RESOLVED_MANIFEST.tsv"
 	echo "mode=${firmware_mode}"
 	echo "requested_ref=${selected_ref}"
 	echo "resolved_commit=${resolved_ref}"
-	echo "source_repository=${source_repository}"
-	echo "source_url=${raw_base}/${resolved_ref}"
+	echo "source_repository=${selected_source_repository}"
+	if [[ "${firmware_mode}" == "pinned" ]]; then
+		echo "source_url=${pinned_raw_base}/${resolved_ref}"
+	else
+		echo "source_url=${dynamic_raw_base}?id=${resolved_ref}"
+	fi
 	if [[ "${firmware_mode}" == "pinned" ]]; then
 		echo "verification=manifest-size+git-blob-sha1"
 	else
