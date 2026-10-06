@@ -11,9 +11,9 @@ Keep Armbian's distro/extlinux boot flow so the generated image can use the
 same GPT and /boot/extlinux/extlinux.conf layout as the existing BPI-R4 port.
 
 ---
- arch/arm/dts/mt7988-sd-bpi-r4pro.dts       | 76 +++++++++++++++++++++
+ arch/arm/dts/mt7988-sd-bpi-r4pro.dts       | 74 +++++++++++++++++++++
  configs/mt7988a_bpir4pro_sd_defconfig       | 132 ++++++++++++++++++++++++++++
- 2 files changed, 208 insertions(+)
+ 2 files changed, 206 insertions(+)
  create mode 100644 arch/arm/dts/mt7988-sd-bpi-r4pro.dts
  create mode 100644 configs/mt7988a_bpir4pro_sd_defconfig
 
@@ -22,7 +22,7 @@ new file mode 100644
 index 0000000000..1111111111
 --- /dev/null
 +++ b/arch/arm/dts/mt7988-sd-bpi-r4pro.dts
-@@ -0,0 +1,76 @@
+@@ -0,0 +1,74 @@
 +// SPDX-License-Identifier: GPL-2.0
 +/*
 + * Minimal Banana Pi BPI-R4 Pro SD boot description for Armbian.
