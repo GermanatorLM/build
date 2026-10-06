@@ -60,12 +60,90 @@ Wichtige erwartete Build-Schritte im Log:
 Bei einem Fehler zuerst das aktuelle Log unter `output/logs/` sichern. Nicht
 gleich mehrere Komponenten gleichzeitig ändern.
 
+### 2.1 Firmware-Auswahl per Build-Flag
+
+Ohne zusätzliche Flags wird weiterhin der fest gepinnte und vollständig
+verifizierte Firmwarestand verwendet:
+
+```text
+BPI_R4PRO8X_FIRMWARE_MODE=pinned
+```
+
+Das ist der Standard und die empfohlene Einstellung für reproduzierbare Builds.
+
+Für den **aktuellsten Stand des kanonischen linux-firmware-Repositories**:
+
+```bash
+./compile.sh build \
+  BOARD=bananapir4pro8x \
+  BRANCH=current \
+  RELEASE=trixie \
+  BUILD_MINIMAL=yes \
+  BUILD_DESKTOP=no \
+  KERNEL_CONFIGURE=no \
+  BPI_R4PRO8X_FIRMWARE_MODE=latest
+```
+
+`latest` löst `HEAD` des kanonischen
+`git.kernel.org/.../linux-firmware.git` beim Build auf einen konkreten Commit
+auf. Der Build ist damit als Eingabe bewusst nicht vollständig reproduzierbar;
+der tatsächlich verwendete Commit wird aber im Image dokumentiert.
+
+Für einen **bestimmten Firmwarestand** kann ein Commit, Tag oder Branch
+vorgegeben werden:
+
+```bash
+./compile.sh build \
+  BOARD=bananapir4pro8x \
+  BRANCH=current \
+  RELEASE=trixie \
+  BUILD_MINIMAL=yes \
+  BUILD_DESKTOP=no \
+  KERNEL_CONFIGURE=no \
+  BPI_R4PRO8X_FIRMWARE_MODE=ref \
+  BPI_R4PRO8X_FIRMWARE_REF=<commit-tag-oder-branch>
+```
+
+Für reproduzierbare Vergleichstests sollte bei `ref` möglichst ein vollständiger
+40-stelliger Commit verwendet werden. Tags und Branches werden vor dem Download
+auf einen konkreten Commit aufgelöst.
+
+Die drei Modi sind damit:
+
+| Modus | Quelle | Verifikation | Einsatzzweck |
+|---|---|---|---|
+| `pinned` | festes HHD/linux-firmware Snapshot | Manifest-Größe + Git-Blob-ID | Standard, reproduzierbar |
+| `latest` | kanonisches linux-firmware `HEAD` | auf Commit aufgelöst + SHA256-Audit | neue Firmware testen |
+| `ref` | kanonisches linux-firmware, frei gewählter Ref | auf Commit aufgelöst + SHA256-Audit | Regression/Bisect/Vergleich |
+
+Nicht kombinieren:
+
+```text
+BPI_R4PRO8X_FIRMWARE_MODE=latest
+BPI_R4PRO8X_FIRMWARE_REF=...
+```
+
+Für einen gesetzten `BPI_R4PRO8X_FIRMWARE_REF` muss der Modus `ref` verwendet
+werden.
+
 ## 3. Firmware-Prüfung im erzeugten Rootfs
 
-Das Firmware-Bundle ist auf den in
+Im Standardmodus `pinned` ist das Firmware-Bundle auf den in
 `packages/bpi-r4pro8x-firmware/manifest.tsv` eingetragenen Git-Snapshot
-gepinnt. Während des Image-Builds werden Größe und Git-Blob-ID jedes Payloads
-verifiziert. Das fertige Image enthält zusätzlich eine SHA256-Auditliste unter:
+gepinnt. Größe und Git-Blob-ID jedes Payloads werden verifiziert.
+
+In `latest` und `ref` wird der angeforderte Ref zuerst auf einen konkreten
+Commit des kanonischen linux-firmware-Repositories aufgelöst. Das fertige Image
+dokumentiert in allen Modi den tatsächlich verwendeten Commit und die finalen
+Dateihashes unter:
+
+```text
+/usr/share/doc/bpi-r4pro8x-firmware/SOURCE
+/usr/share/doc/bpi-r4pro8x-firmware/RESOLVED_MANIFEST.tsv
+/usr/share/doc/bpi-r4pro8x-firmware/SHA256SUMS
+```
+
+Die SHA256-Auditliste liegt unter:
 
 ```text
 /usr/share/doc/bpi-r4pro8x-firmware/SHA256SUMS
