@@ -253,7 +253,9 @@ Nachtragen der eigenen SHA.
 | 29 | `2673b53` | CI setzt `PREFER_DOCKER=no`, damit Armbian den nativen sudo-Buildpfad statt des problematischen Docker-Relaunchs nutzt | `.github/workflows/bpi-r4pro8x-build.yml` | korrigiert |
 | 30 | `442e396` | README-Chronik um zweiten CI-Befund und nativen Buildpfad ergänzt | `README.md` | dokumentiert |
 | 31 | `CI #5` | Preflight erfolgreich; Build weiterhin im Docker-Guard, weil der gespeicherte Workflow trotz früherer Absicht noch tatsächlich `./compile.sh docker` enthielt | GitHub Actions Run `37544731262` | STATIC PASS / BUILD BLOCKED |
-| 32 | `SELF` | Tatsächlichen Workflow-Command auf `./compile.sh build ... PREFER_DOCKER=no` korrigiert und CI-Doku präzisiert | `.github/workflows/bpi-r4pro8x-build.yml`, `README.md` | korrigiert |
+| 32 | `16465ec` | Tatsächlichen Workflow-Command auf `./compile.sh build ... PREFER_DOCKER=no` korrigiert und CI-Doku präzisiert | `.github/workflows/bpi-r4pro8x-build.yml`, `README.md` | korrigiert |
+| 33 | `CI #6` | Preflight erfolgreich; echter Port-Build erreicht und U-Boot 2025.04 erfolgreich gebaut. Postprocessing scheitert danach, weil TF-A 2.14 `fiptool` nicht mehr am von Armbians altem Filogic-Hook erwarteten Pfad erzeugt | GitHub Actions Run `37545232848` | STATIC PASS / U-BOOT BUILD PASS / BUILD BLOCKED |
+| 34 | `SELF` | R4-Pro-spezifischen `uboot_custom_postprocess` ergänzt: TF-A-2.14-`fiptool` wird über den Top-Level-Target mit `PLAT=mt7988` gebaut; normaler Filogic/R4-Pfad bleibt unverändert | `config/sources/families/filogic-r4pro.conf`, `README.md` | korrigiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
