@@ -245,7 +245,10 @@ Nachtragen der eigenen SHA.
 | 21 | `8ca4003` | Build- und Bring-up-Doku um Firmware-Auswahlflags und Auditpfade ergänzt | `docs/bpi-r4pro8x-bringup.md` | dokumentiert |
 | 22 | `438088f` | README um Firmware-Build-Flags erweitert und Chronik bis zum aktuellen Stand fortgeführt | `README.md` | dokumentiert |
 | 23 | `4477252` | GitHub-Actions-Workflow für statischen Preflight und vollständigen gepinnten Trixie-Minimal-Build ergänzt | `.github/workflows/bpi-r4pro8x-build.yml` | implementiert |
-| 24 | `SELF` | README-Chronik um den ausführbaren CI-Buildpfad ergänzt | `README.md` | dokumentiert |
+| 24 | `ee04f57` | README-Chronik um den ausführbaren CI-Buildpfad ergänzt | `README.md` | dokumentiert |
+| 25 | `CI #1` | Erster Remote-Preflight erfolgreich; erster Vollbuild scheitert vor dem eigentlichen Armbian-Build durch doppelte Docker-CLI (`docker` innerhalb Docker) | GitHub Actions Run `37543735463` | STATIC PASS / BUILD BLOCKED |
+| 26 | `08090e2` | CI-Aufruf von `./compile.sh docker` auf `./compile.sh build` korrigiert; Armbian darf selbst nach Docker relaunch'en | `.github/workflows/bpi-r4pro8x-build.yml` | korrigiert |
+| 27 | `SELF` | README-Chronik um ersten CI-Lauf und Docker-CLI-Fix ergänzt | `README.md` | dokumentiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
