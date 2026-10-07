@@ -418,3 +418,29 @@ Damit liegt der Overlay-Stagingbereich 512 KiB oberhalb des Basis-DTB und
 1 MiB unterhalb des initrd-Bereichs. Der normale Filogic-/BPI-R4-Env-Block
 bleibt unverändert. Der nächste Hardwaretest muss zuerst bestätigen, dass
 U-Boot das SD-Overlay tatsächlich lädt und das Rootfs-Gerät danach erscheint.
+
+## 11. Build und SD-Vorbereitung nach dem Overlay-Adressfix
+
+Der R4-Pro-lokale Fix aus Branch-Commit `a298f8ac3` wurde am 7. Oktober 2026
+im GitHub-Actions-Run `37606136761` vollständig gebaut. Der Pull-Request-
+Merge-Ref des Builds war `c2e580bb1767fe4b8e47304875e5fc4e1c8ef073`.
+Preflight und vollständiger gepinnter Trixie-Minimal-Build waren erfolgreich.
+
+Das erzeugte Image ist:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+SHA256: 1da8417fc4a5032d05b6571c5c52ad73fa2085fdd1febbc5cdf8d42e110cbae5
+Größe: 1472200704 Bytes
+```
+
+Der Buildlog bestätigt, dass Patch `451-add-bpi-r4pro-8x` mit der neuen Datei
+`bpi-r4pro.env` angewendet und U-Boot 2025.04 anschließend erfolgreich gebaut
+wurde. Zusätzlich ist `fdtoverlay_addr_r=0x62080000` im finalen Raw-Image
+enthalten. Das heruntergeladene Image bestand die mitgelieferte SHA256-Prüfung.
+Nach dem Schreiben wurden exakt 351 Blöcke zu je 4 MiB von der 64-GB-SD-Karte
+zurückgelesen; der Rücklese-Hash entsprach ebenfalls der obigen SHA256-Summe.
+
+Damit bleibt vor dem nächsten Cold Boot ausschließlich die Hardwarebestätigung
+offen: U-Boot muss das SD-Overlay ohne die frühere Fehlermeldung laden und der
+Kernel anschließend das SD-Rootfs finden. Das ist noch kein `BOOT PASS`.
