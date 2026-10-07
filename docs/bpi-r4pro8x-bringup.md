@@ -654,3 +654,43 @@ Aeonsemi-Hardwaretest: PENDING
 Nach dem nächsten Build muss zuerst nachgewiesen werden, dass
 `aeonsemi/as21x1x_fw.bin` tatsächlich im finalen `uInitrd` liegt. Erst danach
 wird ein weiterer aufgezeichneter SD-Cold-Boot durchgeführt.
+
+## 17. Buildnachweis des Aeonsemi-Initramfs-Fixes
+
+Branch-Commit `4ce2a690c` wurde im GitHub-Actions-Run `37664464391`
+vollständig gebaut. Der PR-Merge-Ref und die im Image aufgezeichnete
+Buildrevision lauten `f968f660444375f7acc00060e86755a639eb5074` beziehungsweise
+`f968f66`. Der Image-Job war nach 26 Minuten und 57 Sekunden erfolgreich.
+Preflight, Dependency Review, Board-Validierung und Shellcheck waren ebenfalls
+erfolgreich.
+
+Das erzeugte Image ist:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Größe: 1472200704 Bytes
+SHA256: b7a2af5a8dea2b65ddb60edd34c479313d92ee493613b0b8b02d4c1b1b86a0bc
+```
+
+Das GitHub-Artefakt hatte exakt 1472221441 Bytes. Nach dem fortsetzbaren
+Bereichsdownload bestand es die vollständige ZIP-Prüfung; das entpackte Image
+bestand die mitgelieferte SHA256-Prüfung. Das Image wurde anschließend nur
+lesbar eingebunden. Der erweiterte Image-Root-Check bestätigte die neun
+gepinnten Payloads, deren Auditmetadaten, den ausführbaren Initramfs-Hook und
+die extlinux-Konfiguration.
+
+Das finale `uInitrd` enthält:
+
+```text
+usr/lib/firmware/aeonsemi/as21x1x_fw.bin
+Größe: 290272 Bytes
+SHA256: 9016ee573c380bea4b36b352faaac72cb8d38d87c4675be6f2d1066a343ff8ed
+```
+
+Dieser Hash ist identisch mit der Rootfs-Datei und mit dem im erzeugten Hook
+eingebetteten `firmware-sha256`. Damit ist der Fix als **BUILD PASS**
+bestätigt. Für einen Hardware-Pass muss das Image noch auf die SD-Karte
+geschrieben und ein neuer Cold Boot vollständig über UART aufgezeichnet
+werden. Dabei müssen beide bisherigen 60-Sekunden-Firmware-Timeouts
+verschwinden und beide Aeonsemi-PHYs den spezifischen Treiber erfolgreich
+binden. eMMC, NAND und NOR bleiben unberührt.
