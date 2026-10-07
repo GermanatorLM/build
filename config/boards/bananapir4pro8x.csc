@@ -47,6 +47,30 @@ function post_family_tweaks__bpi_r4pro_8x() {
 		bash "${r4pro_firmware_installer}" "${SDCARD}" "${SRC}/cache/bpi-r4pro8x-firmware" ||
 		exit_with_error "BPI-R4 Pro firmware installation failed"
 
+	# AS21XXX_PHY is built into the kernel and requests this DT-named firmware
+	# before the root filesystem is mounted. The driver has no MODULE_FIRMWARE()
+	# declaration, so initramfs-tools cannot discover the payload automatically.
+	local aeonsemi_firmware="${SDCARD}/lib/firmware/aeonsemi/as21x1x_fw.bin"
+	local aeonsemi_initramfs_hook="${SDCARD}/etc/initramfs-tools/hooks/bpi-r4pro8x-aeonsemi"
+	local aeonsemi_firmware_sha256
+	[[ -f "${aeonsemi_firmware}" ]] ||
+		exit_with_error "BPI-R4 Pro Aeonsemi firmware missing" "${aeonsemi_firmware}"
+	mkdir -p "$(dirname "${aeonsemi_initramfs_hook}")"
+	cat > "${aeonsemi_initramfs_hook}" <<- 'AEONSEMI_INITRAMFS_HOOK'
+		#!/bin/sh
+		set -e
+
+		case "${1:-}" in
+			prereqs) exit 0 ;;
+		esac
+
+		. /usr/share/initramfs-tools/hook-functions
+		add_firmware "aeonsemi/as21x1x_fw.bin"
+	AEONSEMI_INITRAMFS_HOOK
+	aeonsemi_firmware_sha256="$(sha256sum "${aeonsemi_firmware}" | awk '{print $1}')"
+	printf '# firmware-sha256=%s\n' "${aeonsemi_firmware_sha256}" >> "${aeonsemi_initramfs_hook}"
+	chmod 0755 "${aeonsemi_initramfs_hook}"
+
 	[[ -f "${SDCARD}${sd_overlay}" ]] ||
 		exit_with_error "BPI-R4 Pro SD overlay missing from kernel package" "${SDCARD}${sd_overlay}"
 	[[ -f "${extlinux_conf}" ]] ||

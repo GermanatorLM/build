@@ -620,3 +620,37 @@ Der nächste isolierte Fix soll daher die bereits gepinnte und verifizierte
 Aeonsemi-Datei über einen R4-Pro-8X-spezifischen `initramfs-tools`-Hook in das
 finale Initramfs aufnehmen. Die gemeinsame Filogic-Family bleibt unverändert.
 eMMC, NAND und NOR wurden weiterhin nicht beschrieben.
+
+## 16. Board-lokaler Initramfs-Hook für die Aeonsemi-PHY-Firmware
+
+Der R4-Pro-8X-Image-Hook erzeugt nach erfolgreicher Installation der gepinnten
+Firmware nun `/etc/initramfs-tools/hooks/bpi-r4pro8x-aeonsemi`. Dieser Hook
+ruft `add_firmware "aeonsemi/as21x1x_fw.bin"` auf. Armbians finales
+`update_initramfs` läuft erst nach `post_family_tweaks` und damit nachdem
+sowohl die Firmwaredatei als auch der Hook in das Image eingefügt wurden.
+
+Die Lösung ist bewusst board-lokal. `CONFIG_AS21XXX_PHY=y`, die gemeinsame
+Filogic-Kernelkonfiguration sowie Kernel und Device Tree bleiben unverändert.
+Damit kann sich der spezifische Aeonsemi-Treiber weiterhin vor einem
+generischen Clause-45-Treiber binden und erhält seine Firmware trotzdem vor
+dem Rootfs-Mount.
+
+Der Hook enthält zusätzlich den SHA256-Wert der tatsächlich installierten
+Firmware. Das ist nicht nur ein Auditmerkmal: Armbians Initramfs-Cache hasht
+die Dateien unter `/etc/initramfs-tools`, aber nicht pauschal alle Dateien
+unter `/lib/firmware`. Ein geänderter Firmware-Payload ändert damit auch den
+Hookinhalt und erzwingt ein neu erzeugtes Initramfs.
+
+Aktueller Nachweis:
+
+```text
+Ursachenanalyse: PASS
+Board-lokaler Initramfs-Hook: STATIC PASS
+Gemeinsame Filogic-Konfiguration unverändert: PASS
+Kernel-/Image-Build: PENDING
+Aeonsemi-Hardwaretest: PENDING
+```
+
+Nach dem nächsten Build muss zuerst nachgewiesen werden, dass
+`aeonsemi/as21x1x_fw.bin` tatsächlich im finalen `uInitrd` liegt. Erst danach
+wird ein weiterer aufgezeichneter SD-Cold-Boot durchgeführt.

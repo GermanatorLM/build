@@ -85,6 +85,11 @@ grep -q 'BPI_R4PRO8X_FIRMWARE_MODE' "${board}" || fail "firmware mode build flag
 grep -q 'BPI_R4PRO8X_FIRMWARE_REF' "${board}" || fail "firmware ref build flag is not wired into board"
 pass "firmware manifest and selectable pinned/latest/ref modes"
 
+grep -q 'bpi-r4pro8x-aeonsemi' "${board}" || fail "Aeonsemi initramfs hook missing"
+grep -q 'add_firmware "aeonsemi/as21x1x_fw.bin"' "${board}" || fail "Aeonsemi firmware is not added to initramfs"
+grep -q 'firmware-sha256=' "${board}" || fail "Aeonsemi initramfs cache-busting hash missing"
+pass "board-local Aeonsemi firmware initramfs hook"
+
 for symbol in SRAM NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
 	grep -q "\"${symbol}\"" "${board}" || fail "kernel config symbol missing: ${symbol}"
 done
@@ -97,10 +102,16 @@ if [[ -n "${image_root}" ]]; then
 	source_meta="${doc_dir}/SOURCE"
 	resolved_manifest="${doc_dir}/RESOLVED_MANIFEST.tsv"
 	checksums="${doc_dir}/SHA256SUMS"
+	aeonsemi_hook="${image_root}/etc/initramfs-tools/hooks/bpi-r4pro8x-aeonsemi"
 
 	[[ -f "${source_meta}" ]] || fail "firmware SOURCE metadata missing"
 	[[ -f "${resolved_manifest}" ]] || fail "resolved firmware manifest missing"
 	[[ -f "${checksums}" ]] || fail "firmware SHA256 audit file missing"
+	[[ -x "${aeonsemi_hook}" ]] || fail "Aeonsemi initramfs hook missing or not executable in image"
+	grep -q 'add_firmware "aeonsemi/as21x1x_fw.bin"' "${aeonsemi_hook}" ||
+		fail "Aeonsemi initramfs hook does not add required firmware"
+	grep -Eq '^# firmware-sha256=[0-9a-f]{64}$' "${aeonsemi_hook}" ||
+		fail "Aeonsemi initramfs hook lacks firmware content hash"
 
 	firmware_mode="$(sed -n 's/^mode=//p' "${source_meta}" | head -n1)"
 	resolved_commit="$(sed -n 's/^resolved_commit=//p' "${source_meta}" | head -n1)"

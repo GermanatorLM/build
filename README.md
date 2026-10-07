@@ -197,6 +197,11 @@ CONFIG_MEDIATEK_2P5GE_PHY=y
 CONFIG_NET_MEDIATEK_SOC_WED=y
 ```
 
+Da der eingebaute AS21xxx-Treiber seine per Device Tree benannte Firmware
+nicht über `MODULE_FIRMWARE()` deklariert, nimmt ein board-lokaler
+`initramfs-tools`-Hook `aeonsemi/as21x1x_fw.bin` explizit in das finale
+Initramfs auf.
+
 ## Warum U-Boot zunächst minimal ist
 
 Für den ersten Bring-up muss U-Boot nur zuverlässig:
@@ -266,6 +271,7 @@ Nachtragen der eigenen SHA.
 | 41 | `SELF` | Frühesten HW-Fehler auf fehlendes `CONFIG_SRAM` in der Current-Konfiguration zurückgeführt und `SRAM` im vorhandenen R4-Pro-8X-Kernel-Hook aktiviert; gemeinsame Filogic-Konfiguration bleibt unverändert | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 42 | `CI #9` | Board-lokalen SRAM-Fix vollständig gebaut, `CONFIG_SRAM=y` im Raw-Image nachgewiesen, Artefakt-Hash verifiziert und das Image mit identischem Roh-Rücklese-Hash auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37632230455`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 | 43 | `HW #3` | Physischer SD-Cold-Boot bestätigt den SRAM-Fix: Ethernet-MAC, beide DSA-Bäume und der MaxLinear-Switch initialisieren; der bisherige SRAM-Pool-Fehler ist verschwunden. Die beiden Aeonsemi-10G-PHYs scheitern nun früher reproduzierbar, weil ihre Firmware beim Built-in-Probe noch nicht im Initramfs verfügbar ist | UART-Log `uart-2026-10-07-3d97a2121-hw3.log`, `docs/bpi-r4pro8x-bringup.md` | ETHERNET CORE HW PASS / 10G PHY BLOCKED |
+| 44 | `SELF` | Bereits gepinnte Aeonsemi-Firmware per R4-Pro-8X-spezifischem `initramfs-tools`-Hook in das finale Initramfs aufgenommen; ein eingebetteter Firmware-SHA256 invalidiert den Initramfs-Cache bei Payloadwechseln | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
