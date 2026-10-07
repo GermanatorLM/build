@@ -259,6 +259,7 @@ Nachtragen der eigenen SHA.
 | 35 | `CI #7` | Vollständiger Trixie-Minimal-Build erfolgreich: U-Boot 2025.04, TF-A/FIP, Linux 6.18.53, gepinnte 9-Blob-Firmware und finales SD-Image erzeugt | GitHub Actions Run `37545758241` | BUILD PASS |
 | 36 | `SELF` | Erfolgreichen BUILD-PASS-Meilenstein samt Image-/Kernelstand in der README-Chronik dokumentiert | `README.md` | dokumentiert |
 | 37 | `HW #1` | Erster physischer SD-/UART-Boot: BL2/DRAM (8192 MB), BL31, U-Boot, SD/extlinux und Kernel 6.18.53 starten; U-Boot verwirft jedoch das SD-Overlay wegen fehlendem `fdtoverlay_addr_r`, danach fehlt das Rootfs-Gerät | UART-Log `uart-2026-10-07-07e66bd41.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT BLOCKED |
+| 38 | `SELF` | R4-Pro-lokales U-Boot-Text-Environment mit `fdtoverlay_addr_r=0x62080000` ergänzt und Preflight dagegen abgesichert; gemeinsame Filogic-Konfiguration bleibt unverändert | `451-add-bpi-r4pro-8x.patch`, `bpi-r4pro8x-check.sh`, `README.md` | STATIC PASS |
 
 ## Verbindliche Regel für kommende Änderungen
 

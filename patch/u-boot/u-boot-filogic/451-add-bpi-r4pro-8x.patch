@@ -9,12 +9,16 @@ full R4 Pro 8X device tree and overlays from Frank Wunderlich's 6.18 tree.
 
 Keep Armbian's distro/extlinux boot flow so the generated image can use the
 same GPT and /boot/extlinux/extlinux.conf layout as the existing BPI-R4 port.
+Provide a board-specific overlay staging address between the base FDT and
+ramdisk regions so U-Boot can apply the R4-Pro SD overlay from extlinux.
 
 ---
  arch/arm/dts/mt7988-sd-bpi-r4pro.dts       | 74 +++++++++++++++++++++
- configs/mt7988a_bpir4pro_sd_defconfig       | 132 ++++++++++++++++++++++++++++
- 2 files changed, 206 insertions(+)
+ board/mediatek/mt7988/bpi-r4pro.env         |  1 +
+ configs/mt7988a_bpir4pro_sd_defconfig       | 133 ++++++++++++++++++++++++++++
+ 3 files changed, 208 insertions(+)
  create mode 100644 arch/arm/dts/mt7988-sd-bpi-r4pro.dts
+ create mode 100644 board/mediatek/mt7988/bpi-r4pro.env
  create mode 100644 configs/mt7988a_bpir4pro_sd_defconfig
 
 diff --git a/arch/arm/dts/mt7988-sd-bpi-r4pro.dts b/arch/arm/dts/mt7988-sd-bpi-r4pro.dts
@@ -97,12 +101,19 @@ index 0000000000..1111111111
 +	vqmmc-supply = <&reg_3p3v>;
 +	status = "okay";
 +};
+diff --git a/board/mediatek/mt7988/bpi-r4pro.env b/board/mediatek/mt7988/bpi-r4pro.env
+new file mode 100644
+index 0000000000..3333333333
+--- /dev/null
++++ b/board/mediatek/mt7988/bpi-r4pro.env
+@@ -0,0 +1 @@
++fdtoverlay_addr_r=0x62080000
 diff --git a/configs/mt7988a_bpir4pro_sd_defconfig b/configs/mt7988a_bpir4pro_sd_defconfig
 new file mode 100644
 index 0000000000..2222222222
 --- /dev/null
 +++ b/configs/mt7988a_bpir4pro_sd_defconfig
-@@ -0,0 +1,132 @@
+@@ -0,0 +1,133 @@
 +CONFIG_ARM=y
 +CONFIG_SYS_HAS_NONCACHED_MEMORY=y
 +CONFIG_POSITION_INDEPENDENT=y
@@ -120,6 +131,7 @@ index 0000000000..2222222222
 +CONFIG_DEBUG_UART_BASE=0x11000000
 +CONFIG_DEBUG_UART_CLOCK=40000000
 +CONFIG_ENV_OFFSET_REDUND=0x440000
++CONFIG_ENV_SOURCE_FILE="bpi-r4pro"
 +CONFIG_PCI=y
 +CONFIG_DEBUG_UART=y
 +CONFIG_AHCI=y

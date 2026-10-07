@@ -404,3 +404,17 @@ Dropping to a shell!
 
 Der nächste isolierte Fix muss `fdtoverlay_addr_r` im R4-Pro-U-Boot-Target
 definieren. Die gemeinsame Filogic-Konfiguration soll dabei unverändert bleiben.
+
+Der daraufhin implementierte, noch auf Hardware zu bestätigende Fix verwendet
+ein R4-Pro-lokales U-Boot-Text-Environment:
+
+```text
+fdt_addr_r=0x62000000
+fdtoverlay_addr_r=0x62080000
+ramdisk_addr_r=0x62180000
+```
+
+Damit liegt der Overlay-Stagingbereich 512 KiB oberhalb des Basis-DTB und
+1 MiB unterhalb des initrd-Bereichs. Der normale Filogic-/BPI-R4-Env-Block
+bleibt unverändert. Der nächste Hardwaretest muss zuerst bestätigen, dass
+U-Boot das SD-Overlay tatsächlich lädt und das Rootfs-Gerät danach erscheint.
