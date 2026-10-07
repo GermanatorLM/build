@@ -363,3 +363,44 @@ Nächster Schritt:
 
 Ein Punkt gilt erst als abgeschlossen, wenn er nach einem Cold Boot erneut
 reproduzierbar bestanden wurde.
+
+## 10. Erster physischer SD-Boot vom 7. Oktober 2026
+
+```text
+Datum: 2026-10-07
+Branch-Commit: 3f3d673da189c1f2dcbbd46731a1285a1d31dfda
+Image-Build-Revision: 7f6439f
+Image: Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Board: Banana Pi BPI-R4 Pro 8X / 8 GiB
+Boot-Gate: Gate B / Gate C
+Ergebnis: BOOT BLOCKED
+UART-Log: uart-2026-10-07-07e66bd41.log
+```
+
+Erfolgreich erreicht wurden:
+
+- BootROM und BL2
+- DDR4-Initialisierung und komplexer Speichertest, `DRAM: 8192MB`
+- BL31
+- U-Boot 2025.04
+- SD-Erkennung und Laden von `/boot/extlinux/extlinux.conf`
+- Laden von Kernel, initrd und 8X-Basis-DTB
+- Start von Linux 6.18.53 mit vier CPUs und rund 8 GiB RAM
+
+Der früheste relevante Fehler ist in U-Boot:
+
+```text
+Invalid fdtoverlay_addr_r for loading overlays
+```
+
+Das konfigurierte SD-Overlay wird deshalb nicht geladen. Der Kernel startet
+mit dem Basis-DTB, erkennt das SD-Rootfs nicht und endet nach dem initramfs-
+Timeout mit:
+
+```text
+ALERT! UUID=728e769e-2874-40a1-adde-a86d2a08f253 does not exist.
+Dropping to a shell!
+```
+
+Der nächste isolierte Fix muss `fdtoverlay_addr_r` im R4-Pro-U-Boot-Target
+definieren. Die gemeinsame Filogic-Konfiguration soll dabei unverändert bleiben.

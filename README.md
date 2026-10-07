@@ -258,6 +258,7 @@ Nachtragen der eigenen SHA.
 | 34 | `3f3d673` | R4-Pro-spezifischen `uboot_custom_postprocess` ergänzt: TF-A-2.14-`fiptool` wird über den Top-Level-Target mit `PLAT=mt7988` gebaut; normaler Filogic/R4-Pfad bleibt unverändert | `config/sources/families/filogic-r4pro.conf`, `README.md` | korrigiert |
 | 35 | `CI #7` | Vollständiger Trixie-Minimal-Build erfolgreich: U-Boot 2025.04, TF-A/FIP, Linux 6.18.53, gepinnte 9-Blob-Firmware und finales SD-Image erzeugt | GitHub Actions Run `37545758241` | BUILD PASS |
 | 36 | `SELF` | Erfolgreichen BUILD-PASS-Meilenstein samt Image-/Kernelstand in der README-Chronik dokumentiert | `README.md` | dokumentiert |
+| 37 | `HW #1` | Erster physischer SD-/UART-Boot: BL2/DRAM (8192 MB), BL31, U-Boot, SD/extlinux und Kernel 6.18.53 starten; U-Boot verwirft jedoch das SD-Overlay wegen fehlendem `fdtoverlay_addr_r`, danach fehlt das Rootfs-Gerät | UART-Log `uart-2026-10-07-07e66bd41.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT BLOCKED |
 
 ## Verbindliche Regel für kommende Änderungen
 
