@@ -265,6 +265,7 @@ Nachtragen der eigenen SHA.
 | 40 | `HW #2` | Zwei aufeinanderfolgende physische SD-Cold-Boots laden das R4-Pro-SD-Overlay, mounten `mmcblk0p5` read/write und erreichen SSH, Login-Prompt sowie `multi-user.target`; Ethernet scheitert weiterhin beim SRAM-Pool | UART-Logs `uart-2026-10-07-a298f8ac3-hw2.log` und `uart-2026-10-07-a298f8ac3-hw2-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT PASS / HW BLOCKED |
 | 41 | `SELF` | Frühesten HW-Fehler auf fehlendes `CONFIG_SRAM` in der Current-Konfiguration zurückgeführt und `SRAM` im vorhandenen R4-Pro-8X-Kernel-Hook aktiviert; gemeinsame Filogic-Konfiguration bleibt unverändert | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 42 | `CI #9` | Board-lokalen SRAM-Fix vollständig gebaut, `CONFIG_SRAM=y` im Raw-Image nachgewiesen, Artefakt-Hash verifiziert und das Image mit identischem Roh-Rücklese-Hash auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37632230455`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
+| 43 | `HW #3` | Physischer SD-Cold-Boot bestätigt den SRAM-Fix: Ethernet-MAC, beide DSA-Bäume und der MaxLinear-Switch initialisieren; der bisherige SRAM-Pool-Fehler ist verschwunden. Die beiden Aeonsemi-10G-PHYs scheitern nun früher reproduzierbar, weil ihre Firmware beim Built-in-Probe noch nicht im Initramfs verfügbar ist | UART-Log `uart-2026-10-07-3d97a2121-hw3.log`, `docs/bpi-r4pro8x-bringup.md` | ETHERNET CORE HW PASS / 10G PHY BLOCKED |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -362,9 +363,11 @@ IMAGE BUILD PASS
 
 Das CI-Artefakt enthält das Image plus `.sha` und Build-Metadaten. Sein
 SHA256-Hash ist `35800842b48b33da343a1f457d9fb629f4b436d866901c45874b9a6feffcc047`.
-Der allgemeine SD-`BOOT PASS` ist mit dem vorherigen Image reproduzierbar
-erreicht. Für dieses Image ist als nächster Test die Hardwarebestätigung des
-Ethernet-SRAM-Fixes offen.
+Der allgemeine SD-`BOOT PASS` ist mit diesem Image erneut erreicht. Der
+Ethernet-SRAM-Fix ist auf der Zielhardware bestätigt: MAC, DSA und der
+MaxLinear-Switch initialisieren ohne den bisherigen SRAM-Pool-Fehler. Der
+nächste isolierte Blocker ist die beim frühen Built-in-Probe noch nicht im
+Initramfs verfügbare Aeonsemi-10G-PHY-Firmware.
 
 ## Nächster Meilenstein
 
@@ -372,12 +375,11 @@ Der nächste sinnvolle Stand ist:
 
 ```text
 BOOT PASS
-  -> Cold Boot mit SRAM-Fix-Image
-  -> CONFIG_SRAM=y bestätigen
-  -> mtk_soc_eth probed ohne SRAM-Pool-Fehler
-  -> Management-Ethernet
-  -> interne 2.5G PHYs
-  -> Aeonsemi / MaxLinear
+ETHERNET CORE HW PASS
+  -> Aeonsemi-Firmware board-lokal ins Initramfs aufnehmen
+  -> beide 10G-PHYs ohne Firmware-Timeout initialisieren
+  -> Management-Ethernet und interne 2.5G-PHYs einzeln prüfen
+  -> Linktests an allen externen Ports
 ```
 
 Danach werden PCIe/NVMe und Wi-Fi weiterhin einzeln als Hardware-Meilensteine

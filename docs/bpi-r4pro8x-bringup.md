@@ -567,3 +567,56 @@ ETHERNET HW TEST PENDING
 Der nächste Schritt ist ein vollständig aufgezeichneter Cold Boot. Der Test
 muss zuerst bestätigen, dass die bisherige Meldung `Could not get SRAM pool`
 verschwunden ist und der Treiber `15100000.ethernet` erfolgreich probed.
+
+## 15. Hardwaretest des Ethernet-SRAM-Fixes
+
+Der physische Banana Pi BPI-R4 Pro 8X / 8 GiB wurde mit dem Image aus
+GitHub-Actions-Run `37632230455` von der zuvor bitgenau geprüften 64-GB-SD-
+Karte kalt gestartet. Die vollständige saubere UART-Aufzeichnung ist:
+
+```text
+UART-Log: uart-2026-10-07-3d97a2121-hw3.log
+Größe: 96983 Bytes, 1253 Zeilen
+SHA256: fb78902eda76c3a8ea924a0f81db54a3b84d684be573f334a5970d792ea06f47
+```
+
+Ein vorausgegangener Aufnahmeversuch mit einer unbeabsichtigt auf 9600 Baud
+zurückgefallenen Host-Schnittstelle bleibt als
+`uart-2026-10-07-3d97a2121-hw3-garbled.log` erhalten und wird nicht als
+Testnachweis gewertet. Nach expliziter Einstellung von `/dev/ttyACM0` auf
+115200 Baud wurde ein vollständiger neuer Cold Boot aufgezeichnet.
+
+Bestätigt wurden:
+
+- BL2, 8192 MiB DRAM, BL31 und U-Boot 2025.04
+- Laden des 8X-Basis-DTB und des R4-Pro-SD-Overlays
+- Linux 6.18.53, Erkennung der SD-Karte und read/write-Mount von `mmcblk0p5`
+- erneutes Erreichen von `multi-user.target` und seriellem Login-Prompt
+- keine Meldung `Could not get SRAM pool`
+- erfolgreicher Probe von `15100000.ethernet` mit `eth0`, `eth1` und `eth2`
+- Initialisierung beider DSA-Bäume und des MaxLinear-Switches
+- PCIe-Erkennung der beiden MediaTek-Wi-Fi-Funktionen und des NVMe-Laufwerks
+
+Damit ist der board-lokale `CONFIG_SRAM=y`-Fix als **ETHERNET CORE HW PASS**
+bestätigt. Ein vollständiger Netzwerk-HW-Pass ist damit noch nicht erreicht.
+
+Der neue früheste Netzwerkblocker sind die beiden Aeonsemi-AS21xxx-10G-PHYs.
+Der Built-in-Treiber fordert `aeonsemi/as21x1x_fw.bin` bereits vor dem Mounten
+des Root-Dateisystems an. Beide Versuche enden nach dem Firmware-Loader-
+Fallback mit `-110`. Das Image enthält die korrekte 290272 Byte große Datei
+unter `/lib/firmware/aeonsemi/as21x1x_fw.bin`, das erzeugte `uInitrd` enthält
+sie jedoch nicht.
+
+Die Analyse des exakten Kernel-Commits zeigt: `CONFIG_AS21XXX_PHY` ist ein
+Tristate, wird für dieses Board aber absichtlich Built-in gebaut. Der Treiber
+liest den Dateinamen aus der DT-Eigenschaft `firmware-name` und ruft
+`request_firmware()` auf, deklariert die Datei jedoch nicht mit
+`MODULE_FIRMWARE()`. Deshalb kann `initramfs-tools` sie nicht automatisch aus
+`modules.builtin.modinfo` ermitteln. Eine Umstellung des Treibers auf Modul
+wäre riskant, weil sich vor dem Userspace-Coldplug bereits der generische
+Clause-45-PHY-Treiber binden kann.
+
+Der nächste isolierte Fix soll daher die bereits gepinnte und verifizierte
+Aeonsemi-Datei über einen R4-Pro-8X-spezifischen `initramfs-tools`-Hook in das
+finale Initramfs aufnehmen. Die gemeinsame Filogic-Family bleibt unverändert.
+eMMC, NAND und NOR wurden weiterhin nicht beschrieben.
