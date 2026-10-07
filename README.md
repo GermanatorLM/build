@@ -261,6 +261,7 @@ Nachtragen der eigenen SHA.
 | 37 | `HW #1` | Erster physischer SD-/UART-Boot: BL2/DRAM (8192 MB), BL31, U-Boot, SD/extlinux und Kernel 6.18.53 starten; U-Boot verwirft jedoch das SD-Overlay wegen fehlendem `fdtoverlay_addr_r`, danach fehlt das Rootfs-Gerät | UART-Log `uart-2026-10-07-07e66bd41.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT BLOCKED |
 | 38 | `SELF` | R4-Pro-lokales U-Boot-Text-Environment mit `fdtoverlay_addr_r=0x62080000` ergänzt und Preflight dagegen abgesichert; gemeinsame Filogic-Konfiguration bleibt unverändert | `451-add-bpi-r4pro-8x.patch`, `bpi-r4pro8x-check.sh`, `README.md` | STATIC PASS |
 | 39 | `CI #8` | Overlay-Adressfix vollständig gebaut; erzeugtes SD-Image per SHA256 und eingebettetem `fdtoverlay_addr_r=0x62080000` auditiert und bitgenau auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37606136761`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS |
+| 40 | `HW #2` | Zwei aufeinanderfolgende physische SD-Cold-Boots laden das R4-Pro-SD-Overlay, mounten `mmcblk0p5` read/write und erreichen SSH, Login-Prompt sowie `multi-user.target`; Ethernet scheitert weiterhin beim SRAM-Pool | UART-Logs `uart-2026-10-07-a298f8ac3-hw2.log` und `uart-2026-10-07-a298f8ac3-hw2-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT PASS / HW BLOCKED |
 
 ## Verbindliche Regel für kommende Änderungen
 

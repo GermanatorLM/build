@@ -444,3 +444,50 @@ zurückgelesen; der Rücklese-Hash entsprach ebenfalls der obigen SHA256-Summe.
 Damit bleibt vor dem nächsten Cold Boot ausschließlich die Hardwarebestätigung
 offen: U-Boot muss das SD-Overlay ohne die frühere Fehlermeldung laden und der
 Kernel anschließend das SD-Rootfs finden. Das ist noch kein `BOOT PASS`.
+
+## 12. Reproduzierbarer SD-Boot vom 7. Oktober 2026
+
+Der Fix wurde auf dem physischen Banana Pi BPI-R4 Pro 8X / 8 GiB in zwei
+aufeinanderfolgenden Cold Boots getestet:
+
+```text
+Branch-Commit: a298f8ac3
+Image-Build-Revision: c2e580b
+Image-SHA256: 1da8417fc4a5032d05b6571c5c52ad73fa2085fdd1febbc5cdf8d42e110cbae5
+UART-Log 1: uart-2026-10-07-a298f8ac3-hw2.log
+UART-Log 2: uart-2026-10-07-a298f8ac3-hw2-repeat.log
+Ergebnis: BOOT PASS / HW BLOCKED
+```
+
+Beide Durchläufe erreichten reproduzierbar:
+
+- BL2/DDR4 mit `DRAM: 8192MB`, BL31 und U-Boot 2025.04
+- Laden des 8X-Basis-DTB und des R4-Pro-SD-Overlays über extlinux
+- keinen erneuten Fehler `Invalid fdtoverlay_addr_r for loading overlays`
+- Erkennung der 64-GB-SD-Karte als `mmcblk0` samt Partitionen `p1` bis `p5`
+- read/write-Mount der Rootpartition `mmcblk0p5`
+- systemd, SSH, seriellen Login-Prompt und `multi-user.target`
+
+Beim ersten Lauf wurde die Rootpartition erfolgreich auf den verfügbaren
+SD-Kartenplatz vergrößert. Der zweite Lauf bootete anschließend erneut bis in
+den vollständigen Userspace. Damit ist `BOOT PASS` erreicht.
+
+`HW PASS` ist noch nicht erreicht. Der früheste reproduzierbare Linux-
+Hardwarefehler nach erfolgreichem SD-Root-Mount ist:
+
+```text
+mtk_soc_eth 15100000.ethernet: Could not get SRAM pool
+mtk_soc_eth 15100000.ethernet: probe with driver mtk_soc_eth failed with error -22
+```
+
+Weitere offene Beobachtungen sind ein nicht startender xHCI-Controller bei
+`11190000.usb`, vier PCIe-Links ohne Link sowie das fehlende GPIO für
+`sys-led-red`. Die PCIe-Meldungen werden erst als Fehler gewertet, wenn die
+Bestückung der betreffenden Slots im Testaufbau feststeht. Die U-Boot-Warnung
+über eine ungültige Environment-CRC ist beim noch nicht gespeicherten Default-
+Environment nicht bootblockierend. Es wurden keine Installations- oder
+Flash-Schreibvorgänge auf eMMC, NAND oder NOR angestoßen.
+
+Der nächste isolierte Hardware-Grobschritt ist die Analyse des fehlenden SRAM-
+Pools für `15100000.ethernet`, ohne die gemeinsame Filogic-Family zu ändern,
+sofern eine R4-Pro-lokale DT-Lösung möglich ist.
