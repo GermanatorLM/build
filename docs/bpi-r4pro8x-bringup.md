@@ -525,3 +525,45 @@ Der nächste Test muss im erzeugten Image zuerst `CONFIG_SRAM=y` bestätigen.
 Danach muss ein Cold Boot zeigen, dass `15100000.ethernet` ohne den bisherigen
 SRAM-Pool-Fehler probed. Erst dann werden Management-Ethernet und die weiteren
 PHY-/Switch-Stufen einzeln geprüft.
+
+## 14. Build und SD-Vorbereitung nach dem SRAM-Fix
+
+Der board-lokale Fix aus Branch-Commit `3d97a2121` wurde am 7. Oktober 2026
+im GitHub-Actions-Run `37632230455` vollständig gebaut. Der Pull-Request-
+Merge-Ref des Builds war `e6312be88f7ef91504f2b12918426c7cfeeadd85`.
+Preflight und der vollständige gepinnte Trixie-Minimal-Build waren
+erfolgreich; der Image-Job lief 37 Minuten und 30 Sekunden.
+
+Das erzeugte Image ist:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+SHA256: 35800842b48b33da343a1f457d9fb629f4b436d866901c45874b9a6feffcc047
+Größe: 1472200704 Bytes
+```
+
+Das GitHub-Artefakt bestand die ZIP-Integritätsprüfung und das extrahierte
+Image die mitgelieferte SHA256-Prüfung. Als Negativvergleich enthielt das
+vorherige Image auf der SD-Karte `# CONFIG_SRAM is not set`; im neuen
+Raw-Image ist `CONFIG_SRAM=y` direkt enthalten. Damit ist die board-lokale
+Kernel-Konfigurationsänderung im finalen Image wirksam.
+
+Die 64-GB-SD-Karte wurde erneut eindeutig als `/dev/sdb`, USB/removable und
+mit 63864569856 Bytes identifiziert. Nach dem Aushängen wurden exakt 351
+Blöcke zu je 4 MiB geschrieben. Die anschließende vollständige Roh-
+Rückleseprüfung derselben 1472200704 Bytes ergab erneut exakt den obigen
+SHA256-Hash. Der Kartenleser wurde danach logisch abgeschaltet. Es wurden
+keine Schreibvorgänge auf eMMC, NAND oder NOR ausgeführt.
+
+Aktueller Nachweis:
+
+```text
+STATIC PASS
+BUILD PASS
+SD WRITE/READBACK PASS
+ETHERNET HW TEST PENDING
+```
+
+Der nächste Schritt ist ein vollständig aufgezeichneter Cold Boot. Der Test
+muss zuerst bestätigen, dass die bisherige Meldung `Could not get SRAM pool`
+verschwunden ist und der Treiber `15100000.ethernet` erfolgreich probed.

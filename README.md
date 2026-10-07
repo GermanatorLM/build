@@ -264,6 +264,7 @@ Nachtragen der eigenen SHA.
 | 39 | `CI #8` | Overlay-Adressfix vollständig gebaut; erzeugtes SD-Image per SHA256 und eingebettetem `fdtoverlay_addr_r=0x62080000` auditiert und bitgenau auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37606136761`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS |
 | 40 | `HW #2` | Zwei aufeinanderfolgende physische SD-Cold-Boots laden das R4-Pro-SD-Overlay, mounten `mmcblk0p5` read/write und erreichen SSH, Login-Prompt sowie `multi-user.target`; Ethernet scheitert weiterhin beim SRAM-Pool | UART-Logs `uart-2026-10-07-a298f8ac3-hw2.log` und `uart-2026-10-07-a298f8ac3-hw2-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT PASS / HW BLOCKED |
 | 41 | `SELF` | Frühesten HW-Fehler auf fehlendes `CONFIG_SRAM` in der Current-Konfiguration zurückgeführt und `SRAM` im vorhandenen R4-Pro-8X-Kernel-Hook aktiviert; gemeinsame Filogic-Konfiguration bleibt unverändert | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
+| 42 | `CI #9` | Board-lokalen SRAM-Fix vollständig gebaut, `CONFIG_SRAM=y` im Raw-Image nachgewiesen, Artefakt-Hash verifiziert und das Image mit identischem Roh-Rücklese-Hash auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37632230455`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -335,7 +336,7 @@ als kurzlebiges CI-Artefakt abgelegt.
 GitHub Actions Run:
 
 ```text
-37545758241
+37632230455
 ```
 
 Erzeugtes Image:
@@ -354,31 +355,32 @@ SHELLCHECK PASS
 U-BOOT BUILD PASS
 TF-A/FIP PASS
 KERNEL 6.18.53 PASS
+CONFIG_SRAM=y PASS
 PINNED FIRMWARE PASS (9 Payloads)
 IMAGE BUILD PASS
 ```
 
-Das CI-Artefakt enthält das Image plus `.sha` und Build-Metadaten. Der
-nächste noch nicht erreichte Status ist `BOOT PASS` auf dem physischen
-Banana Pi BPI-R4 Pro 8X.
+Das CI-Artefakt enthält das Image plus `.sha` und Build-Metadaten. Sein
+SHA256-Hash ist `35800842b48b33da343a1f457d9fb629f4b436d866901c45874b9a6feffcc047`.
+Der allgemeine SD-`BOOT PASS` ist mit dem vorherigen Image reproduzierbar
+erreicht. Für dieses Image ist als nächster Test die Hardwarebestätigung des
+Ethernet-SRAM-Fixes offen.
 
 ## Nächster Meilenstein
 
 Der nächste sinnvolle Stand ist:
 
 ```text
-STATIC PASS
-  -> vollständiger Trixie-Minimal-Build
-  -> SD-Image
-  -> UART-Log
-  -> BL2
-  -> U-Boot
-  -> extlinux
-  -> Linux 6.18
-  -> Login
+BOOT PASS
+  -> Cold Boot mit SRAM-Fix-Image
+  -> CONFIG_SRAM=y bestätigen
+  -> mtk_soc_eth probed ohne SRAM-Pool-Fehler
+  -> Management-Ethernet
+  -> interne 2.5G PHYs
+  -> Aeonsemi / MaxLinear
 ```
 
-Erst danach werden Netzwerk, NVMe und Wi-Fi einzeln als Hardware-Meilensteine
+Danach werden PCIe/NVMe und Wi-Fi weiterhin einzeln als Hardware-Meilensteine
 abgearbeitet.
 
 ---
