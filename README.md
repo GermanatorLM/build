@@ -9,10 +9,10 @@ Der aktuelle Entwicklungsbranch ist:
 bpi-r4pro-8x
 ```
 
-> **Bring-up-Status:** Der Port ist strukturell angelegt und um ein gepinntes
-> Firmware-Bundle, statische Checks und eine Hardware-Bring-up-Checkliste
-> ergänzt. Ein erfolgreicher vollständiger Image-Build oder Hardware-Boot ist
-> damit noch nicht behauptet. Jede erreichte Stufe wird hier nachgetragen.
+> **Bring-up-Status:** `BUILD PASS` erreicht. Der vollständige Trixie-Minimal-
+> Image-Build mit U-Boot 2025.04, TF-A/FIP, Linux 6.18.53 und gepinnter
+> R4-Pro-Firmware ist erfolgreich. Ein Hardware-Boot auf dem physischen 8X ist
+> noch nicht bestätigt; der nächste Meilenstein ist `BOOT PASS`.
 
 ## Zielbild
 
@@ -50,10 +50,10 @@ die Regression eingeführt hat.
 | SoC | MediaTek MT7988A | implementiert |
 | RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
 | Distribution | Debian Trixie | vorgesehen |
-| Kernel | Frank Wunderlich `BPI-Router-Linux`, `6.18-main` | integriert, Build ausstehend |
+| Kernel | Frank Wunderlich `BPI-Router-Linux`, `6.18-main` / 6.18.53 | BUILD PASS |
 | Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
-| U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target | integriert, Build ausstehend |
+| U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
 | Bootformat | extlinux | integriert |
 | Firmware | `pinned` / `latest` / `ref`, 9 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
@@ -255,7 +255,9 @@ Nachtragen der eigenen SHA.
 | 31 | `CI #5` | Preflight erfolgreich; Build weiterhin im Docker-Guard, weil der gespeicherte Workflow trotz früherer Absicht noch tatsächlich `./compile.sh docker` enthielt | GitHub Actions Run `37544731262` | STATIC PASS / BUILD BLOCKED |
 | 32 | `16465ec` | Tatsächlichen Workflow-Command auf `./compile.sh build ... PREFER_DOCKER=no` korrigiert und CI-Doku präzisiert | `.github/workflows/bpi-r4pro8x-build.yml`, `README.md` | korrigiert |
 | 33 | `CI #6` | Preflight erfolgreich; echter Port-Build erreicht und U-Boot 2025.04 erfolgreich gebaut. Postprocessing scheitert danach, weil TF-A 2.14 `fiptool` nicht mehr am von Armbians altem Filogic-Hook erwarteten Pfad erzeugt | GitHub Actions Run `37545232848` | STATIC PASS / U-BOOT BUILD PASS / BUILD BLOCKED |
-| 34 | `SELF` | R4-Pro-spezifischen `uboot_custom_postprocess` ergänzt: TF-A-2.14-`fiptool` wird über den Top-Level-Target mit `PLAT=mt7988` gebaut; normaler Filogic/R4-Pfad bleibt unverändert | `config/sources/families/filogic-r4pro.conf`, `README.md` | korrigiert |
+| 34 | `3f3d673` | R4-Pro-spezifischen `uboot_custom_postprocess` ergänzt: TF-A-2.14-`fiptool` wird über den Top-Level-Target mit `PLAT=mt7988` gebaut; normaler Filogic/R4-Pfad bleibt unverändert | `config/sources/families/filogic-r4pro.conf`, `README.md` | korrigiert |
+| 35 | `CI #7` | Vollständiger Trixie-Minimal-Build erfolgreich: U-Boot 2025.04, TF-A/FIP, Linux 6.18.53, gepinnte 9-Blob-Firmware und finales SD-Image erzeugt | GitHub Actions Run `37545758241` | BUILD PASS |
+| 36 | `SELF` | Erfolgreichen BUILD-PASS-Meilenstein samt Image-/Kernelstand in der README-Chronik dokumentiert | `README.md` | dokumentiert |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -321,6 +323,38 @@ verwendet damit im GitHub-Runner bewusst Armbians nativen/sudo-Pfad. Standardmä
 `BPI_R4PRO8X_FIRMWARE_MODE=pinned`. Logs werden auch bei Fehlern als
 GitHub-Actions-Artefakt gesichert; ein erfolgreich erzeugtes Image wird separat
 als kurzlebiges CI-Artefakt abgelegt.
+
+## Letzter erfolgreicher Build
+
+GitHub Actions Run:
+
+```text
+37545758241
+```
+
+Erzeugtes Image:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+```
+
+Build-Ergebnis:
+
+```text
+STATIC PASS
+DEPENDENCY REVIEW PASS
+BOARD CONFIG PASS
+SHELLCHECK PASS
+U-BOOT BUILD PASS
+TF-A/FIP PASS
+KERNEL 6.18.53 PASS
+PINNED FIRMWARE PASS (9 Payloads)
+IMAGE BUILD PASS
+```
+
+Das CI-Artefakt enthält das Image plus `.sha` und Build-Metadaten. Der
+nächste noch nicht erreichte Status ist `BOOT PASS` auf dem physischen
+Banana Pi BPI-R4 Pro 8X.
 
 ## Nächster Meilenstein
 
