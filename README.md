@@ -9,10 +9,10 @@ Der aktuelle Entwicklungsbranch ist:
 bpi-r4pro-8x
 ```
 
-> **Bring-up-Status:** `BUILD PASS` erreicht. Der vollständige Trixie-Minimal-
-> Image-Build mit U-Boot 2025.04, TF-A/FIP, Linux 6.18.53 und gepinnter
-> R4-Pro-Firmware ist erfolgreich. Ein Hardware-Boot auf dem physischen 8X ist
-> noch nicht bestätigt; der nächste Meilenstein ist `BOOT PASS`.
+> **Bring-up-Status:** `BOOT PASS` erreicht. Zwei physische SD-Cold-Boots laden
+> das R4-Pro-SD-Overlay, mounten das Rootfs und erreichen den Login. `HW PASS`
+> ist noch offen; als erster isolierter Hardware-Fix wird der für den MT7988-
+> Ethernet-Treiber notwendige SRAM-Pool board-lokal aktiviert.
 
 ## Zielbild
 
@@ -57,7 +57,8 @@ die Regression eingeführt hat.
 | Bootformat | extlinux | integriert |
 | Firmware | `pinned` / `latest` / `ref`, 9 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
-| Hardwaretest | UART/SD/Netzwerk/PCIe/Wi-Fi | noch offen |
+| Hardwaretest | UART/SD | BOOT PASS (zweifach reproduziert) |
+| Hardwaretest | Netzwerk/PCIe/Wi-Fi | HW PASS noch offen |
 
 ## Schnellstart
 
@@ -262,6 +263,7 @@ Nachtragen der eigenen SHA.
 | 38 | `SELF` | R4-Pro-lokales U-Boot-Text-Environment mit `fdtoverlay_addr_r=0x62080000` ergänzt und Preflight dagegen abgesichert; gemeinsame Filogic-Konfiguration bleibt unverändert | `451-add-bpi-r4pro-8x.patch`, `bpi-r4pro8x-check.sh`, `README.md` | STATIC PASS |
 | 39 | `CI #8` | Overlay-Adressfix vollständig gebaut; erzeugtes SD-Image per SHA256 und eingebettetem `fdtoverlay_addr_r=0x62080000` auditiert und bitgenau auf die 64-GB-SD-Karte geschrieben | GitHub Actions Run `37606136761`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS |
 | 40 | `HW #2` | Zwei aufeinanderfolgende physische SD-Cold-Boots laden das R4-Pro-SD-Overlay, mounten `mmcblk0p5` read/write und erreichen SSH, Login-Prompt sowie `multi-user.target`; Ethernet scheitert weiterhin beim SRAM-Pool | UART-Logs `uart-2026-10-07-a298f8ac3-hw2.log` und `uart-2026-10-07-a298f8ac3-hw2-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | BOOT PASS / HW BLOCKED |
+| 41 | `SELF` | Frühesten HW-Fehler auf fehlendes `CONFIG_SRAM` in der Current-Konfiguration zurückgeführt und `SRAM` im vorhandenen R4-Pro-8X-Kernel-Hook aktiviert; gemeinsame Filogic-Konfiguration bleibt unverändert | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

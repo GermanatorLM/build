@@ -491,3 +491,37 @@ Flash-Schreibvorgänge auf eMMC, NAND oder NOR angestoßen.
 Der nächste isolierte Hardware-Grobschritt ist die Analyse des fehlenden SRAM-
 Pools für `15100000.ethernet`, ohne die gemeinsame Filogic-Family zu ändern,
 sofern eine R4-Pro-lokale DT-Lösung möglich ist.
+
+## 13. Board-lokaler SRAM-Fix für den MT7988-Ethernet-Treiber
+
+Die Analyse erfolgte gegen den im erfolgreichen Image gebauten Frank-Kernel-
+Commit `e69eb61a1523c5e993803c05a42c55c7576b07d3`. Dessen MT7988-DTS enthält
+bereits sowohl den SRAM-Provider `eth_sram: sram@15400000` als auch die
+korrekte Referenz `sram = <&eth_sram>` im Ethernet-Knoten. Ein DT-Fix ist daher
+nicht erforderlich.
+
+Der Treiber ruft für MT7988 `of_gen_pool_get(..., "sram", 0)` auf und beendet
+den Probe bei fehlendem Pool mit genau der auf der Hardware beobachteten
+Meldung und `-EINVAL`. Die verwendete `linux-filogic-current.config` enthielt
+im Gegensatz zur Edge-Konfiguration jedoch kein `CONFIG_SRAM=y`; damit wurde
+der `mmio-sram`-Provider nicht registriert.
+
+Der isolierte Fix ergänzt deshalb `SRAM` im bereits vorhandenen
+`custom_kernel_config__bpi_r4pro_8x_network`-Hook. Die gemeinsame
+`linux-filogic-current.config` und die normale Filogic-Family bleiben
+unverändert. Der Hook-Hash wurde auf `bpi-r4pro-8x-network-v2` erhöht, damit
+der Kernel-Artefakt-Cache die Konfigurationsänderung berücksichtigt.
+
+Aktueller Nachweis:
+
+```text
+Ursachenanalyse: PASS
+Board-lokale Konfiguration: STATIC PASS
+Kernel-/Image-Build: PENDING
+Hardwaretest Ethernet-Probe: PENDING
+```
+
+Der nächste Test muss im erzeugten Image zuerst `CONFIG_SRAM=y` bestätigen.
+Danach muss ein Cold Boot zeigen, dass `15100000.ethernet` ohne den bisherigen
+SRAM-Pool-Fehler probed. Erst dann werden Management-Ethernet und die weiteren
+PHY-/Switch-Stufen einzeln geprüft.

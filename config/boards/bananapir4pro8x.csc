@@ -62,6 +62,7 @@ function post_family_tweaks__bpi_r4pro_8x() {
 # normal BPI-R4 kernel configuration remains untouched.
 function custom_kernel_config__bpi_r4pro_8x_network() {
 	opts_y+=(
+		"SRAM"
 		"NET_DSA_MXL862"
 		"NET_DSA_TAG_MXL862_8021Q"
 		"AS21XXX_PHY"
@@ -69,5 +70,5 @@ function custom_kernel_config__bpi_r4pro_8x_network() {
 		"NET_MEDIATEK_SOC_WED"
 	)
 
-	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v1")
+	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v2")
 }

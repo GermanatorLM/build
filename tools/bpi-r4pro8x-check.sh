@@ -85,10 +85,10 @@ grep -q 'BPI_R4PRO8X_FIRMWARE_MODE' "${board}" || fail "firmware mode build flag
 grep -q 'BPI_R4PRO8X_FIRMWARE_REF' "${board}" || fail "firmware ref build flag is not wired into board"
 pass "firmware manifest and selectable pinned/latest/ref modes"
 
-for symbol in NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
+for symbol in SRAM NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
 	grep -q "\"${symbol}\"" "${board}" || fail "kernel config symbol missing: ${symbol}"
 done
-pass "R4 Pro network Kconfig additions"
+pass "R4 Pro SRAM and network Kconfig additions"
 
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"
