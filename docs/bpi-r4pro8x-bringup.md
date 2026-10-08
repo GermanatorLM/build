@@ -815,3 +815,42 @@ temporären Image-Root waren erfolgreich. Alle 13 Payloads mit zusammen
 7188896 Bytes bestanden Git-Blob-, Größen- und SHA256-Auditprüfung.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
+
+## 21. Buildnachweis des MT7996-444-Firmwarefixes
+
+Branch-Commit `632a0a6e0` wurde im GitHub-Actions-Run `37837041222`
+erfolgreich gebaut. Der PR-Merge-Ref und die im Image vermerkte Buildrevision
+lauten `7788d34d42fed6a93b34b1c67a9a3e3320ee3516` beziehungsweise `7788d34`.
+Der Image-Job lief 34 Minuten und 13 Sekunden; Preflight und vollständiger
+Trixie-Minimal-Build waren erfolgreich.
+
+Heruntergeladen und geprüft wurde:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Größe: 1476395008 Bytes
+SHA256: ca35eea557130266d1ef8ad68f5f5f2b83be6e3b9737eec7f17f0a5d17a842f9
+```
+
+Das GitHub-Artefakt ist 1476415745 Bytes groß, hat den SHA256
+`4906d900b11398a5dc02f83ee11c80b675ae57818ed1fd4fdb1efb956750f330`
+und bestand den vollständigen ZIP-CRC-Test. Die mitgelieferte `.img.sha`
+bestätigt den Image-Hash.
+
+Das Image wurde ausschließlich read-only geprüft. Der Image-Checker bestätigt
+extlinux mit 8X-DTB und SD-Overlay, den Aeonsemi-Initramfs-Hook sowie Quelle und
+Audit des Firmwarebundles. `SOURCE` weist weiterhin den Modus `pinned` und den
+Commit `17c8530777b28c3b909dc505b95cf895159bd8b9` aus. Alle 13 Dateien der
+`SHA256SUMS` bestanden die Prüfung; darunter sind die fünf für MT7996-444
+relevanten Pfade DSP, EEPROM, ROM-Patch, WA und WM.
+
+Status dieses Grobschritts: **BUILD PASS / HW TEST PENDING**.
+
+Der separate Upstream-Wartungscheck `Verify assets for newly added boards`
+schlug im Run `37837035403` fehl, weil im Website-Repository
+`armbian/armbian.github.io` noch
+`board-images/bananapir4pro8x.png` (1920x1080, transparent) fehlt. Der
+Vendor-Eintrag wurde erkannt; gemeldet wurde nur das Boardbild. Dieser externe
+Armbian-Imager-Assetpunkt beeinflusst weder Preflight noch Shellcheck,
+Board-Validierung, Dependency Review oder den erfolgreichen Image-Build und
+bleibt als separater Integrationsschritt offen.
