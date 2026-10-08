@@ -694,3 +694,31 @@ geschrieben und ein neuer Cold Boot vollständig über UART aufgezeichnet
 werden. Dabei müssen beide bisherigen 60-Sekunden-Firmware-Timeouts
 verschwinden und beide Aeonsemi-PHYs den spezifischen Treiber erfolgreich
 binden. eMMC, NAND und NOR bleiben unberührt.
+
+## 18. SD-Vorbereitung für den Aeonsemi-Hardwaretest
+
+Die Zielkarte wurde erneut eindeutig als `/dev/sdb`, USB/removable, Modell
+`STORAGE DEVICE` und mit 63864569856 Bytes identifiziert. Interne SATA- und
+NVMe-Datenträger waren anhand Bus, Removable-Flag, Modell und Größe klar
+ausgeschlossen.
+
+Beim ersten Schreibdurchlauf wurde die neue Rootpartition anschließend
+unerwünscht automatisch read/write eingehängt. Die Roh-Rücklesesumme war
+danach `52e781569a45310983f032a6e795522d0351f34e17db58bd1828afc3de13d75b`
+und damit nicht mehr bitgleich zum Image. Dieser Fehlversuch wird ausdrücklich
+nicht als Medienfehler oder erfolgreicher Verifikationslauf gewertet; ein
+Ext4-Mount kann Superblock- und Journalmetadaten verändern.
+
+Nach Deaktivierung des Desktop-Automounts wurde das Image erneut geschrieben.
+Vor der anschließenden Prüfung war keine SD-Partition eingehängt. Die
+vollständige Roh-Rückleseprüfung über exakt 351 Blöcke zu je 4 MiB, insgesamt
+1472200704 Bytes, ergab:
+
+```text
+b7a2af5a8dea2b65ddb60edd34c479313d92ee493613b0b8b02d4c1b1b86a0bc
+```
+
+Dieser Wert ist exakt der SHA256 des heruntergeladenen und zuvor geprüften
+Images. Die SD-Karte wurde danach logisch abgeschaltet und Automount wieder
+aktiviert. Damit ist **SD WRITE/READBACK PASS** erreicht. Es wurden keine
+Schreibvorgänge auf eMMC, NAND oder NOR ausgeführt.

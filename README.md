@@ -273,6 +273,7 @@ Nachtragen der eigenen SHA.
 | 43 | `HW #3` | Physischer SD-Cold-Boot bestätigt den SRAM-Fix: Ethernet-MAC, beide DSA-Bäume und der MaxLinear-Switch initialisieren; der bisherige SRAM-Pool-Fehler ist verschwunden. Die beiden Aeonsemi-10G-PHYs scheitern nun früher reproduzierbar, weil ihre Firmware beim Built-in-Probe noch nicht im Initramfs verfügbar ist | UART-Log `uart-2026-10-07-3d97a2121-hw3.log`, `docs/bpi-r4pro8x-bringup.md` | ETHERNET CORE HW PASS / 10G PHY BLOCKED |
 | 44 | `SELF` | Bereits gepinnte Aeonsemi-Firmware per R4-Pro-8X-spezifischem `initramfs-tools`-Hook in das finale Initramfs aufgenommen; ein eingebetteter Firmware-SHA256 invalidiert den Initramfs-Cache bei Payloadwechseln | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 45 | `CI #10` | Aeonsemi-Initramfs-Fix vollständig gebaut; Image- und ZIP-Integrität geprüft und die 290272-Byte-Firmware mit identischem SHA256 im finalen `uInitrd` nachgewiesen | GitHub Actions Run `37664464391`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
+| 46 | `SD #4` | Neues Image auf die eindeutig als USB/removable identifizierte 64-GB-SD-Karte geschrieben. Ein erster Rücklesehash wich nach unerwünschtem read/write-Automount ab; nach deaktiviertem Automount erneut geschrieben und über exakt 1472200704 Bytes bitgenau verifiziert | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS |
 
 ## Verbindliche Regel für kommende Änderungen
 
