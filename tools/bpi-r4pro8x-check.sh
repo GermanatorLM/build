@@ -66,7 +66,7 @@ grep -q 'fdtoverlay_addr_r=0x62080000' "${uboot_patch}" || fail "R4 Pro U-Boot o
 pass "minimal R4 Pro SD U-Boot patch structure and overlay load address"
 
 firmware_count="$(awk -F '\t' 'NF == 3 && $1 !~ /^#/ {count++} END {print count+0}' "${firmware_manifest}")"
-[[ "${firmware_count}" -eq 9 ]] || fail "expected 9 firmware payloads, found ${firmware_count}"
+[[ "${firmware_count}" -eq 13 ]] || fail "expected 13 firmware payloads, found ${firmware_count}"
 
 while IFS=$'\t' read -r blob size path; do
 	[[ -z "${blob}" || "${blob}" == \#* ]] && continue
@@ -74,6 +74,14 @@ while IFS=$'\t' read -r blob size path; do
 	[[ "${size}" =~ ^[0-9]+$ ]] || fail "invalid size in manifest for ${path}: ${size}"
 	[[ -n "${path}" ]] || fail "empty firmware path in manifest"
 done < "${firmware_manifest}"
+
+for path in \
+	mediatek/mt7996/mt7996_eeprom.bin \
+	mediatek/mt7996/mt7996_rom_patch.bin \
+	mediatek/mt7996/mt7996_wa.bin \
+	mediatek/mt7996/mt7996_wm.bin; do
+	grep -q $'\t'"${path}"'$' "${firmware_manifest}" || fail "MT7996 444 firmware missing from manifest: ${path}"
+done
 
 grep -q '^# source_latest_ref=' "${firmware_manifest}" || fail "latest firmware ref missing from manifest"
 grep -q '^# dynamic_source_repository=https://git.kernel.org/' "${firmware_manifest}" ||

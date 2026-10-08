@@ -9,10 +9,10 @@ Der aktuelle Entwicklungsbranch ist:
 bpi-r4pro-8x
 ```
 
-> **Bring-up-Status:** `BOOT PASS` erreicht. Zwei physische SD-Cold-Boots laden
-> das R4-Pro-SD-Overlay, mounten das Rootfs und erreichen den Login. `HW PASS`
-> ist noch offen; als erster isolierter Hardware-Fix wird der für den MT7988-
-> Ethernet-Treiber notwendige SRAM-Pool board-lokal aktiviert.
+> **Bring-up-Status:** `BOOT PASS` erreicht. Ethernet-Core und beide
+> Aeonsemi-10G-PHYs sind auf der Zielhardware bestätigt. `HW PASS` ist noch
+> offen; der nächste isolierte Fix ergänzt die von der MT7996-444-Variante
+> angeforderte unsuffigierte Wi-Fi-Firmware.
 
 ## Zielbild
 
@@ -55,7 +55,7 @@ die Regression eingeführt hat.
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
 | Bootformat | extlinux | integriert |
-| Firmware | `pinned` / `latest` / `ref`, 9 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
+| Firmware | `pinned` / `latest` / `ref`, 13 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
 | Hardwaretest | UART/SD | BOOT PASS (zweifach reproduziert) |
 | Hardwaretest | Netzwerk/PCIe/Wi-Fi | HW PASS noch offen |
@@ -123,6 +123,10 @@ Enthalten sind:
 - MT7987 `i2p5ge-phy-DSPBitTb.bin`
 - MT7987 `i2p5ge-phy-pmb.bin`
 - MT7996 DSP
+- MT7996 EEPROM 444
+- MT7996 ROM Patch 444
+- MT7996 WA 444
+- MT7996 WM 444
 - MT7996 EEPROM 233
 - MT7996 ROM Patch 233
 - MT7996 WA 233
@@ -275,6 +279,7 @@ Nachtragen der eigenen SHA.
 | 45 | `CI #10` | Aeonsemi-Initramfs-Fix vollständig gebaut; Image- und ZIP-Integrität geprüft und die 290272-Byte-Firmware mit identischem SHA256 im finalen `uInitrd` nachgewiesen | GitHub Actions Run `37664464391`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 | 46 | `SD #4` | Neues Image auf die eindeutig als USB/removable identifizierte 64-GB-SD-Karte geschrieben. Ein erster Rücklesehash wich nach unerwünschtem read/write-Automount ab; nach deaktiviertem Automount erneut geschrieben und über exakt 1472200704 Bytes bitgenau verifiziert | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS |
 | 47 | `HW #4` | Zwei SD-Boots bestätigen den Initramfs-Fix: Beide Aeonsemi-AS21xxx-PHYs laden reproduzierbar Firmware 1.9.1 und binden an den spezifischen Treiber ohne die bisherigen 60-Sekunden-Timeouts. Der vollständige Wiederholungs-Cold-Boot erreicht Login; Wi-Fi scheitert danach separat an fehlendem unsuffigiertem MT7996-ROM-Patch | UART-Logs `uart-2026-10-08-4ce2a690c-hw4-capture.log` und `uart-2026-10-08-4ce2a690c-hw4-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | AEONSEMI 10G PHY HW PASS / WI-FI BLOCKED |
+| 48 | `SELF` | Den vom R4-Pro-8X-Cold-Boot und Frank-Kernel ausgewählten MT7996-444-Firmwaresatz am bestehenden linux-firmware-Commit verifiziert und zusätzlich zum unveränderten 233-Satz gepinnt; Preflight sowie vollständiger 13-Payload-Install-/Audit-Test bestanden | `manifest.tsv`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -378,7 +383,8 @@ Ethernet-SRAM-Fix ist auf der Zielhardware bestätigt: MAC, DSA und der
 MaxLinear-Switch initialisieren ohne den bisherigen SRAM-Pool-Fehler. Der
 Aeonsemi-Initramfs-Fix ist auf der Hardware reproduzierbar bestätigt. Der
 nächste isolierte Blocker ist nun die fehlende unsuffigierte MT7996-Wi-Fi-
-Firmwarevariante.
+Firmwarevariante. Der board-lokale Manifest-Fix ist implementiert, aber noch
+nicht als Build oder auf Hardware bestätigt.
 
 ## Nächster Meilenstein
 
@@ -388,7 +394,7 @@ Der nächste sinnvolle Stand ist:
 BOOT PASS
 ETHERNET CORE HW PASS
 AEONSEMI 10G PHY HW PASS
-  -> angeforderte MT7996-Firmwarevariante exakt bestimmen und pinnen
+  -> gepinnten MT7996-444-Firmwaresatz vollständig bauen
   -> Wi-Fi-Probe ohne Firmware-Timeout abschließen
   -> Management-Ethernet und interne 2.5G-PHYs einzeln prüfen
   -> Linktests an allen externen Ports

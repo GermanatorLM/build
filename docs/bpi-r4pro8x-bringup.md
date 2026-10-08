@@ -54,7 +54,7 @@ Wichtige erwartete Build-Schritte im Log:
 - U-Boot-Target: `mt7988a_bpir4pro_sd_defconfig`
 - Linux-DTB: `mt7988a-bananapi-bpi-r4-pro-8x.dtb`
 - SD-Overlay: `mt7988a-bananapi-bpi-r4-pro-sd.dtbo`
-- Firmware-Installer meldet 9 installierte R4-Pro-Payloads
+- Firmware-Installer meldet 13 installierte R4-Pro-Payloads
 - Image wird unter `output/images/` erzeugt
 
 Bei einem Fehler zuerst das aktuelle Log unter `output/logs/` sichern. Nicht
@@ -310,10 +310,16 @@ Erst wenn PCIe stabil enumeriert, NVMe-Rootfs oder weitere Bootpfade testen.
 
 ### 7.6 MT7996 Wi-Fi 7
 
-Das Bundle enthält den von Franks BPI-R4-Images verwendeten `233`-Satz:
+Das Bundle enthält den auf dem R4 Pro 8X ausgewählten `444`-Satz und behält
+den zuvor verwendeten `233`-Satz für die andere vom Treiber unterstützte
+Variante bei:
 
 ```text
 mediatek/mt7996/mt7996_dsp.bin
+mediatek/mt7996/mt7996_eeprom.bin
+mediatek/mt7996/mt7996_rom_patch.bin
+mediatek/mt7996/mt7996_wa.bin
+mediatek/mt7996/mt7996_wm.bin
 mediatek/mt7996/mt7996_eeprom_233.bin
 mediatek/mt7996/mt7996_rom_patch_233.bin
 mediatek/mt7996/mt7996_wa_233.bin
@@ -768,3 +774,44 @@ Weitere weiterhin offene, aber spätere Beobachtungen sind der xHCI-Fehler
 bei `11190000.usb`, das fehlende GPIO für `sys-led-red` und mehrere
 MaxLinear-Switch-Warnungen während des Setups. eMMC, NAND und NOR wurden
 weiterhin nicht beschrieben.
+
+## 20. Gepinnter MT7996-444-Firmwaresatz
+
+Der vollständige Cold Boot aus Abschnitt 19 belegt als frühesten Wi-Fi-Fehler
+die Anforderung von `mediatek/mt7996/mt7996_rom_patch.bin`. Der gebaute
+Frank-Kernel-Commit `e69eb61a1523c5e993803c05a42c55c7576b07d3` liest in
+`mt7996_variant_type_init()` das Register `MT_PAD_GPIO`: Ohne das Bit
+`MT_PAD_GPIO_2ADIE_TBTC` wird `MT7996_VAR_TYPE_444` gewählt. Für diese Variante
+definiert der Treiber die unsuffigierten ROM-, WM-, DSP- und WA-Namen; DSP ist
+für 444 und 233 identisch.
+
+Am bereits gepinnten linux-firmware-Commit
+`17c8530777b28c3b909dc505b95cf895159bd8b9` wurden die vier zusätzlichen
+444-Payloads per Git-Baum und anschließend gegen Größe und Git-Blob-ID
+verifiziert:
+
+```text
+6fb81b6ce2d4e576d798f17e7f2ef83e7ec6331e     7680  mediatek/mt7996/mt7996_eeprom.bin
+7cc515b21242dbd101c558b048af8782c8ad4883    37216  mediatek/mt7996/mt7996_rom_patch.bin
+61dc7a97a013d279e5ffee49a455f1e21df5ba3d   510000  mediatek/mt7996/mt7996_wa.bin
+1b8859dd71c2ae092eda5bcf480b3d5d896c83a0  2656440  mediatek/mt7996/mt7996_wm.bin
+```
+
+Der bestehende 233-Satz bleibt unverändert; das Manifest umfasst damit 13
+R4-Pro-spezifische Payloadpfade. Die gemeinsame Filogic-Family wurde nicht
+geändert.
+
+Ein vorausgegangener, nicht vollständig aufgezeichneter Warmstart erreichte
+nach dem Laden von WM/DSP/WA zusätzlich die Anforderung
+`mediatek/mt7996e_rf.bin`. Franks gemeinsame `mt76_eeprom_init()`-Logik fordert
+diese kalibrationsspezifische Datei zuerst an und fällt bei Fehlen auf OF/NVMEM
+zurück. Eine solche gerätespezifische Kalibrierdatei wird nicht durch eine
+generische linux-firmware-Datei ersetzt. Ob der OF/NVMEM-Fallback auf dem
+R4 Pro 8X genügt, wird deshalb erst mit dem neu gebauten Image per Cold Boot
+geprüft.
+
+Der lokale Preflight und ein vollständiger Installer-Test in einem leeren
+temporären Image-Root waren erfolgreich. Alle 13 Payloads mit zusammen
+7188896 Bytes bestanden Git-Blob-, Größen- und SHA256-Auditprüfung.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
