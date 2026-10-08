@@ -274,6 +274,7 @@ Nachtragen der eigenen SHA.
 | 44 | `SELF` | Bereits gepinnte Aeonsemi-Firmware per R4-Pro-8X-spezifischem `initramfs-tools`-Hook in das finale Initramfs aufgenommen; ein eingebetteter Firmware-SHA256 invalidiert den Initramfs-Cache bei Payloadwechseln | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 45 | `CI #10` | Aeonsemi-Initramfs-Fix vollständig gebaut; Image- und ZIP-Integrität geprüft und die 290272-Byte-Firmware mit identischem SHA256 im finalen `uInitrd` nachgewiesen | GitHub Actions Run `37664464391`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 | 46 | `SD #4` | Neues Image auf die eindeutig als USB/removable identifizierte 64-GB-SD-Karte geschrieben. Ein erster Rücklesehash wich nach unerwünschtem read/write-Automount ab; nach deaktiviertem Automount erneut geschrieben und über exakt 1472200704 Bytes bitgenau verifiziert | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS |
+| 47 | `HW #4` | Zwei SD-Boots bestätigen den Initramfs-Fix: Beide Aeonsemi-AS21xxx-PHYs laden reproduzierbar Firmware 1.9.1 und binden an den spezifischen Treiber ohne die bisherigen 60-Sekunden-Timeouts. Der vollständige Wiederholungs-Cold-Boot erreicht Login; Wi-Fi scheitert danach separat an fehlendem unsuffigiertem MT7996-ROM-Patch | UART-Logs `uart-2026-10-08-4ce2a690c-hw4-capture.log` und `uart-2026-10-08-4ce2a690c-hw4-repeat.log`, `docs/bpi-r4pro8x-bringup.md` | AEONSEMI 10G PHY HW PASS / WI-FI BLOCKED |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -375,9 +376,9 @@ SHA256-Hash ist `b7a2af5a8dea2b65ddb60edd34c479313d92ee493613b0b8b02d4c1b1b86a0b
 Der allgemeine SD-`BOOT PASS` ist mit diesem Image erneut erreicht. Der
 Ethernet-SRAM-Fix ist auf der Zielhardware bestätigt: MAC, DSA und der
 MaxLinear-Switch initialisieren ohne den bisherigen SRAM-Pool-Fehler. Der
-nächste isolierte Blocker ist die beim frühen Built-in-Probe noch nicht im
-Initramfs verfügbare Aeonsemi-10G-PHY-Firmware. Der neue Build enthält diese
-Firmware nachweislich; der Hardwaretest dieses Fixes ist noch offen.
+Aeonsemi-Initramfs-Fix ist auf der Hardware reproduzierbar bestätigt. Der
+nächste isolierte Blocker ist nun die fehlende unsuffigierte MT7996-Wi-Fi-
+Firmwarevariante.
 
 ## Nächster Meilenstein
 
@@ -386,8 +387,9 @@ Der nächste sinnvolle Stand ist:
 ```text
 BOOT PASS
 ETHERNET CORE HW PASS
-  -> Cold Boot mit nachgewiesener Aeonsemi-Firmware im uInitrd
-  -> beide 10G-PHYs ohne Firmware-Timeout initialisieren
+AEONSEMI 10G PHY HW PASS
+  -> angeforderte MT7996-Firmwarevariante exakt bestimmen und pinnen
+  -> Wi-Fi-Probe ohne Firmware-Timeout abschließen
   -> Management-Ethernet und interne 2.5G-PHYs einzeln prüfen
   -> Linktests an allen externen Ports
 ```

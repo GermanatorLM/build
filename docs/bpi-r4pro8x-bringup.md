@@ -722,3 +722,49 @@ Dieser Wert ist exakt der SHA256 des heruntergeladenen und zuvor geprüften
 Images. Die SD-Karte wurde danach logisch abgeschaltet und Automount wieder
 aktiviert. Damit ist **SD WRITE/READBACK PASS** erreicht. Es wurden keine
 Schreibvorgänge auf eMMC, NAND oder NOR ausgeführt.
+
+## 19. Hardwaretest des Aeonsemi-Initramfs-Fixes
+
+Der erste Boot mit Branch-Commit `4ce2a690c` wurde ab Kernelzeit 2,45 s
+aufgezeichnet und erreichte den Login nach rund 34 Sekunden. Weil BL2 und
+U-Boot in dieser Aufnahme fehlen, bleibt sie als ergänzender Nachweis erhalten:
+
+```text
+UART-Log: uart-2026-10-08-4ce2a690c-hw4-capture.log
+Größe: 78341 Bytes, 950 Zeilen
+SHA256: ee255a463121be5b9073b7ccd51fcaa47b6b63d1e01ddc9a84571c5b804ea531
+```
+
+Anschließend wurde der Logger vor einem vollständigen zweiten Cold Boot
+gestartet. Dieser Wiederholungslauf enthält die gesamte Bootkette:
+
+```text
+UART-Log: uart-2026-10-08-4ce2a690c-hw4-repeat.log
+Größe: 93188 Bytes, 1208 Zeilen
+SHA256: 9c39dc163fc565c57a4a75c8a3cb1feb0b7a68fa515ad3b89e2a27435b9156be
+```
+
+Bestätigt wurden BL2, 8192 MiB DRAM, BL31, U-Boot 2025.04, SD/extlinux,
+Linux 6.18.53, Rootfs, `multi-user.target` und Login. In beiden Läufen
+melden beide Aeonsemi-PHYs `Firmware Version: 1.9.1`. Im vollständigen Lauf
+binden `mdio-bus:1c` und `mdio-bus:18` an `Aeonsemi AS21xxx`; die
+vorherigen Meldungen `failed to find FW file aeonsemi/as21x1x_fw.bin` und
+die beiden 60-Sekunden-Firmware-Timeouts treten nicht mehr auf.
+
+Damit ist der Aeonsemi-Initramfs-Fix als **AEONSEMI 10G PHY HW PASS**
+reproduzierbar bestätigt. Externe Link-/Durchsatztests bleiben ein eigener
+Netzwerk-Meilenstein.
+
+Der neue früheste blockierende Funktionsfehler betrifft Wi-Fi. Im vollständigen
+Cold Boot fordert `mt7996e` bei 26,90 s
+`mediatek/mt7996/mt7996_rom_patch.bin` an. Die direkte Suche endet mit
+`-ENOENT`, der Sysfs-Fallback wartet bis 90,08 s, und der Treiber-Probe
+endet mit `-110`. Das gepinnte R4-Pro-Manifest enthält derzeit nur die
+`_233`-Variante des ROM-Patches. Dieser Wi-Fi-Firmwarefehler wird als
+nächster isolierter Grobschritt untersucht; er wird nicht mit dem erfolgreichen
+Aeonsemi-Fix vermischt.
+
+Weitere weiterhin offene, aber spätere Beobachtungen sind der xHCI-Fehler
+bei `11190000.usb`, das fehlende GPIO für `sys-led-red` und mehrere
+MaxLinear-Switch-Warnungen während des Setups. eMMC, NAND und NOR wurden
+weiterhin nicht beschrieben.
