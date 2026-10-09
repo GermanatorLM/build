@@ -76,22 +76,41 @@ These offsets are a port-specific format, not an existing manufacturer standard.
 
 The source MAC remains a locally stored identity, not a proven globally unique factory assignment.
 Cloned vendor environments can produce duplicate identities. Check uniqueness when provisioning multiple boards.
-No concrete board MAC is embedded in the image or script.
+The importer embeds no individual board MAC. The boot reader includes the explicitly requested fixed fallback.
 
 ## Armbian boot reader
 
 `apply.sh --show` reads and validates the record without changing interfaces.
 `apply.sh --apply` sets addresses before network startup. It refuses already-UP interfaces.
 The board-local systemd service loads at24 and runs before network-pre.target and supported network managers.
-An empty EEPROM record leaves the existing boot behaviour unchanged.
-A corrupt record causes failure without applying that record.
+A valid EEPROM record supplies the base MAC.
+An unavailable EEPROM, empty record, unreadable record, or invalid checksum selects `da:68:a5:94:9a:ee` as fallback.
+The reader logs the selected source and warns about fixed fallback collisions.
+It generates sequential addresses with byte carry, not SHA256.
 
-`eth0` receives the stored base MAC.
-Random `eth1` and `eth2` receive separate, deterministic, locally administered addresses.
-These addresses use SHA256 of the base MAC and controller index.
-Non-random secondary addresses remain unchanged.
+| Interface | Role | Offset | Reference address |
+| --- | --- | --- | --- |
+| `eth0` | Management switch conduit | +0 | `da:68:a5:94:9a:ee` |
+| `eth1` | 10G WAN RJ45 / SFP mux | +1 | `da:68:a5:94:9a:ef` |
+| `eth2` | MaxLinear switch conduit | +2 | `da:68:a5:94:9a:f0` |
+| `mgmt` | Management RJ45 | +3 | `da:68:a5:94:9a:f1` |
+| `lan0` | 2.5G RJ45 | +4 | `da:68:a5:94:9a:f2` |
+| `lan1` | 2.5G RJ45 | +5 | `da:68:a5:94:9a:f3` |
+| `lan2` | 2.5G RJ45 | +6 | `da:68:a5:94:9a:f4` |
+| `lan3` | 2.5G RJ45 | +7 | `da:68:a5:94:9a:f5` |
+| `lan4` | 10G LAN RJ45 / SFP mux | +8 | `da:68:a5:94:9a:f6` |
+
+The mapping follows [Frank's board DT](https://github.com/frank-w/BPI-Router-Linux/tree/6.18-main/arch/arm64/boot/dts/mediatek).
+Muxed RJ45 and SFP connections share their interface identity. Separate simultaneous identities require separate interfaces.
+The reader waits up to 20 seconds for all nine interfaces, then checks every interface before assignment.
+Missing or already-UP interfaces cause refusal without applying the plan.
+Overflow or a multicast boundary also causes refusal before assignment.
+The reader replaces existing MACs on all nine DOWN interfaces, including non-random addresses.
 Network configuration applied later can override these addresses.
 The reader never writes EEPROM. No kernel MAC parser or Device Tree format change is required.
+
+Every board needs a unique nine-address block. Adjacent EEPROM base MACs can produce overlapping blocks.
+All boards using the fixed fallback receive identical addresses. Do not connect those boards to the same Layer-2 network.
 
 ## Verification status
 
@@ -104,5 +123,7 @@ The repeat import performs no write. The reader validates the programmed record 
 The hardware test changes only offsets `0x40` through `0x4f`. All other EEPROM bytes remain unchanged.
 The record survives a cold boot into vendor SPI-NAND OpenWrt.
 The importer reads the eMMC environment from that NAND boot and detects the matching record without writing.
-The reader preview passes under both vendor boot modes. Initial programming from NAND remains untested.
-Armbian boot integration remains a hardware test.
+The previous three-controller reader preview passes under both vendor boot modes.
+Local fixtures cover the new nine-interface sequence, byte carry, fallback, range rejection, and interface readiness.
+Initial programming from NAND remains untested.
+The new nine-interface assignment and Armbian boot integration remain hardware tests.

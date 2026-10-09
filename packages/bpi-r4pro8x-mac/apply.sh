@@ -10,51 +10,58 @@ mode=${1:---show}
 case "$mode" in --show|--apply) ;; *) echo "Usage: sh $0 [--show|--apply]" >&2; exit 2 ;; esac
 [ "$#" -le 1 ] || exit 2
 mac_require_board /sys || { mac_fail 'not a recognized R4 Pro 8X'; exit 1; }
-eeprom=$(mac_find_eeprom /sys) || { echo 'SKIP: board EEPROM unavailable'; exit 0; }
 tmp=$(mktemp -d /tmp/bpi-r4pro8x-mac-read.XXXXXX)
 trap 'rm -f "$tmp"/*; rmdir "$tmp"' EXIT
 trap 'exit 1' HUP INT TERM
-dd if="$eeprom" of="$tmp/record.bin" bs=1 skip=64 count=16 2>/dev/null
-if [ "$(mac_hex "$tmp/record.bin")" = ffffffffffffffffffffffffffffffff ]; then
-	echo 'SKIP: EEPROM has no provisioned MAC record'
-	exit 0
+base=da:68:a5:94:9a:ee
+source=fallback
+eeprom=unavailable
+if eeprom=$(mac_find_eeprom /sys); then
+	if dd if="$eeprom" of="$tmp/record.bin" bs=1 skip=64 count=16 2>/dev/null &&
+		stored=$(mac_read_record "$tmp/record.bin"); then
+		base=$stored
+		source=eeprom
+	else
+		echo 'WARNING: no valid EEPROM MAC record; use fixed fallback' >&2
+	fi
+else
+	eeprom=unavailable
+	echo 'WARNING: board EEPROM unavailable; use fixed fallback' >&2
 fi
-base=$(mac_read_record "$tmp/record.bin") || { mac_fail 'invalid EEPROM MAC record; leave interfaces unchanged'; exit 1; }
-addr1=$(mac_derive "$base" 1)
-addr2=$(mac_derive "$base" 2)
-if ! mac_valid "$addr1" || ! mac_valid "$addr2"; then exit 1; fi
-[ "$base" != "$addr1" ] && [ "$base" != "$addr2" ] && [ "$addr1" != "$addr2" ] || {
-	mac_fail 'derived address collision'; exit 1;
-}
-printf 'EEPROM=%s\neth0=%s\neth1=%s\neth2=%s\n' "$eeprom" "$base" "$addr1" "$addr2"
+if [ "$source" = fallback ]; then
+	echo 'WARNING: fixed fallback MACs collide across unprovisioned boards' >&2
+fi
+printf 'SOURCE=%s\nEEPROM=%s\nBASE=%s\n' "$source" "$eeprom" "$base"
+# Reserve unique addresses for conduits before assigning external port addresses.
+offset=0
+for n in eth0 eth1 eth2 mgmt lan0 lan1 lan2 lan3 lan4; do
+	addr=$(mac_increment "$base" "$offset") || { mac_fail 'MAC range overflow or multicast boundary'; exit 1; }
+	mac_valid "$addr" || { mac_fail 'invalid generated MAC'; exit 1; }
+	printf '%s %s\n' "$n" "$addr" >> "$tmp/plan"
+	printf '%s=%s\n' "$n" "$addr"
+	offset=$((offset + 1))
+done
 [ "$mode" = --apply ] || exit 0
 [ "$(id -u)" -eq 0 ] || { mac_fail 'run as root'; exit 1; }
-# Check all devices before changing any address. Never take live links down.
-for n in eth0 eth1 eth2; do
-	[ -r "/sys/class/net/$n/flags" ] || { mac_fail "missing $n"; exit 1; }
+# Wait for deferred DSA probes. Never take live links down.
+attempt=0
+while :; do
+	missing=
+	while read -r n addr; do
+		if [ ! -r "/sys/class/net/$n/flags" ]; then missing="$missing $n"; fi
+	done < "$tmp/plan"
+	[ -n "$missing" ] || break
+	[ "$attempt" -lt 20 ] || { mac_fail "missing interfaces:$missing"; exit 1; }
+	sleep 1
+	attempt=$((attempt + 1))
+done
+# Check the complete plan before changing any interface.
+while read -r n addr; do
 	flags=$(cat "/sys/class/net/$n/flags")
 	[ "$((flags & 1))" -eq 0 ] || { mac_fail "$n is already UP; refuse late assignment"; exit 1; }
-done
-if [ "$(cat /sys/class/net/eth1/addr_assign_type)" != 1 ]; then
-	addr1=$(cat /sys/class/net/eth1/address)
-fi
-if [ "$(cat /sys/class/net/eth2/addr_assign_type)" != 1 ]; then
-	addr2=$(cat /sys/class/net/eth2/address)
-fi
-if ! mac_valid "$addr1" || ! mac_valid "$addr2"; then
-	mac_fail 'invalid existing secondary MAC'; exit 1
-fi
-[ "$base" != "$addr1" ] && [ "$base" != "$addr2" ] && [ "$addr1" != "$addr2" ] || {
-	mac_fail 'existing secondary address collision'; exit 1;
-}
-for n in eth0 eth1 eth2; do
-	case "$n" in eth0) addr=$base ;; eth1) addr=$addr1 ;; eth2) addr=$addr2 ;; esac
-	# Preserve non-random secondary addresses from firmware or configuration.
-	if [ "$n" != eth0 ] && [ "$(cat "/sys/class/net/$n/addr_assign_type")" != 1 ]; then
-		echo "KEEP: $n already has a non-random address"
-		continue
-	fi
+done < "$tmp/plan"
+while read -r n addr; do
 	ip link set dev "$n" address "$addr"
 	[ "$(cat "/sys/class/net/$n/address")" = "$addr" ] || { mac_fail "$n readback failed"; exit 1; }
 	echo "APPLIED: $n=$addr"
-done
+done < "$tmp/plan"

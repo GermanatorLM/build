@@ -24,14 +24,21 @@ for mac in 00:00:00:00:00:00 ff:ff:ff:ff:ff:ff 01:00:00:00:00:01 \
 	da:68:a5:94:9a:zz da:68:a5:94:9a 'da:68:a5:94:9a:ee extra'; do
 	if mac_valid "$mac"; then echo "FAIL: accepted $mac"; exit 1; fi
 done
-derived1=$(mac_derive da:68:a5:94:9a:ee 1)
-derived2=$(mac_derive da:68:a5:94:9a:ee 2)
+derived1=$(mac_increment da:68:a5:94:9a:ee 1)
+derived2=$(mac_increment da:68:a5:94:9a:ee 2)
 mac_valid "$derived1"
 mac_valid "$derived2"
 [ "$derived1" != "$derived2" ]
 [ "$derived1" != da:68:a5:94:9a:ee ]
-[ "$derived1" = "$(mac_derive da:68:a5:94:9a:ee 1)" ]
-[ "$derived1" != "$(mac_derive da:68:a5:94:9a:ef 1)" ]
+[ "$derived1" = da:68:a5:94:9a:ef ]
+[ "$derived2" = da:68:a5:94:9a:f0 ]
+[ "$(mac_increment da:68:a5:94:9a:ff 1)" = da:68:a5:94:9b:00 ]
+[ "$(mac_increment da:68:a5:ff:ff:ff 2)" = da:68:a6:00:00:01 ]
+for offset in -1 invalid 65536; do
+	if mac_increment da:68:a5:94:9a:ee "$offset"; then echo 'FAIL: invalid increment accepted'; exit 1; fi
+done
+if mac_increment fe:ff:ff:ff:ff:ff 1; then echo 'FAIL: multicast boundary accepted'; exit 1; fi
+if mac_increment fe:ff:ff:ff:ff:ff 65535; then echo 'FAIL: overflow accepted'; exit 1; fi
 [ "$((0x${derived1%%:*} & 3))" -eq 2 ]
 [ "$((0x${derived2%%:*} & 3))" -eq 2 ]
 mac_make_record da:68:a5:94:9a:ee > "$test_dir/record"
@@ -86,12 +93,14 @@ cat > "$test_dir/bin/ip" <<'MOCK_IP'
 #!/bin/sh
 set -eu
 [ "$1 $2 $3 $5" = 'link set dev address' ]
-case "$4" in eth0|eth1|eth2) ;; *) exit 1 ;; esac
+case "$4" in eth0|eth1|eth2|mgmt|lan0|lan1|lan2|lan3|lan4) ;; *) exit 1 ;; esac
 printf '%s\n' "$6" > "$TEST_MAC_SYS_DIR/class/net/$4/address"
 printf '%s\n' "$*" >> "$TEST_MAC_SYS_DIR/ip-calls"
 MOCK_IP
 chmod 0755 "$test_dir/bin/id" "$test_dir/bin/ip"
-for n in eth0 eth1 eth2; do
+printf '#!/bin/sh\nexit 0\n' > "$test_dir/bin/sleep"
+chmod 0755 "$test_dir/bin/sleep"
+for n in eth0 eth1 eth2 mgmt lan0 lan1 lan2 lan3 lan4; do
 	mkdir -p "$sys/class/net/$n"
 	printf '0x0\n' > "$sys/class/net/$n/flags"
 	printf '1\n' > "$sys/class/net/$n/addr_assign_type"
@@ -103,13 +112,22 @@ export PATH
 mac_make_record da:68:a5:94:9a:ee > "$test_dir/record"
 mac_finish_record "$test_dir/record"
 dd if="$test_dir/record" of="$sys/bus/i2c/devices/3-0057/eeprom" bs=1 seek=64 conv=notrunc 2>/dev/null
+before_reader=$(sha256sum "$sys/bus/i2c/devices/3-0057/eeprom")
 sh "$test_dir/apply.sh" --show >/dev/null
 [ ! -e "$sys/ip-calls" ]
 sh "$test_dir/apply.sh" --apply >/dev/null
 [ "$(cat "$sys/class/net/eth0/address")" = da:68:a5:94:9a:ee ]
 [ "$(cat "$sys/class/net/eth1/address")" = "$derived1" ]
 [ "$(cat "$sys/class/net/eth2/address")" = "$derived2" ]
-[ "$(wc -l < "$sys/ip-calls")" -eq 3 ]
+[ "$(cat "$sys/class/net/mgmt/address")" = da:68:a5:94:9a:f1 ]
+[ "$(cat "$sys/class/net/lan4/address")" = da:68:a5:94:9a:f6 ]
+[ "$(wc -l < "$sys/ip-calls")" -eq 9 ]
+[ "$before_reader" = "$(sha256sum "$sys/bus/i2c/devices/3-0057/eeprom")" ]
+offset=0
+for n in eth0 eth1 eth2 mgmt lan0 lan1 lan2 lan3 lan4; do
+	[ "$(cat "$sys/class/net/$n/address")" = "$(mac_increment da:68:a5:94:9a:ee "$offset")" ]
+	offset=$((offset + 1))
+done
 rm "$sys/ip-calls"
 printf '0x1\n' > "$sys/class/net/eth2/flags"
 if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: UP interface accepted'; exit 1; fi
@@ -118,13 +136,48 @@ printf '0x0\n' > "$sys/class/net/eth2/flags"
 printf '0\n' > "$sys/class/net/eth1/addr_assign_type"
 printf '00:11:22:33:44:55\n' > "$sys/class/net/eth1/address"
 sh "$test_dir/apply.sh" --apply >/dev/null
-[ "$(cat "$sys/class/net/eth1/address")" = 00:11:22:33:44:55 ]
-[ "$(wc -l < "$sys/ip-calls")" -eq 2 ]
+[ "$(cat "$sys/class/net/eth1/address")" = "$derived1" ]
+[ "$(wc -l < "$sys/ip-calls")" -eq 9 ]
 rm "$sys/ip-calls"
-printf 'da:68:a5:94:9a:ee\n' > "$sys/class/net/eth1/address"
-if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: existing MAC collision accepted'; exit 1; fi
+printf '0x1\n' > "$sys/class/net/lan4/flags"
+if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: UP DSA port accepted'; exit 1; fi
 [ ! -e "$sys/ip-calls" ]
+printf '0x0\n' > "$sys/class/net/lan4/flags"
+mv "$sys/class/net/lan4" "$test_dir/missing-lan4"
+if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: missing DSA port accepted'; exit 1; fi
+[ ! -e "$sys/ip-calls" ]
+mv "$test_dir/missing-lan4" "$sys/class/net/lan4"
+
+# EEPROM identity overrides the fixed fallback and carries across byte boundaries.
+mac_make_record 02:11:22:33:44:ff > "$test_dir/record"
+mac_finish_record "$test_dir/record"
+dd if="$test_dir/record" of="$sys/bus/i2c/devices/3-0057/eeprom" bs=1 seek=64 conv=notrunc 2>/dev/null
+sh "$test_dir/apply.sh" --apply > "$test_dir/result"
+grep -qx SOURCE=eeprom "$test_dir/result"
+[ "$(cat "$sys/class/net/eth0/address")" = 02:11:22:33:44:ff ]
+[ "$(cat "$sys/class/net/lan4/address")" = 02:11:22:33:45:07 ]
+rm "$sys/ip-calls"
 printf '\001' | dd of="$sys/bus/i2c/devices/3-0057/eeprom" bs=1 seek=77 conv=notrunc 2>/dev/null
-if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: corrupt EEPROM applied'; exit 1; fi
+sh "$test_dir/apply.sh" --apply > "$test_dir/result" 2>/dev/null
+grep -qx SOURCE=fallback "$test_dir/result"
+[ "$(cat "$sys/class/net/eth0/address")" = da:68:a5:94:9a:ee ]
+[ "$(wc -l < "$sys/ip-calls")" -eq 9 ]
+rm "$sys/ip-calls"
+for index in 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79; do
+	printf '\377' | dd of="$sys/bus/i2c/devices/3-0057/eeprom" bs=1 seek="$index" conv=notrunc 2>/dev/null
+done
+sh "$test_dir/apply.sh" --show > "$test_dir/result" 2>/dev/null
+grep -qx SOURCE=fallback "$test_dir/result"
+[ ! -e "$sys/ip-calls" ]
+mv "$sys/bus/i2c/devices/3-0057/eeprom" "$test_dir/eeprom-saved"
+sh "$test_dir/apply.sh" --apply > "$test_dir/result" 2>/dev/null
+grep -qx SOURCE=fallback "$test_dir/result"
+[ "$(cat "$sys/class/net/lan4/address")" = da:68:a5:94:9a:f6 ]
+rm "$sys/ip-calls"
+mv "$test_dir/eeprom-saved" "$sys/bus/i2c/devices/3-0057/eeprom"
+mac_make_record fe:ff:ff:ff:ff:ff > "$test_dir/record"
+mac_finish_record "$test_dir/record"
+dd if="$test_dir/record" of="$sys/bus/i2c/devices/3-0057/eeprom" bs=1 seek=64 conv=notrunc 2>/dev/null
+if sh "$test_dir/apply.sh" --apply >/dev/null 2>&1; then echo 'FAIL: invalid range applied'; exit 1; fi
 [ ! -e "$sys/ip-calls" ]
 echo 'PASS: MAC records, device discovery and isolated boot-reader integration'

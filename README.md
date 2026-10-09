@@ -306,6 +306,7 @@ Nachtragen der eigenen SHA.
 | 71 | `SELF` | USB-Stick V7 Data Drive 3.0 identifiziert. Drei alte Partitionen durch GPT und ext4 ersetzt. Schreib-/Lesetest besteht | USB-Backup-Datenträger, UART-Mitschnitt | USB BACKUP STORAGE PASS / EEPROM WRITE PENDING |
 | 72 | `SELF` | OpenWrt-Importer sichert Daten auf USB und programmiert die EEPROM-MAC. Vollständige Rückleseprüfung, Leser und schreibfreie Wiederholung bestehen | MAC-Paket, EEPROM, UART-Mitschnitt | EEPROM PROVISIONING HW PASS / ARMBIAN BOOT PENDING |
 | 73 | `SELF` | SPI-NAND-Cold-Boot erhält EEPROM-Datensatz. Importer liest weiterhin eMMC-MAC. Leser und schreibfreie Wiederholung bestehen; OpenWrt-Netzwerk bleibt unverändert | MAC-Paket, UART-Mitschnitt | NAND IMPORT REPEAT PASS / EEPROM PERSISTENCE PASS |
+| 74 | `SELF` | Armbian-Bootleser erzeugt fortlaufende MACs für alle RJ45-Interfaces und interne Controller. Fehlender gültiger EEPROM-Datensatz nutzt festen Fallback. Kollisionsrisiko dokumentiert | MAC-Paket, Fixture-Tests | STATIC PASS / NEW IMAGE AND HW PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

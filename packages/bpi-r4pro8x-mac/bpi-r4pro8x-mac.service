@@ -1,5 +1,5 @@
 [Unit]
-Description=Read provisioned R4 Pro 8X Ethernet MACs
+Description=Assign R4 Pro 8X Ethernet MACs from EEPROM or fixed fallback
 Wants=systemd-udev-settle.service network-pre.target
 After=systemd-udev-settle.service
 Before=network-pre.target systemd-networkd.service NetworkManager.service networking.service

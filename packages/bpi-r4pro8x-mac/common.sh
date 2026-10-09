@@ -101,10 +101,19 @@ mac_find_eeprom() {
 	printf '%s\n' "$mac_found"
 }
 
-mac_derive() {
-	# Hash each controller separately. Adjacent base addresses must not overlap.
-	printf 'bpi-r4pro8x:%s:eth%s' "$1" "$2" | sha256sum | awk '
-	function hex(s, n,i) {n=0; for(i=1;i<=length(s);i++) n=n*16+index("0123456789abcdef",substr(s,i,1))-1; return n}
-	{printf "%02x",int(hex(substr($1,1,2))/4)*4+2;
-	 for(i=3;i<=11;i+=2) printf ":%s",substr($1,i,2); print ""}'
+mac_increment() {
+	mac_valid "$1" || return 1
+	case "$2" in ''|*[!0-9]*) return 1 ;; esac
+	awk -v base="$1" -v offset="$2" 'BEGIN {
+		if (offset > 65535) exit 1;
+		split(base,a,":"); carry=offset;
+		for(i=6;i>=1;i--) {
+			n=index("0123456789abcdef",substr(a[i],1,1))-1;
+			n=n*16+index("0123456789abcdef",substr(a[i],2,1))-1+carry;
+			b[i]=n%256; carry=int(n/256);
+		}
+		if(carry || b[1]%2) exit 1;
+		for(i=1;i<=6;i++) printf "%s%02x",(i>1?":":""),b[i];
+		print "";
+	}'
 }

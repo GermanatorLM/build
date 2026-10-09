@@ -1509,3 +1509,42 @@ Die automatische Übernahme im Armbian-Boot bleibt ebenfalls ausstehend.
 Die bekannten Hersteller-MT7996-Timeouts und Probe-Warnungen erscheinen erneut im UART-Mitschnitt.
 
 Status dieses Grobschritts: **NAND IMPORT REPEAT PASS / EEPROM PERSISTENCE PASS / ARMBIAN BOOT PENDING**.
+
+## 45. Fortlaufende Port-MACs und fester Armbian-Fallback
+
+Der Nutzer verlangt fortlaufende RJ45-MACs und einen festen Fallback auf Basis von `da:68:a5:94:9a:ee`.
+Diese Anforderung ersetzt ausdrücklich die vorherige SHA256-Ableitung und das Überspringen leerer EEPROM-Datensätze.
+Die frühere Implementierung und ihre Hardwaretests bleiben in der Chronik erhalten.
+
+Der Bootleser übernimmt weiterhin nur einen vollständig validierten EEPROM-Datensatz.
+Fehlt ein gültiger Datensatz, nutzt er die gewünschte Referenz-MAC als festen Fallback.
+Das gilt auch bei nicht verfügbarem EEPROM, Lesefehlern oder ungültiger Checksumme.
+Der Leser protokolliert die Quelle und warnt bei Fallback vor identischen Adressen auf mehreren Boards.
+Er beschreibt niemals das EEPROM.
+
+Die Zuordnung verwendet die Armbian-Portnamen aus Franks R4-Pro-Device-Tree.
+[Der gemeinsame DT definiert Management und vier LAN-Ports](https://github.com/frank-w/BPI-Router-Linux/blob/6.18-main/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro.dtsi).
+[Der 8X-DT ergänzt den fünften LAN-Port und den WAN-Mux](https://github.com/frank-w/BPI-Router-Linux/blob/6.18-main/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dts).
+`eth0`, `eth1` und `eth2` erhalten Basis, Basis+1 und Basis+2.
+`mgmt` erhält Basis+3; `lan0` bis `lan4` erhalten Basis+4 bis Basis+8.
+Damit erhalten alle sieben RJ45-Interfaces und beide internen Switch-Controller getrennte Adressen.
+Die beiden 10G-Mux-Interfaces teilen ihre Identität jeweils zwischen RJ45 und SFP.
+
+Die Addition berücksichtigt Byteüberträge; Überlauf und Multicast-Grenzen führen vor jeder Zuweisung zum Abbruch.
+Der Dienst wartet höchstens 20 Sekunden auf alle neun Interfaces.
+Er prüft anschließend sämtliche Interfaces auf DOWN und verändert keine bereits aktiven Links.
+Er ersetzt jetzt auch vorhandene nicht-zufällige Adressen, damit die komplette Sequenz konsistent bleibt.
+Die vorhandene Board-Installation und Dienstreihenfolge bleiben bestehen; die normale Filogic-Family bleibt unverändert.
+
+Der feste Fallback ist nicht boardspezifisch und erzeugt auf mehreren Boards identische MAC-Adressen.
+Auch fortlaufende EEPROM-Basisadressen können überlappende Neunerblöcke erzeugen.
+Mehrere Boards benötigen deshalb getrennte Neunerblöcke oder getrennte Layer-2-Netze.
+Diese Einschränkung gilt ausdrücklich für den angeforderten Fallback, nicht nur für fehlgeschlagene Provisionierungen.
+
+Fixture-Tests prüfen neun eindeutige Adressen, Byteüberträge, EEPROM-Vorrang und leere, beschädigte sowie fehlende Datensätze.
+Sie prüfen außerdem fehlende Ports, aktive DSA-Ports, bestehende Adressen und die Unveränderlichkeit des EEPROMs.
+Der vollständige lokale Preflight und ShellCheck bestehen.
+Die bekannte Warnung zum leeren `BOARD_MAINTAINER` bleibt erhalten.
+Das neue Image und die tatsächliche Zuweisung beim Armbian-SD-Boot sind noch nicht getestet.
+
+Status dieses Grobschritts: **STATIC PASS / NEW IMAGE AND HW PENDING**.
