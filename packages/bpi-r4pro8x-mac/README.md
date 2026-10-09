@@ -102,4 +102,7 @@ The dry-run import passes on vendor OpenWrt 24.10-SNAPSHOT with BusyBox ash 1.36
 EEPROM programming passes on the target board with a persistent USB backup and complete readback comparison.
 The repeat import performs no write. The reader validates the programmed record on vendor OpenWrt.
 The hardware test changes only offsets `0x40` through `0x4f`. All other EEPROM bytes remain unchanged.
-Armbian boot integration and record persistence after a cold boot remain hardware tests.
+The record survives a cold boot into vendor SPI-NAND OpenWrt.
+The importer reads the eMMC environment from that NAND boot and detects the matching record without writing.
+The reader preview passes under both vendor boot modes. Initial programming from NAND remains untested.
+Armbian boot integration remains a hardware test.

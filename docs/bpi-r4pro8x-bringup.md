@@ -1475,3 +1475,37 @@ Die Backup-Dateien können vertrauliche Environment-Daten enthalten und müssen 
 Die Persistenz nach einem Cold Boot und die automatische Übernahme beim Armbian-Boot bleiben ausstehend.
 
 Status dieses Grobschritts: **EEPROM PROVISIONING HW PASS / ARMBIAN BOOT PENDING**.
+
+## 44. EEPROM-Persistenz und Importer unter SPI-NAND
+
+Vor dem Bootwechsel wird der USB-Stick ausgehängt und Linux heruntergefahren.
+TF-A meldet anschließend den bekannten Power-down-Panic bei `0x430047ec`.
+Der Nutzer startet danach im SPI-NAND-Modus.
+BL2 meldet `Cold boot` und `mt7988-spim-nand-ubi-comb`.
+U-Boot lädt sein Environment erfolgreich aus UBI; Linux verwendet das UBIFS-Overlay `/dev/ubi0_6`.
+Der eMMC-Controller bleibt verfügbar und meldet Gerätetyp `MMC`.
+
+Der vollständige EEPROM-SHA256 bleibt `dd0f1d1c0661af162def96bbab7ec2174564faa13245eb866cf26f9c9d1bff01`.
+Damit übersteht der programmierte Datensatz den Cold Boot unverändert.
+OpenWrt mountet den USB-Stick unter `/mnt/sda1` statt `/mnt/usb-backup`.
+Die vier binären Backup-Dateien bestehen weiterhin ihre SHA256-Prüfung.
+OpenWrt mountet außerdem die NVMe automatisch schreibbar; die Testskripte greifen darauf nicht zu.
+
+Die Skripte werden erneut ausschließlich ins RAM übertragen.
+Der erste Transfer wird durch die UART-Zeilenbegrenzung abgeschnitten; zusätzlich fehlt `stty` im Hersteller-Image.
+Kürzere Übertragungszeilen beheben den Transferfehler; alle drei Skripthashes stimmen danach mit dem Repository überein.
+Erst nach dieser Prüfung werden die Skripte ausgeführt.
+
+Die Import-Vorschau liest `da:68:a5:94:9a:ee` aus dem CRC-geprüften redundanten eMMC-Environment.
+Sie meldet `Already provisioned; no EEPROM write needed` und Exit 0.
+Der Aufruf mit `--write` erkennt denselben Datensatz und endet ebenfalls ohne Schreiboperation mit Exit 0.
+Er erzeugt kein neues Backup-Verzeichnis; der vollständige EEPROM-Hash bleibt unverändert.
+Der Leser mit `--show` besteht und zeigt dieselben drei geplanten MAC-Adressen wie unter eMMC-OpenWrt.
+
+Das laufende OpenWrt verwendet weiterhin `eth0=92:cb:91:79:fc:94` aus seinem NAND-Bootpfad.
+Der Vorschautest verändert keine aktiven Netzwerkinterfaces.
+Die erste EEPROM-Programmierung aus einem NAND-Boot bleibt ungetestet; der Test löscht dafür keinen gültigen Datensatz.
+Die automatische Übernahme im Armbian-Boot bleibt ebenfalls ausstehend.
+Die bekannten Hersteller-MT7996-Timeouts und Probe-Warnungen erscheinen erneut im UART-Mitschnitt.
+
+Status dieses Grobschritts: **NAND IMPORT REPEAT PASS / EEPROM PERSISTENCE PASS / ARMBIAN BOOT PENDING**.
