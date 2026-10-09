@@ -977,3 +977,41 @@ CI-kompatibler Shellcheck, Workflow-YAML-Prüfung und Diff-Prüfung waren
 erfolgreich.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
+
+## 26. Buildnachweis des MT7996-Kalibrationsfixes
+
+Branch-Commit `c77e5da205cedbf4362e4b4db70043f4b3ababec` wurde im
+GitHub-Actions-Run `37898648988` erfolgreich gebaut. Der PR-Merge-Ref und die
+im Image vermerkte Revision lauten
+`349ecd60185a1478a4977a463615a284c65540dc` beziehungsweise `349ecd6`.
+Der Image-Job lief 24 Minuten und 7 Sekunden.
+
+Das Buildprotokoll bestätigt den R4-Pro-lokalen Kernel-Patch
+`001-mt76-optional-eeprom-no-sysfs-fallback`. Kernel 6.18.53 wurde damit
+gebaut. Das Firmwarepaket installierte alle 15 Payloads vom unveränderten Pin
+`17c8530777b28c3b909dc505b95cf895159bd8b9`.
+
+Heruntergeladen und geprüft wurde:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Größe: 1476395008 Bytes
+SHA256: 0075bc65bc9a2548594c0618434a10464c437ff49e4d92213533c53eac06a216
+```
+
+Das GitHub-Artefakt ist 1476415745 Bytes groß. Sein SHA256 ist
+`80d8bac24bd68e0575b14942506eb36fabee27e8a5384f241bed3f6215568724`.
+Der vollständige ZIP-CRC-Test und die mitgelieferte `.img.sha` waren
+erfolgreich.
+
+Das Rootfs wurde ausschließlich read-only geprüft. Der Image-Checker
+bestätigt extlinux mit 8X-DTB und SD-Overlay. Er bestätigt auch den
+Aeonsemi-Initramfs-Hook und das gepinnte Firmware-Audit. Beide neuen Pfade
+`mt7996_eeprom_2i5i6i.bin` und `mt7996_eeprom_233_2i5i6i.bin` sind vorhanden.
+Der Image-Hash blieb nach dem Aushängen unverändert.
+
+Der separate fehlende Website-Asset
+`board-images/bananapir4pro8x.png` bleibt offen. Er beeinflusst den
+erfolgreichen Port-Build nicht.
+
+Status dieses Grobschritts: **BUILD PASS / HW TEST PENDING**.

@@ -286,6 +286,7 @@ Nachtragen der eigenen SHA.
 | 52 | `HW #5` | Vollständiger SD-Cold-Boot bestätigt den MT7996-444-Firmwaresatz: ROM-Patch sowie WM, DSP und WA laden und das System erreicht Login und `multi-user.target`. Der Wi-Fi-Probe scheitert danach separat an fehlender RF-/EEPROM-Kalibration | UART-Log `uart-2026-10-09-632a0a6e0-hw5.log`, `docs/bpi-r4pro8x-bringup.md` | MT7996 444 FW HW PASS / WIFI CALIBRATION BLOCKED |
 | 53 | `SELF` | Die beiden vom gebauten MT7996-Treiber gewählten internen-FEM-EEPROM-Defaults für 444 und 233 am bestehenden Firmware-Pin verifiziert und dem auditierten Board-Paket hinzugefügt | `manifest.tsv`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 54 | `SELF` | Den optionalen board-spezifischen MT7996-EEPROM-Abruf im R4-Pro-lokalen Kernel-Patchsatz auf direkten Dateizugriff umgestellt; fehlende Datei löst keinen 60-Sekunden-Sysfs-Fallback mehr aus | `filogic-r4pro.conf`, Kernel-Patch, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
+| 55 | `CI #12` | MT7996-Kalibrationsfix vollständig gebaut; Kernel-Patch, heruntergeladenes Artefakt, Image-SHA256, read-only Rootfs, extlinux und alle 15 gepinnten Firmware-Auditeinträge verifiziert | GitHub Actions Run `37898648988`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
