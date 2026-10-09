@@ -1969,3 +1969,25 @@ Alle 15 Firmware-Prüfsummen bestehen.
 Debugfs meldet beim unprivilegierten Export Eigentümerfehler; die exportierten Nutzdaten bestehen den vollständigen Hashvergleich.
 
 Status: **BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING**.
+
+## 60. USB/PTP-Image auf SD geschrieben
+
+Der Nutzer bestätigt die Administratoranfrage für den SD-Schreibvorgang.
+Der erste Versuch stoppt vor dem Schreiben durch die UUID-Schutzprüfung.
+Der vorherige unprivilegierte Cachewert lautet `9e32e7f4-53cf-448a-876d-d1bd050fa5a9`.
+Die tatsächlich eingelegte SD verwendet `cd06581f-85c5-45fc-83a9-99b65dc6d27f`.
+Die korrigierte Schutzprüfung liest die UUID direkt mit `blkid -p`.
+Größe, USB-Pfad, Modell und Gerätekennung bleiben zusätzliche Schutzprüfungen.
+
+Das Ziel ist `/dev/sdb`, `Generic_STORAGE_DEVICE-0:0`, mit 63864569856 Bytes.
+Das Image aus Run `37992263277` überschreibt das bisherige SD-Image.
+Der Schreibvorgang umfasst 1480589312 Bytes und dauert rund 49 Sekunden.
+Der vollständige Rücklese-Hash stimmt mit der geprüften Image-Prüfsumme überein.
+SHA256: `d182abfb9056b82c896e5412b7d6c72fc1ca6af05e6143882f2c2ad5dafa914e`.
+`udisksctl power-off` schaltet den Kartenleser sicher ab.
+Die abschließende Geräteprüfung zeigt `/dev/sdb` nicht mehr.
+Das Schreiblog liegt lokal unter `bpi-r4pro8x-flash-37992263277.log`.
+eMMC, SPI-NAND, SPI-NOR und andere Host-Laufwerke bleiben unverändert.
+Der nächste Schritt ist ein Cold Boot mit UART-Aufzeichnung und anschließender USB/PTP-Prüfung.
+
+Status: **SD FLASH PASS / HW TEST PENDING**.
