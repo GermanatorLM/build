@@ -1170,3 +1170,35 @@ Dieses Dokument enthält Tool-Auszüge, keinen vollständigen Rohmitschnitt.
 Die späteren Rohmitschnitte heißen `uart-2026-10-09-nand-storage.log` und `uart-2026-10-09-nand-storage-reconnect.log`.
 
 Status dieses Grobschritts: **NAND TEST INCOMPLETE / AUTOMATIC UBI WRITES**.
+
+## 32. eMMC-Nachweis im Hersteller-Linux
+
+Nach erneuter Debug-USB-Verbindung antwortet `root@OpenWrt` bei bestätigten 115200 Baud.
+Der frühere UART-Abbruch belegt deshalb keinen Kernelstillstand.
+Das Hersteller-System läuft mit Linux 6.6.93.
+Der MMC-Treiber erkennt `8GTF4R` mit HS400 bei 3,38 Sekunden.
+Der Nutzbereich enthält 15269888 Sektoren zu 512 Bytes, also 7818182656 Bytes.
+`mmcblk0boot0` und `mmcblk0boot1` enthalten jeweils 4 MiB.
+`mmcblk0rpmb` enthält 512 KiB.
+Die CID lautet `1501003847544634520673adbce13cd1`; das Herstellungsdatum ist März 2025.
+
+`mmc extcsd read /dev/mmcblk0` bestätigt eMMC 5.1.
+Die Lebensdauerfelder A und B sowie Pre-EOL melden jeweils `0x01`.
+Der Test liest nur Informationen. Er verändert keine eMMC-Partitionen oder Einstellungen.
+Dieser Nachweis gilt für den Hersteller-Kernel, nicht für unseren Armbian-Kernel.
+
+Das Hersteller-System mountet `/dev/ubi0_6` auf `/overlay` schreibbar.
+Es mountet außerdem `/dev/nvme0n1p1` auf `/mnt/nvme0n1p1` schreibbar.
+Nur die Prüfkommandos sind lesend. Der Hersteller-Boot ist insgesamt nicht schreibgeschützt.
+
+Der Hersteller-Device-Tree nennt den NAND-Bereich von 2 bis 6 MiB `Factory`.
+Der lesend geprüfte Header bei 2 MiB beginnt allerdings mit `UBI#`.
+Der Name allein belegt daher keine MAC- oder Kalibrationsdaten.
+Hersteller-Linux hängt UBI an `mtd2` ab 6 MiB ein.
+Unser SD-System beschreibt UBI dagegen ab 2 MiB. Diese Layoutabweichung bleibt separat zu prüfen.
+Es gibt weiterhin nur `spi0.0` mit `spi-nand`, keinen erkannten SPI-NOR.
+
+Der Mitschnitt heißt `bpi-r4pro8x-uart/uart-2026-10-09-nand-debug-replug.log`.
+Der nächste Armbian-eMMC-Test benötigt einen Root-Datenträger außerhalb des gemeinsamen SD/eMMC-Controllers.
+
+Status dieses Grobschritts: **EMMC DETECTION PASS ON VENDOR KERNEL**.

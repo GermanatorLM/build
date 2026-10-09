@@ -293,6 +293,7 @@ Nachtragen der eigenen SHA.
 | 58 | `SELF` | Fehlenden PCA9555-Treiber in der gebauten Konfiguration bestätigt und `GPIO_PCA953X` im Board-Hook aktiviert. XS-PHY-Meldung nachträglich als vorübergehenden Probe-Aufschub eingeordnet | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 59 | `SELF` | Speicher ausschließlich lesend geprüft. SPI-NAND und WLAN-EEPROM bestätigt. Gemeinsamer MMC-Controller verhindert gleichzeitigen SD/eMMC-Zugriff. NOR-Bestückung beim Pro 8X bleibt unbelegt | `docs/bpi-r4pro8x-bringup.md` | STORAGE INVENTORY / EMMC TEST PENDING |
 | 60 | `SELF` | Hersteller-NAND-Boot gestartet. U-Boot schreibt nach ungültigen Environment-Prüfsummen selbstständig nach UBI. Autoboot nicht rechtzeitig gestoppt. Kein Linux-Prompt oder eMMC-Nachweis | UART-Beobachtungen, `docs/bpi-r4pro8x-bringup.md` | NAND TEST INCOMPLETE / AUTOMATIC UBI WRITES |
+| 61 | `SELF` | UART nach Debug-Neuverbindung wieder erreichbar. Hersteller-Linux erkennt eMMC 8GTF4R mit HS400, Bootpartitionen und RPMB. EXT_CSD lesbar. Hersteller-System mountet NAND und NVMe schreibbar | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | EMMC DETECTION PASS ON VENDOR KERNEL |
 
 ## Verbindliche Regel für kommende Änderungen
 
