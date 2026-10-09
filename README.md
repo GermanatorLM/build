@@ -282,6 +282,7 @@ Nachtragen der eigenen SHA.
 | 48 | `SELF` | Den vom R4-Pro-8X-Cold-Boot und Frank-Kernel ausgewählten MT7996-444-Firmwaresatz am bestehenden linux-firmware-Commit verifiziert und zusätzlich zum unveränderten 233-Satz gepinnt; Preflight sowie vollständiger 13-Payload-Install-/Audit-Test bestanden | `manifest.tsv`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 49 | `CI #11` | MT7996-444-Firmwarefix vollständig gebaut; heruntergeladenes Artefakt, Image-SHA256, read-only Rootfs, extlinux und alle 13 gepinnten Firmware-Auditeinträge verifiziert | GitHub Actions Run `37837041222`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 | 50 | `PR BOT` | Upstream-Wartungscheck meldet das fehlende Imager-Bild `board-images/bananapir4pro8x.png` im separaten Repository `armbian/armbian.github.io`; alle portrelevanten Build- und Analysechecks bleiben erfolgreich | GitHub Actions Run `37837035403`, `docs/bpi-r4pro8x-bringup.md` | EXTERNAL ASSET OPEN / BUILD UNAFFECTED |
+| 51 | `SD #5` | MT7996-444-Testimage auf die eindeutig als USB/removable identifizierte 64-GB-SD-Karte geschrieben; Desktop-Automount vorab deaktiviert und exakt 1476395008 Bytes mit identischem SHA256 roh zurückgelesen | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS / HW TEST READY |
 
 ## Verbindliche Regel für kommende Änderungen
 

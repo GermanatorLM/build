@@ -854,3 +854,38 @@ Vendor-Eintrag wurde erkannt; gemeldet wurde nur das Boardbild. Dieser externe
 Armbian-Imager-Assetpunkt beeinflusst weder Preflight noch Shellcheck,
 Board-Validierung, Dependency Review oder den erfolgreichen Image-Build und
 bleibt als separater Integrationsschritt offen.
+
+## 22. SD-Vorbereitung für den MT7996-444-Hardwaretest
+
+Das in Abschnitt 21 verifizierte Image wurde auf die erneut eindeutig
+identifizierte 64-GB-SD-Karte geschrieben. Das Ziel war `/dev/sdb` mit exakt
+63864569856 Bytes, `RM=1`, `HOTPLUG=1`, Transport `usb`, Modell
+`STORAGE DEVICE` und Serienkennung `Generic_STORAGE_DEVICE-0:0`. Die internen
+SATA- und NVMe-Laufwerke wurden vor dem Schreiben getrennt davon geprüft.
+
+Da der Desktop-Automounter beim vorausgegangenen SD-Test eine frisch
+geschriebene Rootpartition verändert hatte, wurden `udiskie` und der
+GVFS-UDisks-Monitor diesmal vor dem Aushängen pausiert. Unmittelbar vor dem
+Schreiben war keine Partition von `/dev/sdb` eingehängt. Geschrieben wurde:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Größe: 1476395008 Bytes (352 Blöcke zu 4 MiB)
+SHA256: ca35eea557130266d1ef8ad68f5f5f2b83be6e3b9737eec7f17f0a5d17a842f9
+```
+
+`dd` schrieb genau 352 vollständige 4-MiB-Blöcke und schloss mit `fsync`
+fehlerfrei ab. Vor der Rückleseprüfung blieb die neu erkannte Partitionstabelle
+vollständig ausgehängt. Genau dieselben 1476395008 Bytes wurden anschließend
+roh von `/dev/sdb` zurückgelesen; ihr SHA256 war erneut
+`ca35eea557130266d1ef8ad68f5f5f2b83be6e3b9737eec7f17f0a5d17a842f9` und
+damit bitgleich zum Build-Image.
+
+Die SD-Karte wurde danach logisch abgeschaltet. `udiskie`, der
+GVFS-UDisks-Monitor und die ursprünglichen Automount-Einstellungen wurden
+wiederhergestellt. Damit ist **SD WRITE/READBACK PASS / HW TEST READY**
+erreicht. eMMC, NAND und NOR wurden nicht beschrieben. Der nächste Schritt ist
+ein vollständig aufgezeichneter Cold Boot des physischen BPI-R4 Pro 8X, bei dem
+zuerst das Laden des unsuffigierten MT7996-ROM-Patches und anschließend der
+OF/NVMEM-Fallback für eine möglicherweise angeforderte
+`mediatek/mt7996e_rf.bin` bewertet werden.
