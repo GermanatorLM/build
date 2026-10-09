@@ -7,6 +7,13 @@ repo=$(CDPATH='' cd -- "$(dirname -- "$0")/.." && pwd)
 test_dir=$(mktemp -d /tmp/bpi-r4pro8x-mac-test.XXXXXX)
 trap 'rm -rf "$test_dir"' EXIT
 
+for length in 0 1 12 255 256 1024; do
+	dd if=/dev/zero of="$test_dir/checksum-input" bs=1 count="$length" 2>/dev/null
+	[ "$(mac_cksum < "$test_dir/checksum-input")" = "$(cksum < "$test_dir/checksum-input" | awk '{print $1}')" ]
+done
+printf 'R4PRO8X-\377\000\020\200' > "$test_dir/checksum-input"
+[ "$(mac_cksum < "$test_dir/checksum-input")" = "$(cksum < "$test_dir/checksum-input" | awk '{print $1}')" ]
+
 for mac in da:68:a5:94:9a:ee 02:00:00:00:00:01 00:11:22:33:44:55; do
 	mac_valid "$mac"
 	mac_make_record "$mac" > "$test_dir/record"

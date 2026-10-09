@@ -15,7 +15,7 @@ tmp=$(mktemp -d /tmp/bpi-r4pro8x-mac-read.XXXXXX)
 trap 'rm -f "$tmp"/*; rmdir "$tmp"' EXIT
 trap 'exit 1' HUP INT TERM
 dd if="$eeprom" of="$tmp/record.bin" bs=1 skip=64 count=16 2>/dev/null
-if [ "$(od -An -v -tx1 "$tmp/record.bin" | tr -d ' \n')" = ffffffffffffffffffffffffffffffff ]; then
+if [ "$(mac_hex "$tmp/record.bin")" = ffffffffffffffffffffffffffffffff ]; then
 	echo 'SKIP: EEPROM has no provisioned MAC record'
 	exit 0
 fi

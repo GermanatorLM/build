@@ -301,6 +301,7 @@ Nachtragen der eigenen SHA.
 | 66 | `SELF` | OpenWrt-Importer für CRC-geprüfte eMMC-MAC implementiert. Board-EEPROM an `0x57` erhält nur nach Bestätigung einen gesicherten Datensatz ab `0x40`. Lokale Format- und Sicherheitstests bestehen | `packages/bpi-r4pro8x-mac/`, `tools/bpi-r4pro8x-mac-test.sh` | STATIC PASS / EEPROM WRITE UNTESTED |
 | 67 | `SELF` | Board-lokalen EEPROM-Boot-Leser vor Netzwerkstart eingebunden. Basis-MAC setzt eth0; Zufallsadressen von eth1/eth2 erhalten stabile Ableitungen. Isolierte Integrationstests und Unit-Prüfung bestehen | Board-Hook, MAC-Paket, Preflight, Workflow | STATIC PASS / BUILD AND HW PENDING |
 | 68 | `SELF` | Herstellerseite bestätigt P24C02A ausdrücklich für den R4 Pro. Quelle ergänzt; Write-Protect-Verschaltung und erster EEPROM-Schreibtest bleiben offen | MAC-Paketdokumentation, Bring-up-Dokumentation | EEPROM TYPE DOCUMENTED / WRITE UNTESTED |
+| 69 | `SELF` | Echter OpenWrt-Vorabcheck zeigt fehlende `od`- und `cksum`-Werkzeuge. Helfer nutzen jetzt `hexdump` und eine getestete POSIX-Checksumme in AWK. Datensatzformat bleibt unverändert | MAC-Paket, Fixture-Tests | STATIC PASS / OPENWRT COMPATIBILITY FIX |
 
 ## Verbindliche Regel für kommende Änderungen
 

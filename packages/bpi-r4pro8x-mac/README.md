@@ -28,6 +28,7 @@ Other EEPROM layouts require separate support. The script does not overwrite ONI
 Copy `common.sh` and `import-openwrt.sh` into the same directory on OpenWrt.
 Run as root. Install `fw_printenv` if unavailable.
 The script uses POSIX shell and standard OpenWrt utilities. Python and Bash are unnecessary.
+The vendor image lacks `od` and `cksum`. The scripts use `hexdump` and an AWK checksum implementation instead.
 
 Preview:
 

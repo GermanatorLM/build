@@ -18,6 +18,34 @@ mac_bytes() {
 	done
 }
 
+mac_hex() { hexdump -v -e '1/1 "%02x"' "$1"; }
+
+mac_cksum() {
+	# POSIX cksum, including the length suffix. Vendor BusyBox lacks that applet.
+	hexdump -v -e '1/1 "%u\n"' | awk '
+	function crc_xor(a,b, r,p) {
+		r=0; p=1;
+		while(a>0 || b>0) {
+			if(a%2 != b%2) r+=p;
+			a=int(a/2); b=int(b/2); p*=2;
+		}
+		return r;
+	}
+	function feed(byte, i,top) {
+		crc=crc_xor(crc,byte*16777216);
+		for(i=0;i<8;i++) {
+			top=(crc>=2147483648); crc=(crc*2)%4294967296;
+			if(top) crc=crc_xor(crc,79764919);
+		}
+	}
+	{feed($1); len++}
+	END {
+		n=len;
+		while(n>0) {feed(n%256); n=int(n/256)}
+		printf "%.0f\n",4294967295-crc;
+	}'
+}
+
 mac_make_record() {
 	mac_valid "$1" || return 1
 	printf '%s' "$1" | tr ':' ' ' | while read -r mac_line || [ -n "$mac_line" ]; do
@@ -28,19 +56,20 @@ mac_make_record() {
 }
 
 mac_finish_record() {
-	mac_crc=$(cksum < "$1" | awk '{print $1}')
+	mac_crc=$(mac_cksum < "$1")
 	mac_bytes "$((mac_crc / 16777216))" "$((mac_crc / 65536 % 256))" \
 		"$((mac_crc / 256 % 256))" "$((mac_crc % 256))" >> "$1"
 }
 
 mac_read_record() {
 	[ "$(wc -c < "$1")" -eq 16 ] || return 1
-	mac_hex=$(od -An -v -tx1 "$1" | tr -d ' \n')
-	case "$mac_hex" in ????????????ffff52344d31????????) ;; *) return 1 ;; esac
-	mac_checksum=$(dd if="$1" bs=1 count=12 2>/dev/null | cksum | awk '{print $1}')
-	mac_stored=$(od -An -v -tu1 -j12 -N4 "$1" | awk '{printf "%.0f\n",$1*16777216+$2*65536+$3*256+$4}')
+	mac_hex_value=$(mac_hex "$1")
+	case "$mac_hex_value" in ????????????ffff52344d31????????) ;; *) return 1 ;; esac
+	mac_checksum=$(dd if="$1" bs=1 count=12 2>/dev/null | mac_cksum)
+	mac_stored=$(dd if="$1" bs=1 skip=12 count=4 2>/dev/null |
+		hexdump -v -e '1/1 "%u "' | awk '{printf "%.0f\n",$1*16777216+$2*65536+$3*256+$4}')
 	[ "$mac_checksum" = "$mac_stored" ] || return 1
-	mac_result=$(od -An -v -tx1 -N6 "$1" | awk '{printf "%s:%s:%s:%s:%s:%s\n",$1,$2,$3,$4,$5,$6}')
+	mac_result=$(printf '%s\n' "$mac_hex_value" | awk '{for(i=1;i<=11;i+=2) printf "%s%s",(i>1?":":""),substr($0,i,2); print ""}')
 	mac_valid "$mac_result" || return 1
 	printf '%s\n' "$mac_result"
 }
@@ -58,8 +87,8 @@ mac_find_eeprom() {
 		[ "$(basename "$(readlink -f "$mac_dev/driver")")" = at24 ] || continue
 		[ "$(basename "$(readlink -f "$mac_dev/of_node")")" = eeprom@57 ] || continue
 		tr '\000' '\n' < "$mac_dev/of_node/compatible" | grep -qx 'atmel,24c02' || continue
-		[ "$(od -An -v -tx1 "$mac_dev/of_node/size" | tr -d ' \n')" = 00000100 ] || continue
-		[ "$(od -An -v -tx1 "$mac_dev/of_node/pagesize" | tr -d ' \n')" = 00000008 ] || continue
+		[ "$(mac_hex "$mac_dev/of_node/size")" = 00000100 ] || continue
+		[ "$(mac_hex "$mac_dev/of_node/pagesize")" = 00000008 ] || continue
 		[ "$(wc -c < "$mac_dev/eeprom")" -eq 256 ] || continue
 		[ -z "$mac_found" ] || { mac_fail 'ambiguous board EEPROM'; return 1; }
 		mac_found=$mac_dev/eeprom

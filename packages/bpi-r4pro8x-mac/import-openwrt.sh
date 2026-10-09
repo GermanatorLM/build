@@ -32,7 +32,7 @@ while [ "$#" -gt 0 ]; do
 done
 [ "$(id -u)" -eq 0 ] || { mac_fail 'run as root'; exit 1; }
 mac_require_board /sys || { mac_fail 'not a recognized R4 Pro 8X'; exit 1; }
-for tool in fw_printenv dd od cksum sha256sum cmp mktemp readlink awk; do
+for tool in fw_printenv dd hexdump sha256sum cmp mktemp readlink awk; do
 	command -v "$tool" >/dev/null || { mac_fail "missing command: $tool"; exit 1; }
 done
 eeprom=$(mac_find_eeprom /sys) || { mac_fail 'board 24c02 EEPROM at 0x57 not found'; exit 1; }
@@ -85,7 +85,7 @@ if cmp -s "$tmp/current.bin" "$tmp/record.bin"; then
 	echo 'Already provisioned; no EEPROM write needed.'
 	exit 0
 fi
-[ "$(od -An -v -tx1 "$tmp/current.bin" | tr -d ' \n')" = ffffffffffffffffffffffffffffffff ] || {
+[ "$(mac_hex "$tmp/current.bin")" = ffffffffffffffffffffffffffffffff ] || {
 	mac_fail 'record region is occupied; no overwrite'; exit 1;
 }
 [ "$write" = yes ] || { echo 'DRY RUN: no EEPROM write.'; exit 0; }

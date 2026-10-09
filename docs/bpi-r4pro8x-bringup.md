@@ -1381,3 +1381,20 @@ Der Importer behält Vorschau, ausdrückliche Bestätigung, Backup und vollstän
 Das Board bleibt ausgeschaltet. Es wurde noch kein EEPROM beschrieben.
 
 Status dieses Grobschritts: **EEPROM TYPE DOCUMENTED / WRITE UNTESTED**.
+
+## 40. Fehlende Werkzeuge im Hersteller-OpenWrt
+
+Der Nutzer startet erneut das vorhandene eMMC-OpenWrt.
+Der Vorabcheck findet weder `od` noch `cksum` im Hersteller-Image.
+Die bisherige Aussage über verfügbare Standardwerkzeuge reicht daher für dieses Image nicht aus.
+Die Helfer verwenden jetzt das vorhandene `hexdump`.
+Eine portable AWK-Funktion berechnet dieselbe POSIX-Checksumme wie `cksum`.
+Der Datensatz bleibt binär kompatibel; vorhandene Formattests bestehen weiterhin.
+
+Zusätzliche Tests vergleichen leere, kurze und längere Daten mit dem lokalen Referenzwerkzeug `cksum`.
+Sie prüfen außerdem gemischte Binärbytes.
+Der erste lokale Versuch verwendet den Funktionsnamen `xor`, den GNU AWK bereits reserviert.
+Die Umbenennung in `crc_xor` beseitigt diesen Kompatibilitätsfehler.
+Der vollständige lokale Preflight und ShellCheck bestehen danach.
+
+Status dieses Grobschritts: **STATIC PASS / OPENWRT COMPATIBILITY FIX**.
