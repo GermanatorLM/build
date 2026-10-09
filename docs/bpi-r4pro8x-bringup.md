@@ -816,6 +816,28 @@ temporären Image-Root waren erfolgreich. Alle 13 Payloads mit zusammen
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
 
+## 49. DT-Kompilierung: port6 vor seiner Definition
+
+CI-Run `37972714444` besteht den Preflight und scheitert bei der Kernel-DT-Kompilierung.
+Der ursprüngliche Fehler lautet `Label or path port6 not found` in der 8X-DTS.
+`compile-wrapper.sh:28` meldet danach lediglich den Make-Abbruch mit Status 2.
+Die frühere Patch-Anwendungsprüfung erkennt diesen semantischen Fehler nicht.
+Der Patch setzt `lan6` jetzt direkt im später definierten `port6`-Knoten.
+Die gemeinsamen R4-Pro- und Filogic-Dateien bleiben unverändert.
+Die SD-Karte bleibt unverändert; dieser Run erzeugt kein Image.
+
+Die lokale DT-Prüfung baut DTC aus vorhandenen Kernelquellen in einem temporären Verzeichnis.
+Der erste Aufruf verwendet das falsche Arbeitsverzeichnis; danach fehlt zunächst `NO_YAML` beim Linken.
+Der erste DTS-Aufruf scheitert an einem als Text heruntergeladenen Header-Symlink.
+Das geladene Symlink-Ziel ermöglicht anschließend die erfolgreiche DT-Kompilierung.
+Der erzeugte DTB enthält `lan1` bis `lan6` und `fpc`.
+Vier PHY-Warnungen treten unverändert auch ohne den Patch auf.
+Der vollständige lokale Preflight besteht erneut.
+`git diff --check` beanstandet neue Patch-Kontextzeilen mit Leerzeichen vor Tabs.
+Die Prüfung ohne `space-before-tab` besteht; das Leerzeichen gehört zum Unified-Diff-Format.
+
+Status dieses Grobschritts: **STATIC AND DT COMPILE PASS / BUILD PENDING**.
+
 ## 21. Buildnachweis des MT7996-444-Firmwarefixes
 
 Branch-Commit `632a0a6e0` wurde im GitHub-Actions-Run `37837041222`

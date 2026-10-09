@@ -310,6 +310,7 @@ Nachtragen der eigenen SHA.
 | 75 | `SELF` | Frontplattennamen lan1–lan6, wan und fpc eingeführt. Hersteller bestätigt FPC-Port 3. Hardwarebasierte GMAC-Umbenennung ordnet eth0 dem MxL und eth1 dem internen Switch zu | 8X-DT-Patch, Naming-Dienst, Fixture-Tests | STATIC PASS / BUILD AND HW PENDING |
 | 76 | `SELF` | Gemeinsamen festen Fallback entfernt. Leeres bekanntes EEPROM erhält einmalig einen zufälligen lokalen MAC-Block mit Backup und Rückleseprüfung. WLAN bleibt beim Treiber | MAC-Paket, Provisionierungs-Tests | STATIC PASS / RANDOM PROVISIONING HW PENDING |
 | 77 | `SELF` | CI-Run 37972445834 scheitert vor dem Imagebuild an SC2015. Explizite Bedingungen ersetzen zwei UND/ODER-Ketten ohne Verhaltensänderung | Naming-Script, OpenWrt-Importer | STATIC PASS / BUILD PENDING |
+| 78 | `SELF` | CI-Run 37972714444 scheitert beim 8X-DTB: port6 ist vor seiner Definition nicht auflösbar. lan6-Label direkt im Knoten gesetzt | 8X-DT-Patch | STATIC AND DT COMPILE PASS / BUILD PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
