@@ -2133,3 +2133,24 @@ eMMC, NAND, NOR und NVMe erhalten keine testbedingten Schreibzugriffe.
 Dieser fehlgeschlagene Versuch bleibt ausdrücklich Teil der Chronik.
 
 Status: **BUS RESET FAIL / POWER CYCLE REQUIRED**.
+
+## 66. Wiederherstellungsboot nach dem Bus-Reset
+
+Der Nutzer bestätigt erneut die vollständige Stromtrennung und startet das Board.
+Das vollständige UART-Log heißt `bpi-r4pro8x-uart/uart-run-37992263277-wifi-recovery-coldboot-02.log`.
+TF-A, U-Boot und Linux starten unverändert von SD.
+Linux erreicht `multi-user.target` und den Login.
+Beide Wi-Fi-PCI-Funktionen werden wieder erkannt.
+Der Bootmitschnitt enthält keine erneute AER-Completion-Timeout-Serie des vorherigen Bus-Reset-Tests.
+Dies bestätigt die Wiederherstellung der PCIe-Erkennung, nicht eine erfolgreiche Wi-Fi-Probe.
+
+Bei 26,89 Sekunden meldet MT7996 erneut Variante 444 und `MT_PAD_GPIO=0x00000000`.
+Der unsuffigierte ROM-Patch meldet wieder Build-Time `20260311120419a`.
+Der Patchstart scheitert nach fünf Sekunden; die Probe endet bei 37,05 Sekunden mit `-11`.
+Die vorherigen Probe-Fehler für PCIe `11280000` und USB `11190000` treten weiterhin separat auf.
+Identische Neustarts und weitere Bus-Resets werden nicht als Lösungsweg wiederholt.
+Der nächste gezielte Test benötigt Variantenregisterwerte vor und nach dem internen Wi-Fi-Reset.
+Ein Vergleich mit dem früher erfolgreichen Treiberstand bleibt ebenfalls erforderlich.
+Firmware und EEPROM bleiben unverändert; das Board bleibt eingeschaltet.
+
+Status: **BOOT PASS / PCIE RECOVERY PASS / WIFI FAIL**.
