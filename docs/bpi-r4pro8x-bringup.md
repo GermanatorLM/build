@@ -2030,3 +2030,30 @@ SDIO-Erkennungsbefehle melden Fehler, bevor die SD erfolgreich erkannt und gemou
 Diese Meldungen verhindern den Erstlogin nicht; ihre Ursachen bleiben getrennt zu prüfen.
 
 Status: **BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL**.
+
+## 62. Wi-Fi-Diagnose und Vorbereitung der Stromtrennung
+
+Die Erstlogin-Einrichtung verwendet erneut die zuvor genehmigten temporären Testkonten.
+Der erste Passwortvergleich scheitert; die Wiederholung besteht.
+Zusätzliche Locale-Erzeugung wird übersprungen.
+Das neue lokale Diagnoselog heißt `bpi-r4pro8x-uart/uart-run-37992263277-wifi-investigation-02.log`.
+Das Log enthält private Testdaten und wird nicht eingecheckt.
+
+`iw dev` und `iw phy` zeigen keine Radios.
+Alle 15 Firmware-Prüfsummen bestehen auf dem laufenden Board.
+Der erste Hashaufruf verwendet das falsche Arbeitsverzeichnis und prüft keine Datei.
+Der korrigierte Aufruf läuft unter `/usr/lib/firmware` und bestätigt alle Dateien.
+`lspci` fehlt; die anschließende Sysfs-Prüfung bestätigt PCI-Geräte `14c3:7990` und `14c3:7991`.
+Die Hauptfunktion besitzt nach der fehlgeschlagenen Probe keinen gebundenen Treiber.
+Die zweite Funktion bleibt an `mt7996e_hif` gebunden.
+Beide Funktionen bieten weiterhin Resetmethoden `flr bus` an.
+Systemd meldet keine fehlgeschlagenen Units; dies bestätigt keine erfolgreiche Wi-Fi-Probe.
+
+Es werden keine Firmwaredateien ersetzt, Varianten erzwungen oder EEPROM-Daten verändert.
+Linux synchronisiert und unmountet alle Dateisysteme für die angeforderte Stromtrennung.
+Anschließend meldet TF-A `Power-down unsupported` und einen Panic bei `0x43004898`.
+Das Board ist deshalb nicht nachweislich elektrisch ausgeschaltet.
+Die physische Stromtrennung bleibt erforderlich.
+Der nächste Test vergleicht Variantenerkennung und Firmwarestart nach vollständigem Versorgungsausfall.
+
+Status: **WIFI FAIL / FULL POWER CYCLE PENDING**.

@@ -323,6 +323,7 @@ Nachtragen der eigenen SHA.
 | 88 | `SELF` | CI-Run 37992263277 baut USB-Erweiterungen, PTP, linuxptp und Wi-Fi-Patches erfolgreich. Download, Imagekonfiguration und 15 Firmware-Prüfsummen bestehen | GitHub Actions, Buildlog, Imageprüfung | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
 | 89 | `SELF` | Image aus Run 37992263277 auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / HW TEST PENDING |
 | 90 | `SELF` | Neues Image erreicht Erstlogin. QMI, Modem-Serial, ACM und ALFA-RNDIS binden. PTP-Kern registriert. Wi-Fi-444-Probe scheitert erneut | UART-Bootlog, Bring-up-Dokumentation | BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL |
+| 91 | `SELF` | Wi-Fi-Diagnose bestätigt Firmware-Hashes und fehlendes Radio. Board für vollständige Stromtrennung heruntergefahren. TF-A unterstützt Power-down nicht | UART-Diagnoselog, Bring-up-Dokumentation | WIFI FAIL / FULL POWER CYCLE PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
