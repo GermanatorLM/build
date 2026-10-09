@@ -1043,3 +1043,38 @@ Automount-Einstellungen wurden wiederhergestellt. eMMC, NAND und NOR wurden
 nicht beschrieben.
 
 Status dieses Grobschritts: **SD WRITE/READBACK PASS / HW TEST READY**.
+
+## 28. Hardwaretest des MT7996-Kalibrationsfixes
+
+Der UART-Logger lief vor dem Einschalten des physischen BPI-R4 Pro 8X. Der
+vollständige Cold Boot ist erhalten als:
+
+```text
+UART-Log: uart-2026-10-09-c77e5da20-hw6.log
+Größe: 94765 Bytes, 1228 Zeilen
+SHA256: bd1b8ced5b059919ab5fba6738704194fbc226d96aca88dcd54bc27d6f81be39
+```
+
+Bestätigt wurden `WDT: Cold boot`, BL2, 8192 MiB DRAM, BL31,
+U-Boot 2025.04, SD/extlinux und Linux 6.18.53. Das Rootfs wurde von
+`mmcblk0p5` read/write gemountet. Beide Aeonsemi-PHYs melden Firmware 1.9.1.
+Login erscheint bei 35,68 s; `multi-user.target` wird bei 37,98 s erreicht.
+
+Der Kalibrationsfix arbeitet wie vorgesehen. `mt7996e_rf.bin` wird bei
+24,86 s angefordert und endet bei 24,87 s sofort mit `-2`. Es gibt keinen
+Sysfs-Fallback und keine 60-Sekunden-Pause. Bei 25,04 s nutzt der Treiber die
+EEPROM-Defaults. Bei 25,04 s registriert er erfolgreich `mt76-phy0`.
+
+Damit sind Firmwarestart und MT7996-Probe als **MT7996 PROBE HW PASS**
+bestätigt. Das Log nennt den internen Default-Dateipfad beim erfolgreichen
+Laden nicht erneut. Der read-only geprüfte Image-Inhalt enthält beide
+gepinnten internen-FEM-Defaults.
+
+Der Gesamtstatus bleibt unter `HW PASS`. Der früheste verbleibende explizite
+Kernel-Fehler ist `mtk-xsphy` mit fehlendem `ref_clk(id-1)` bei 0,38 s.
+Danach folgen der PCIe-Port `11280000` mit `-110` bei 2,87 s und xHCI
+`11190000` mit `-110` bei 15,38 s. `sys-led-red` bleibt bei 35,68 s im
+deferred probe. eMMC, NAND und NOR wurden nicht beschrieben.
+
+Status dieses Grobschritts:
+**MT7996 PROBE HW PASS / OTHER HW BLOCKERS REMAIN**.
