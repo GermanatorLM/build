@@ -1368,3 +1368,16 @@ OpenWrt-Importer, physischer EEPROM-Schreibschutz, Programmierung und echter Arm
 Der Port enthält keine feste individuelle MAC-Adresse.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD AND HW PENDING**.
+
+## 39. Herstellerbestätigung des EEPROM-Typs
+
+Der Nutzer nennt den EEPROM-Abschnitt der offiziellen R4-Pro-Einstiegsanleitung.
+[Die Herstellerseite benennt ausdrücklich den P24C02A](https://docs.banana-pi.org/en/BPI-R4_Pro/GettingStarted_BPI-R4_Pro#_eeprom).
+Ein direkter HTML-Abruf bestätigt diese Angabe.
+Damit ist der vorgesehene Chiptyp dokumentiert, ohne allein aus dem generischen at24-Treiber darauf zu schließen.
+Die bisherige technische Unsicherheit über die Softwareidentifikation bleibt in der Chronik erhalten.
+Die konkrete Write-Protect-Verschaltung und ein erfolgreicher Schreibversuch sind damit noch nicht bewiesen.
+Der Importer behält Vorschau, ausdrückliche Bestätigung, Backup und vollständige Rückleseprüfung bei.
+Das Board bleibt ausgeschaltet. Es wurde noch kein EEPROM beschrieben.
+
+Status dieses Grobschritts: **EEPROM TYPE DOCUMENTED / WRITE UNTESTED**.

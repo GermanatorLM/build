@@ -12,7 +12,9 @@ Puya P24C02A provides 256 bytes with eight-byte pages.
 [Manufacturer datasheet](https://www.puyasemi.com/download_path/%E6%95%B0%E6%8D%AE%E6%89%8B%E5%86%8C/EEPROM%20%E8%8A%AF%E7%89%87/P24C02A_Datasheet_V2.0.pdf).
 The audited Device Tree names `p24c02`, address `0x57`, size 256, and page size eight.
 Its compatible string is `atmel,24c02`. That string does not identify the physical manufacturer.
-Confirm the chip marking before writing. Check board-specific write protection before any retry.
+[The R4 Pro manufacturer guide explicitly names P24C02A](https://docs.banana-pi.org/en/BPI-R4_Pro/GettingStarted_BPI-R4_Pro#_eeprom).
+Confirm the board variant against this documentation or its chip marking before writing.
+Check board-specific write protection before any retry.
 Do not apply the normal R4 LED write-protect workaround without checking the Pro schematic.
 
 The importer discovers the at24 device through its Device Tree node, not a fixed I2C bus number.
