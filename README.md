@@ -298,6 +298,7 @@ Nachtragen der eigenen SHA.
 | 63 | `SELF` | Vorhandenes Hersteller-System von eMMC bis zur Root-Konsole gebootet. Root-FIT stammt aus `mmcblk0p5`. eMMC-Overlay ist schreibbar. MACs unterscheiden sich vom NAND-System; mehrere Hersteller-Warnungen bleiben sichtbar | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | VENDOR EMMC BOOT PASS / ARMBIAN EMMC UNTESTED |
 | 64 | `SELF` | MAC-Herkunft lesend geklärt: eMMC-Environment enthält eth0-Adresse. Alle drei NAND-NVMEM-MAC-Felder enthalten nur `ff`; eth1 und eth2 nutzen Linux-Zufallsadressen | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | MAC SOURCE TRACE PASS / FACTORY MAC UNCONFIRMED |
 | 65 | `SELF` | `da:68:a5:94:9a:ee` als Nutzer-Referenz dokumentiert, ohne Konfigurationsänderung. NAND und eMMC verwenden Linux 6.6.93; Kernel-Payloads haben unterschiedliche Größen und SHA256-Werte | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | VENDOR IMAGES NOT IDENTICAL |
+| 66 | `SELF` | OpenWrt-Importer für CRC-geprüfte eMMC-MAC implementiert. Board-EEPROM an `0x57` erhält nur nach Bestätigung einen gesicherten Datensatz ab `0x40`. Lokale Format- und Sicherheitstests bestehen | `packages/bpi-r4pro8x-mac/`, `tools/bpi-r4pro8x-mac-test.sh` | STATIC PASS / EEPROM WRITE UNTESTED |
 
 ## Verbindliche Regel für kommende Änderungen
 

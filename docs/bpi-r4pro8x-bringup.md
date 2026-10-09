@@ -1304,3 +1304,31 @@ Der zuerst versuchte SHA1-Vergleich scheitert am fehlenden `sha1sum` im Herstell
 Der anschließende SHA256-Vergleich gelingt. Alle Prüfkommandos bleiben lesend.
 
 Status dieses Grobschritts: **VENDOR IMAGES NOT IDENTICAL**.
+
+## 37. OpenWrt-Importer für die eMMC-MAC
+
+Der neue Importer liest ausschließlich das eMMC-Environment des geprüften Herstellerlayouts.
+Er erkennt eMMC anhand von `type=MMC` und prüft die Environment-Partition.
+`fw_printenv` prüft CRC und Redundanz an einem Dateisnapshot, nicht an einer schreibbaren Environment-Konfiguration.
+Environment-Warnungen und ungültige MACs führen zum Abbruch.
+
+Der Puya P24C02A besitzt laut Hersteller 256 Bytes und acht Bytes pro Seite.
+Der Device Tree beschreibt den Board-EEPROM an `0x57` mit passenden Parametern.
+Der Treiber identifiziert den physischen Hersteller nicht eindeutig.
+Der Importer verlangt deshalb vor dem Schreiben eine bestätigte Chipbezeichnung.
+Das WLAN-EEPROM an `0x51` bleibt ausgeschlossen.
+
+Ein port-spezifischer Datensatz belegt `0x40` bis `0x4f`.
+Er enthält die binäre Basis-MAC, `R4M1` und eine POSIX-Checksumme.
+Die vorhandene Board-Kennung und alle übrigen EEPROM-Bytes bleiben erhalten.
+Der Standardaufruf liest nur. Schreiben verlangt `--write`, MAC-Bestätigung und ein neues persistentes Backup-Verzeichnis.
+Der Importer verweigert unbekannte Header und belegte Zielbereiche.
+Ein vollständiger Rücklesevergleich erkennt Änderungen außerhalb des Zielbereichs.
+Er verändert keine Write-Protect-GPIOs und schreibt weder eMMC noch NAND.
+
+Die Paketdokumentation enthält Aufruf, Datensatzformat und Sicherheitsgrenzen.
+Lokale Tests prüfen gültige und ungültige MACs, Prüfsummen, kurze Daten und die EEPROM-Auswahl.
+Shell-Syntax und ShellCheck bestehen. OpenWrt-Ausführung und EEPROM-Schreiben sind noch nicht hardwaregeprüft.
+Das ausgeschaltete Board bleibt unverändert. Es wurde kein EEPROM-Schreibversuch ausgeführt.
+
+Status dieses Grobschritts: **STATIC PASS / EEPROM WRITE UNTESTED**.
