@@ -1136,3 +1136,9 @@ Keine Installation, kein `saveenv` und kein Flash-Schreibbefehl gehören zu dies
 Die physische Bootauswahl und der UART-Mitschnitt sind vor dem Neustart erforderlich.
 
 Status dieses Grobschritts: **STORAGE INVENTORY / EMMC TEST PENDING**.
+
+Die Vorbereitung führt `sync; systemctl poweroff` aus.
+Linux hängt alle Dateisysteme aus und meldet `reboot: Power down`.
+TF-A meldet danach `Power-down unsupported` und einen Panic bei `0x43004898`.
+Dieser Fehler betrifft den Ausschaltpfad, nicht den vorherigen SD-Boot.
+Die Versorgung muss nach diesem geordneten Shutdown physisch getrennt werden.
