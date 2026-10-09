@@ -322,6 +322,7 @@ Nachtragen der eigenen SHA.
 | 87 | `SELF` | PTP-Clock-Unterstützung und PHY-Timestamping im Board-Hook aktiviert. linuxptp ergänzt. Aktueller WAN-Port meldet keine Hardware-Clock | Board-Hook, Paketliste, Preflight | STATIC PASS / BUILD AND PTP HW PENDING |
 | 88 | `SELF` | CI-Run 37992263277 baut USB-Erweiterungen, PTP, linuxptp und Wi-Fi-Patches erfolgreich. Download, Imagekonfiguration und 15 Firmware-Prüfsummen bestehen | GitHub Actions, Buildlog, Imageprüfung | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
 | 89 | `SELF` | Image aus Run 37992263277 auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / HW TEST PENDING |
+| 90 | `SELF` | Neues Image erreicht Erstlogin. QMI, Modem-Serial, ACM und ALFA-RNDIS binden. PTP-Kern registriert. Wi-Fi-444-Probe scheitert erneut | UART-Bootlog, Bring-up-Dokumentation | BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL |
 
 ## Verbindliche Regel für kommende Änderungen
 

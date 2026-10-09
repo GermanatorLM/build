@@ -1991,3 +1991,42 @@ eMMC, SPI-NAND, SPI-NOR und andere Host-Laufwerke bleiben unverändert.
 Der nächste Schritt ist ein Cold Boot mit UART-Aufzeichnung und anschließender USB/PTP-Prüfung.
 
 Status: **SD FLASH PASS / HW TEST PENDING**.
+
+## 61. Erstboot des USB/PTP-Images
+
+Am 10. Oktober 2026 startet das Image aus Run `37992263277` auf der physischen 8X-Hardware.
+Der bestehende UART-Recorder bleibt aktiv, damit der Bootanfang erhalten bleibt.
+Das lokale Log heißt weiterhin `bpi-r4pro8x-uart/uart-run-37975601363-wifi-coldboot-02-reconnected.log`.
+Der neue Bootabschnitt beginnt bei Zeile 1700.
+Der Dateiname benennt den vorherigen Run, nicht das jetzt gestartete Image.
+
+TF-A meldet Cold Boot und 8192 MB DRAM.
+U-Boot 2025.04 lädt Extlinux, das 8X-DTB und das SD-Overlay.
+Linux `6.18.53-current-filogic` mountet SD-Rootfs `86d96695-2d54-463e-8ace-d14d22e7226c`.
+Systemd erreicht `multi-user.target`; Armbian wartet auf die Erstlogin-Einrichtung.
+Die Rootfs-Vergrößerung auf 15429632 Blöcke besteht.
+Portnamen- und MAC-Dienste schließen erfolgreich ab.
+
+Quectel bindet mit `qmi_wwan`, `wwan0`, `cdc-wdm0` und `ttyUSB0` bis `ttyUSB3`.
+Das STM32-Gerät am bisherigen RAK-USB-Pfad bindet mit ACM als `ttyACM0`.
+ALFA bindet mit RNDIS als `eth3` und ACM als `ttyACM1`.
+ALFA trennt sich einmal während des Boots und bindet anschließend erneut.
+Eine Datenverbindung oder Funkfunktion ist damit noch nicht getestet.
+Der Kernel meldet `PTP clock support registered`.
+Hardware-Timestamping und PTP-Synchronisation bleiben ungeprüft.
+
+Wi-Fi meldet Variante 444 und `MT_PAD_GPIO=0x00000000`.
+Der Treiber fordert `mediatek/mt7996/mt7996_rom_patch.bin` an.
+Der Patchstart scheitert mit MCU-Timeout; die Probe endet mit `-11`.
+Die fehlschlagende Stufe ist die Linux-Treiberinitialisierung, nicht TF-A oder U-Boot.
+TF-A-Cold-Boot bestätigt keinen vollständigen Stromverlust am Wi-Fi-Modul.
+Die frühere erfolgreiche 233-Erkennung bleibt als Vergleich erhalten.
+Der nächste Wi-Fi-Test benötigt einen bestätigten vollständigen Stromverlust einschließlich möglicher USB-Rückspeisung.
+
+Weitere Bootmeldungen bleiben offen: XS-PHY-Referenztakt, PCIe `11280000` und USB-Controller `11190000` mit Probe-Fehlern.
+U-Boot meldet Environment-CRC-Warnungen und verwendet Defaults.
+Der Kernel meldet GPT-Abweichungen vor der automatischen Rootfs-Vergrößerung und PHY-LED-Pinctrl-Fehler.
+SDIO-Erkennungsbefehle melden Fehler, bevor die SD erfolgreich erkannt und gemountet wird.
+Diese Meldungen verhindern den Erstlogin nicht; ihre Ursachen bleiben getrennt zu prüfen.
+
+Status: **BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL**.
