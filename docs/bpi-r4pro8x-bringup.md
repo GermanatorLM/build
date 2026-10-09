@@ -1932,3 +1932,40 @@ Die PTP-Dienste liegen als Templates vor; die Neuinstallation aktiviert keinen `
 Preflight, Bash-ShellCheck und isolierter Board-Hook-Aufruf bestehen.
 
 Status: **STATIC PASS / BUILD AND PTP HW PENDING**.
+
+## 59. Imagebuild für USB-Erweiterungen und PTP
+
+GitHub-Actions-Run `37992263277` baut Branch-Commit `d99538fa6a5134777949c5b42278400fa670b7a0` erfolgreich.
+Der PR-Merge-Commit lautet `a0ecc19aa90e84e84f99ee49c851bc1a21ddbf3b`.
+Der Imagejob läuft 35 Minuten und 35 Sekunden.
+Preflight, ShellCheck, Board-Validierung und Dependency Review bestehen.
+Die separate Boardbild-Prüfung bleibt weiterhin fehlgeschlagen.
+
+Der Buildlog bestätigt beide Wi-Fi-Patches `003-mt7996-variant-diagnostics` und `004-mt76-preserve-rf-file-eeprom`.
+Der Kernel bleibt `6.18.53-current-filogic`.
+Der Log bestätigt die Kompilierung und Installation von ACM, Option-Serial, QMI, MBIM, USBNet, RNDIS und rfkill.
+Der PTP-Kern wird eingebaut; `linuxptp` Version `4.2-1+b1` wird im Trixie-Rootfs installiert.
+Der Firmware-Pin bleibt unverändert; das Bundle enthält weiterhin 15 auditierte Payloads.
+
+Das Image-Artefakt trägt ID `11646808458` und umfasst 1480610049 Bytes.
+Der erste Einzel-Download über `gh api` folgt unerwartet dem Redirect und wird zugunsten paralleler Bereichsdownloads beendet.
+Einzelne Bereichsdownloads erreichen ihr 150-Sekunden-Zeitlimit kurz vor Blockende.
+Ein neuer Downloader erhält vollständige Blöcke und setzt geprüfte Teilblöcke mit längerer Zeitgrenze fort.
+Die laufende Übertragung verändert noch keine SD-Daten.
+
+Alle 177 Blöcke werden vollständig geladen.
+Ein Syntaxfehler verhindert zunächst das abschließende Zusammenfügen.
+Nach Korrektur bestehen ZIP-Prüfung und Image-Prüfsumme.
+Das Image umfasst 1480589312 Bytes.
+SHA256: `d182abfb9056b82c896e5412b7d6c72fc1ca6af05e6143882f2c2ad5dafa914e`.
+
+Die lesende Rootfs-Prüfung bestätigt alle 13 angeforderten USB- und rfkill-Konfigurationsoptionen.
+Die zwölf benötigten Moduldateien liegen komprimiert im Image vor.
+PTP, PHY-Timestamping, PPS und PTP-Paketklassifizierung sind eingebaut.
+`ptp4l` und `phc2sys` liegen im Image vor.
+Extlinux verwendet das 8X-DTB und das SD-Overlay.
+Die Firmwarequelle bleibt `pinned` bei Commit `17c8530777b28c3b909dc505b95cf895159bd8b9`.
+Alle 15 Firmware-Prüfsummen bestehen.
+Debugfs meldet beim unprivilegierten Export Eigentümerfehler; die exportierten Nutzdaten bestehen den vollständigen Hashvergleich.
+
+Status: **BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING**.

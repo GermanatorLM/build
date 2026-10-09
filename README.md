@@ -320,6 +320,7 @@ Nachtragen der eigenen SHA.
 | 85 | `SELF` | Nutzer-Hotspot auf 5975 MHz gefunden. WPA3-SAE, PMF, DHCP und zehn Gateway-Pings bestehen mit bisherigem Kernel | UART-Mitschnitt, private RAM-Konfiguration | 6GHZ CLIENT SMOKE PASS / REPEAT AND THROUGHPUT PENDING |
 | 86 | `SELF` | USB-Geräte erkannt, aber ACM, Serial und USB-Netzwerktreiber fehlen. Board-Hook aktiviert Module für RAK5166, RM520N-GL und AHM27292U | Board-Hook, Preflight, Bring-up-Dokumentation | STATIC PASS / BUILD AND HW PENDING |
 | 87 | `SELF` | PTP-Clock-Unterstützung und PHY-Timestamping im Board-Hook aktiviert. linuxptp ergänzt. Aktueller WAN-Port meldet keine Hardware-Clock | Board-Hook, Paketliste, Preflight | STATIC PASS / BUILD AND PTP HW PENDING |
+| 88 | `SELF` | CI-Run 37992263277 baut USB-Erweiterungen, PTP, linuxptp und Wi-Fi-Patches erfolgreich. Download, Imagekonfiguration und 15 Firmware-Prüfsummen bestehen | GitHub Actions, Buildlog, Imageprüfung | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
