@@ -99,4 +99,7 @@ Local tests cover record round trips, corrupt records, truncation, MAC validatio
 The tests exclude ambiguous EEPROMs and the Wi-Fi EEPROM.
 Shell syntax and ShellCheck are checked locally.
 The dry-run import passes on vendor OpenWrt 24.10-SNAPSHOT with BusyBox ash 1.36.1.
-Physical write protection, EEPROM programming, and Armbian boot integration remain hardware tests.
+EEPROM programming passes on the target board with a persistent USB backup and complete readback comparison.
+The repeat import performs no write. The reader validates the programmed record on vendor OpenWrt.
+The hardware test changes only offsets `0x40` through `0x4f`. All other EEPROM bytes remain unchanged.
+Armbian boot integration and record persistence after a cold boot remain hardware tests.

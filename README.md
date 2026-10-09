@@ -304,6 +304,7 @@ Nachtragen der eigenen SHA.
 | 69 | `SELF` | Echter OpenWrt-Vorabcheck zeigt fehlende `od`- und `cksum`-Werkzeuge. Helfer nutzen jetzt `hexdump` und eine getestete POSIX-Checksumme in AWK. Datensatzformat bleibt unverändert | MAC-Paket, Fixture-Tests | STATIC PASS / OPENWRT COMPATIBILITY FIX |
 | 70 | `SELF` | Erste Import-Vorschau verweigert Hersteller-DT mit `page-size` statt `pagesize`. Beide Schreibweisen unterstützt. Erneute Vorschau liest eMMC-MAC korrekt; EEPROM-Hash bleibt unverändert | MAC-Paket, UART-Mitschnitt | OPENWRT IMPORT DRY-RUN PASS / WRITE PENDING |
 | 71 | `SELF` | USB-Stick V7 Data Drive 3.0 identifiziert. Drei alte Partitionen durch GPT und ext4 ersetzt. Schreib-/Lesetest besteht | USB-Backup-Datenträger, UART-Mitschnitt | USB BACKUP STORAGE PASS / EEPROM WRITE PENDING |
+| 72 | `SELF` | OpenWrt-Importer sichert Daten auf USB und programmiert die EEPROM-MAC. Vollständige Rückleseprüfung, Leser und schreibfreie Wiederholung bestehen | MAC-Paket, EEPROM, UART-Mitschnitt | EEPROM PROVISIONING HW PASS / ARMBIAN BOOT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

@@ -1447,3 +1447,31 @@ Die EEPROM-Programmierung bleibt ausstehend.
 Der UART-Mitschnitt enthält Identifikation, Formatierung und Prüfungen.
 
 Status dieses Grobschritts: **USB BACKUP STORAGE PASS / EEPROM WRITE PENDING**.
+
+## 43. Erfolgreiche EEPROM-Programmierung unter OpenWrt
+
+Der Nutzer beauftragt den Skripttest auf dem laufenden eMMC-OpenWrt.
+Die erneute Vorschau besteht und bestätigt die unveränderte EEPROM-Ausgangsdatei.
+Der USB-Backup-Mount ist vorhanden; die übertragenen Skripthashes stimmen weiterhin überein.
+Der Importer erhält die bestätigte Referenz-MAC `da:68:a5:94:9a:ee` und den dokumentierten Chiptyp P24C02A.
+
+Das Backup liegt unter `/mnt/usb-backup/r4pro8x-mac-2026-10-09-test01`.
+Es enthält EEPROM vor und nach dem Schreiben, eMMC-Environment, Datensatz, Herkunft und SHA256-Prüfsummen.
+Der Importer programmiert ausschließlich den EEPROM-Bereich `0x40` bis `0x4f` über at24.
+Die vollständige Rückleseprüfung besteht mit Exit 0.
+Alle Bytes außerhalb des Datensatzes bleiben unverändert; die Herstellerkennung `R4PRO8X-BAL79687` bleibt erhalten.
+Der neue EEPROM-SHA256 ist `dd0f1d1c0661af162def96bbab7ec2174564faa13245eb866cf26f9c9d1bff01`.
+
+Die Wiederholung meldet `Already provisioned; no EEPROM write needed` und endet ebenfalls mit Exit 0.
+Alle vier binären Backup-Dateien bestehen die SHA256-Prüfung.
+Der Leser läuft mit `--show` erfolgreich und verändert keine Netzwerkinterfaces.
+Er zeigt `eth0=da:68:a5:94:9a:ee`, `eth1=ce:4a:ab:01:4d:59` und `eth2=22:68:65:93:6d:c9`.
+Die lokalen Datensatz-, Geräteauswahl- und Leser-Tests bestehen erneut.
+
+Der UART-Mitschnitt enthält Vorschau, Programmierung, Wiederholung und Lesergebnis.
+Ein wirksamer Schreibschutz verhindert diesen Versuch nicht; die konkrete Verschaltung bleibt ungeprüft.
+Der Test beschreibt weder das eMMC-Environment noch NAND oder Wi-Fi-EEPROM.
+Die Backup-Dateien können vertrauliche Environment-Daten enthalten und müssen privat bleiben.
+Die Persistenz nach einem Cold Boot und die automatische Übernahme beim Armbian-Boot bleiben ausstehend.
+
+Status dieses Grobschritts: **EEPROM PROVISIONING HW PASS / ARMBIAN BOOT PENDING**.
