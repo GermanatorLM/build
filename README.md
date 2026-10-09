@@ -291,6 +291,7 @@ Nachtragen der eigenen SHA.
 | 57 | `HW #6` | Vollständiger SD-Cold-Boot bestätigt den MT7996-Kalibrationsfix: Die optionale RF-Datei endet sofort mit `-ENOENT`, der Treiber nutzt den EEPROM-Default und registriert `mt76-phy0`; Login und `multi-user.target` werden ohne die bisherigen 60-Sekunden-Fallbacks erreicht | UART-Log `uart-2026-10-09-c77e5da20-hw6.log`, `docs/bpi-r4pro8x-bringup.md` | MT7996 PROBE HW PASS / OTHER HW BLOCKERS REMAIN |
 
 | 58 | `SELF` | Fehlenden PCA9555-Treiber in der gebauten Konfiguration bestätigt und `GPIO_PCA953X` im Board-Hook aktiviert. XS-PHY-Meldung nachträglich als vorübergehenden Probe-Aufschub eingeordnet | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
+| 59 | `SELF` | Speicher ausschließlich lesend geprüft. SPI-NAND und WLAN-EEPROM bestätigt. Gemeinsamer MMC-Controller verhindert gleichzeitigen SD/eMMC-Zugriff. NOR-Bestückung beim Pro 8X bleibt unbelegt | `docs/bpi-r4pro8x-bringup.md` | STORAGE INVENTORY / EMMC TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

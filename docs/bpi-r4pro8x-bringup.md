@@ -1100,3 +1100,39 @@ Der Konfigurationshash steigt auf `bpi-r4pro-8x-network-v3`.
 Der Preflight prüft die neue Option. Die gemeinsame Filogic-Konfiguration bleibt unverändert.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
+
+## 30. Speicherinventar und eMMC-Testgrenze
+
+Der SD-Boot zeigt einen Winbond SPI-NAND mit 256 MiB.
+Die MTD-Partitionen heißen `bl2` und `ubi`.
+UBI enthält `fip`, `ubootenv`, `ubootenv2`, `recovery`, `fit` und `emmc_install`.
+Die lesend geprüften Umgebungsvolumes liefern keine passenden MAC-Adressschlüssel.
+Die NVMe ist eine Patriot P300 mit 128 GB. Die Prüfung beschreibt keinen dieser Speicher.
+
+SD und eMMC nutzen denselben Controller `11230000` mit unterschiedlichen Pins.
+Das SD-Overlay setzt `no-mmc`. Das eMMC-Overlay setzt `no-sd` und acht Datenleitungen.
+[Frank bestätigt die gegenseitige Auswahl beim R4 Pro](https://forum.banana-pi.org/t/banana-pi-bpi-r4-pro-when-boot-from-emmc-can-i-use-microsd-as-a-storage-device/27367).
+Das fehlende eMMC-Gerät im SD-Boot belegt deshalb keinen fehlenden Chip.
+Ein Overlaywechsel am laufenden SD-Root-Dateisystem ist kein sicherer Testweg.
+
+SPI zeigt nur `spi0.0` mit `spi-nand`. SPI1 und SPI2 sind im Device Tree deaktiviert.
+[Der Hersteller nennt beim Pro 8 GB eMMC und 256 MB SPI-NAND](https://www.banana-pi.com/en/bananapi-router/205.html).
+Ein bestückter SPI-NOR beim Pro 8X bleibt unbelegt. Die Linux-Erkennung allein schließt unbeschriebene Hardware nicht aus.
+[Der normale R4 V1.3 reserviert einen NOR-Bestückungsplatz](https://forum.banana-pi.org/t/good-news-bpi-is-releasing-bpi-r4-v1-3/27010).
+[Der R4 Mini besitzt 32 MB SPI-NOR](https://docs.banana-pi.org/en/BPI-R4_Mini/BananaPi_BPI-R4_Mini).
+Diese anderen Boards rechtfertigen keinen NOR-Knoten für den Pro 8X.
+
+Das WLAN-I2C-EEPROM `6-0051` liefert 256 Bytes.
+Offset `0x20` enthält `2025-06-07`. Der Rest enthält nur `00` oder `ff`.
+SHA256: `cb4794f91bb479938168654598524203ab457fc5115485fb1d255dd20ec0a26c`.
+Der lokale Hexdump heißt `eeprom-6-0051-2026-10-09.hex` im UART-Verzeichnis.
+Die Zuordnung zur BE14 folgt dem Device-Tree-Label `wifi_eeprom`; eine physische Zuordnung bleibt offen.
+Der MT76-Debugfs-Dump liefert 7680 Bytes effektiver Kalibrationsdaten.
+Dieser Treiber-Dump ist kein Rohbackup eines physischen Flash-Chips.
+
+Der nächste Test startet den vorhandenen NAND-U-Boot und stoppt dessen Autoboot.
+Nur MMC-Informationen und Partitionen dürfen gelesen werden.
+Keine Installation, kein `saveenv` und kein Flash-Schreibbefehl gehören zu diesem Test.
+Die physische Bootauswahl und der UART-Mitschnitt sind vor dem Neustart erforderlich.
+
+Status dieses Grobschritts: **STORAGE INVENTORY / EMMC TEST PENDING**.
