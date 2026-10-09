@@ -311,6 +311,9 @@ Nachtragen der eigenen SHA.
 | 76 | `SELF` | Gemeinsamen festen Fallback entfernt. Leeres bekanntes EEPROM erhält einmalig einen zufälligen lokalen MAC-Block mit Backup und Rückleseprüfung. WLAN bleibt beim Treiber | MAC-Paket, Provisionierungs-Tests | STATIC PASS / RANDOM PROVISIONING HW PENDING |
 | 77 | `SELF` | CI-Run 37972445834 scheitert vor dem Imagebuild an SC2015. Explizite Bedingungen ersetzen zwei UND/ODER-Ketten ohne Verhaltensänderung | Naming-Script, OpenWrt-Importer | STATIC PASS / BUILD PENDING |
 | 78 | `SELF` | CI-Run 37972714444 scheitert beim 8X-DTB: port6 ist vor seiner Definition nicht auflösbar. lan6-Label direkt im Knoten gesetzt | 8X-DT-Patch | STATIC AND DT COMPILE PASS / BUILD PENDING |
+| 79 | `SELF` | CI-Run 37975601363 baut erfolgreich. SD-Schreiben und Rückleseprüfung bestehen. Cold Boot bestätigt Frontplattennamen und zehn EEPROM-MACs | Image, UART-Mitschnitt | BUILD / SD / BOOT / PORT IDENTITY PASS |
+| 80 | `SELF` | Wi-Fi-Probe nutzt 444 statt zuvor erfolgreichem 233. Erneuter Probe und PCIe-Funktionsreset scheitern ebenfalls. Alle Firmware-Hashes stimmen | UART-Mitschnitte, Hardwaretests | WIFI FAIL / FULL POWER CYCLE PENDING |
+| 81 | `SELF` | Board-lokaler MT7996-Patch protokolliert Variantenerkennung, Hardware-Register und ROM-Patch-Pfad. Automatische Auswahl bleibt unverändert | Kernel-Diagnosepatch, Preflight | STATIC PASS / BUILD AND HW PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

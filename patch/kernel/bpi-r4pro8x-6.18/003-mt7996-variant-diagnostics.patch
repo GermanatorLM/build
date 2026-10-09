@@ -1,0 +1,31 @@
+From: Armbian BPI-R4 Pro 8X port
+Subject: [PATCH] wifi: mt7996: log variant detection and ROM patch path
+
+Keep automatic variant selection unchanged. Record the hardware register
+and firmware path for R4 Pro 8X boot comparisons.
+
+--- a/drivers/net/wireless/mediatek/mt76/mt7996/init.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7996/init.c
+@@ -1151,6 +1151,11 @@
+ 	}
+ 
+ 	dev->var.type = var_type;
++	if (mt76_chip(&dev->mt76) == MT7996_DEVICE_ID)
++		dev_info(dev->mt76.dev,
++			 "MT7996 variant %s, MT_PAD_GPIO=0x%08x\n",
++			 var_type == MT7996_VAR_TYPE_233 ? "233" : "444",
++			 val);
+ 	return 0;
+ }
+ 
+--- a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+@@ -3032,6 +3032,8 @@
+ 		return -EAGAIN;
+ 	}
+ 
++	dev_info(dev->mt76.dev, "ROM patch requested: %s\n",
++		 fw_name(dev, ROM_PATCH));
+ 	ret = request_firmware(&fw, fw_name(dev, ROM_PATCH), dev->mt76.dev);
+ 	if (ret)
+ 		goto out;

@@ -1652,3 +1652,64 @@ Der vollständige lokale Preflight besteht erneut.
 Die SD-Karte ist als 63.864.569.856-Byte-USB-Gerät sichtbar und bleibt bis zum erfolgreichen Imagebuild unverändert.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
+
+## 50. Neues Image und Frontplattenidentitäten auf Hardware
+
+CI-Run `37975601363` besteht mit Branch-Commit `5bca9ec846034c8564c0ed7d675935be4363a950`.
+Der PR-Merge-Commit des Images lautet `b94e6d9ab56da1be9fdd736609bbe6c76b24f2d1`.
+Das Image enthält Linux `6.18.53-current-filogic` und 15 gepinnte Firmware-Payloads.
+Imagegröße: `1476395008` Bytes.
+Image-SHA256: `14bb7d95874d1133945f95b3cecde55306813604a948a0f23987a63fc3301768`.
+Der langsame Einzel-Download wird durch parallele Teil-Downloads ersetzt.
+Einzelne Verbindungen erreichen Zeitüberschreitungen; die signierte Download-URL läuft anschließend ab.
+Eine erneuerte URL ermöglicht den vollständigen Download ohne Verlust fertiger Blöcke.
+ZIP-Prüfung, Image-Prüfsumme und vollständige SD-Rückleseprüfung bestehen.
+Das Schreiben betrifft ausschließlich die identifizierte 64-GB-SD-Karte.
+
+Bootlog: `uart-run-37975601363-sd-boot-01.log`.
+TF-A, U-Boot, SD/extlinux, Kernel und Erstanmeldung starten erfolgreich.
+Naming- und MAC-Dienst laufen erfolgreich vor den Netzwerkdiensten.
+`eth0` bindet den MxL-Switch; `eth1` bindet den internen Switch.
+`wan`, `lan1` bis `lan6` und `fpc` besitzen die geplanten Namen.
+Alle zehn MACs entsprechen der EEPROM-Basis `da:68:a5:94:9a:ee` plus Offset 0 bis 9.
+Der vorhandene EEPROM-Datensatz benötigt keine zufällige Erstbelegung.
+Die Testkonten `root` und `admin` werden mit den ausdrücklich bestätigten Testpasswörtern eingerichtet.
+Diese schwachen Passwörter eignen sich nicht für einen produktiven oder exponierten Betrieb.
+
+Status: **BUILD / SD / BOOT / PORT IDENTITY PASS / WIFI FAIL**.
+
+## 51. Wi-Fi: erneuter Probe und PCIe-Funktionsreset
+
+Diagnoselog: `uart-run-37975601363-wifi-investigation-01.log`.
+Alle 15 Firmwaredateien bestehen erneut die im Image gespeicherte SHA256-Prüfung.
+Der aktuelle ROM-Patch meldet Build-Time `20260311120419a`; dies entspricht dem unsuffigierten 444-Payload.
+Der frühere erfolgreiche HW6-Boot meldet `20260311120705a`; dies entspricht dem 233-Payload.
+Die Dateien fehlen nicht; die unterschiedliche Variantenauswahl bleibt erklärungsbedürftig.
+Der Zusammenhang zwischen Variantenauswahl und Timeout ist noch keine bestätigte Ursache.
+
+Ein erneuter Bind-Versuch für `0000:01:00.0` scheitert mit demselben Patch-Start-Timeout.
+Danach wird ausschließlich `mt7996e` entladen.
+Die Wi-Fi-Funktionen `0000:01:00.0` und `0001:01:00.0` unterstützen FLR.
+Beide Funktionsresets bestehen; der anschließende Treiberstart scheitert erneut mit `-11`.
+Die ursprüngliche Resetmethodenliste `flr bus` wird wiederhergestellt.
+WED ist deaktiviert; ein WED-Abschaltversuch erklärt deshalb diesen Fehler nicht.
+`iw phy` liefert keine registrierten Radios.
+Firmware, EEPROM, eMMC, NAND, NVMe und Ethernet-Konfiguration werden durch diese Tests nicht beschrieben.
+
+Ein vollständiger Versorgungsausfall ist der nächste isolierte Test.
+Ein PCIe-Funktionsreset beweist keinen vollständigen Reset der Wi-Fi-MCU.
+Eine pauschale 233-Erzwingung für jedes 8X-Board bleibt ausgeschlossen.
+Die Wi-Fi-Modulbestückung und automatische Erkennung müssen zusammenpassen.
+
+Status: **WIFI FAIL / FULL POWER CYCLE PENDING**.
+
+## 52. Board-lokale Wi-Fi-Variantendiagnose
+
+Der zusätzliche Kernelpatch protokolliert `MT_PAD_GPIO`, die erkannte MT7996-Variante und den angeforderten ROM-Patch-Pfad.
+Der Patch liegt ausschließlich im R4-Pro-8X-Patchverzeichnis.
+Automatische Variantenauswahl, Firmwareinhalte und Kalibrationsdaten bleiben unverändert.
+Der Preflight verlangt beide Diagnosemeldungen.
+Die Patch-Anwendungsprüfung gegen Franks 6.18-main-Quelle und der lokale Preflight bestehen.
+Ein neuer Kernelbuild und der Hardwaretest der Diagnosemeldungen stehen noch aus.
+
+Status: **STATIC PASS / BUILD AND HW PENDING**.
