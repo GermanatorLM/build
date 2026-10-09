@@ -1282,3 +1282,25 @@ Der vollständige Mitschnitt erhält diese Hersteller-Warnungen.
 Die MAC-Prüfung verändert weder Environment noch Factory-Daten.
 
 Status dieses Grobschritts: **MAC SOURCE TRACE PASS / FACTORY MAC UNCONFIRMED**.
+
+## 36. Referenz-MAC und Vergleich der Hersteller-Images
+
+Der Nutzer bestimmt `da:68:a5:94:9a:ee` als Referenz-MAC.
+Diese Entscheidung ändert noch keine Netzwerkkonfiguration und behauptet keine werkseitige Herkunft.
+
+Beide Bootlogs zeigen Linux 6.6.93 vom 17. Juni 2025.
+Beide Systeme melden OpenWrt 24.10-SNAPSHOT mit unbekannter Revision.
+Ihre FIT-Kernel-Payloads sind jedoch nicht identisch.
+Der NAND-Kernel enthält 6744914 Bytes; der eMMC-Kernel enthält 6744266 Bytes.
+Die Prüfung liest die Payloads ab FIT-Offset `0x1000` mit den zuvor erfassten FIT-Längen.
+NAND-Quelle: `/dev/ubi0_4`. eMMC-Quelle: `/dev/mmcblk0p5`.
+NAND-Kernel-SHA256: `3fbbe4531dc22e2458de3b7506776021e5a5e73ef9702fdc7192d99699aa2452`.
+eMMC-Kernel-SHA256: `b132d610f18781ab9aeb180790e49416fec27a3e63b49c33dc975eb7834bf0e8`.
+
+NAND verwendet ein UBIFS-Overlay; eMMC verwendet ein F2FS-Overlay.
+Die beiden Bootwege laden getrennte Environments mit unterschiedlichen `ethaddr`-Werten.
+Ein vollständiger Paket- oder Konfigurationsvergleich wurde nicht durchgeführt.
+Der zuerst versuchte SHA1-Vergleich scheitert am fehlenden `sha1sum` im Hersteller-System.
+Der anschließende SHA256-Vergleich gelingt. Alle Prüfkommandos bleiben lesend.
+
+Status dieses Grobschritts: **VENDOR IMAGES NOT IDENTICAL**.
