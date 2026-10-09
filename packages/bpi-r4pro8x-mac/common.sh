@@ -88,7 +88,11 @@ mac_find_eeprom() {
 		[ "$(basename "$(readlink -f "$mac_dev/of_node")")" = eeprom@57 ] || continue
 		tr '\000' '\n' < "$mac_dev/of_node/compatible" | grep -qx 'atmel,24c02' || continue
 		[ "$(mac_hex "$mac_dev/of_node/size")" = 00000100 ] || continue
-		[ "$(mac_hex "$mac_dev/of_node/pagesize")" = 00000008 ] || continue
+		# Vendor DT uses page-size. at24 ignores that spelling and writes one byte.
+		mac_page_property=$mac_dev/of_node/pagesize
+		if [ ! -f "$mac_page_property" ]; then mac_page_property=$mac_dev/of_node/page-size; fi
+		[ -f "$mac_page_property" ] || continue
+		[ "$(mac_hex "$mac_page_property")" = 00000008 ] || continue
 		[ "$(wc -c < "$mac_dev/eeprom")" -eq 256 ] || continue
 		[ -z "$mac_found" ] || { mac_fail 'ambiguous board EEPROM'; return 1; }
 		mac_found=$mac_dev/eeprom

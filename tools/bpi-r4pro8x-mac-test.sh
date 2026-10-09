@@ -63,6 +63,9 @@ printf '\000\000\001\000' > "$test_dir/eeprom@57/size"
 printf '\000\000\000\010' > "$test_dir/eeprom@57/pagesize"
 dd if=/dev/zero of="$sys/bus/i2c/devices/3-0057/eeprom" bs=256 count=1 2>/dev/null
 [ "$(mac_find_eeprom "$sys")" = "$sys/bus/i2c/devices/3-0057/eeprom" ]
+mv "$test_dir/eeprom@57/pagesize" "$test_dir/eeprom@57/page-size"
+[ "$(mac_find_eeprom "$sys")" = "$sys/bus/i2c/devices/3-0057/eeprom" ]
+mv "$test_dir/eeprom@57/page-size" "$test_dir/eeprom@57/pagesize"
 mkdir "$sys/bus/i2c/devices/6-0051"
 cp "$sys/bus/i2c/devices/3-0057/eeprom" "$sys/bus/i2c/devices/6-0051/eeprom"
 [ "$(mac_find_eeprom "$sys")" = "$sys/bus/i2c/devices/3-0057/eeprom" ]

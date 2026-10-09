@@ -1398,3 +1398,28 @@ Die Umbenennung in `crc_xor` beseitigt diesen Kompatibilitätsfehler.
 Der vollständige lokale Preflight und ShellCheck bestehen danach.
 
 Status dieses Grobschritts: **STATIC PASS / OPENWRT COMPATIBILITY FIX**.
+
+## 41. Hersteller-DT und erfolgreiche Import-Vorschau
+
+Die Skripte werden ausschließlich in das Board-Tmpfs unter `/tmp/bpi-r4pro8x-mac-preview.CoEaek` übertragen.
+Ihre SHA256-Werte stimmen mit den lokalen Dateien überein.
+Der erste Importversuch endet mit Exit 1 und `pagesize: No such file or directory`.
+Der Hersteller-DT enthält stattdessen `page-size` mit dem Wert acht.
+Frank verwendet die Standard-Eigenschaft `pagesize` mit demselben Wert.
+Die EEPROM-Auswahl akzeptiert jetzt beide Schreibweisen und prüft weiterhin sämtliche Identitätsmerkmale.
+Die Einbyte-Schreiboperationen bleiben unverändert.
+
+Die erneute Vorschau endet erfolgreich mit Exit 0 und `DRY RUN: no EEPROM write`.
+Sie liest `da:68:a5:94:9a:ee` aus dem CRC-geprüften redundanten eMMC-Environment.
+Sie identifiziert das Board-EEPROM `3-0057` und den freien Datensatzbereich `0x40` bis `0x4f`.
+Der Boot-Leser meldet in der Vorschau korrekt einen noch nicht provisionierten Datensatz.
+Der vollständige EEPROM-SHA256 bleibt `3f81898302818fb2677ef35028512c44c436c3823c51480454608e1c2d095ae0`.
+Es wurde keine MAC gesetzt und kein EEPROM beschrieben.
+
+Der zweite eMMC-Boot und die Vorschau stehen im fortlaufenden `uart-2026-10-09-emmc-boot-01.log`.
+Das Hersteller-OpenWrt mountet inzwischen außerdem sein NAND-Overlay unter `/mnt/ubi0_6` schreibbar.
+Dieser Mount ist kein externer Backup-Datenträger.
+Ein USB-Backup-Datenträger ist vor dem vorgesehenen Schreibtest noch bereitzustellen.
+Die lokalen Tests unterstützen beide DT-Schreibweisen und bestehen weiterhin.
+
+Status dieses Grobschritts: **OPENWRT IMPORT DRY-RUN PASS / WRITE PENDING**.

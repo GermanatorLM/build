@@ -18,6 +18,8 @@ Check board-specific write protection before any retry.
 Do not apply the normal R4 LED write-protect workaround without checking the Pro schematic.
 
 The importer discovers the at24 device through its Device Tree node, not a fixed I2C bus number.
+It supports Frank's `pagesize` property and the vendor's `page-size` spelling.
+The vendor spelling does not configure at24 page writes. The importer therefore retains one-byte writes.
 It excludes the Wi-Fi EEPROM at `0x51`.
 It accepts only the known `R4PRO8X-` board header and an empty target region.
 Unknown headers, occupied regions, and ambiguous devices cause refusal.
@@ -96,4 +98,5 @@ The reader never writes EEPROM. No kernel MAC parser or Device Tree format chang
 Local tests cover record round trips, corrupt records, truncation, MAC validation, and device discovery.
 The tests exclude ambiguous EEPROMs and the Wi-Fi EEPROM.
 Shell syntax and ShellCheck are checked locally.
-OpenWrt import, physical write protection, EEPROM programming, and Armbian boot integration remain hardware tests.
+The dry-run import passes on vendor OpenWrt 24.10-SNAPSHOT with BusyBox ash 1.36.1.
+Physical write protection, EEPROM programming, and Armbian boot integration remain hardware tests.
