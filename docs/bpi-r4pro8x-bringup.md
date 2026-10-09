@@ -957,3 +957,23 @@ Der vollständige Installer-Test schrieb 15 Dateien in ein leeres Test-Root.
 Alle 15 Einträge bestanden die erzeugte SHA256-Auditprüfung.
 
 Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
+
+## 25. Direkter Abruf der optionalen MT7996-Kalibrationsdatei
+
+Franks `mt76_get_eeprom_file()` fordert zuerst `mediatek/mt7996e_rf.bin` an.
+Die Datei ist optional und board-spezifisch. Das normale `request_firmware()`
+startet bei Fehlen trotzdem den Sysfs-Fallback. HW #5 wartet deshalb rund
+60 Sekunden.
+
+Kernel 6.18 dokumentiert `request_firmware_direct()` für optionale Firmware.
+Die Funktion nutzt keinen Sysfs-Fallback. Ein Fehlschlag erreicht sofort die
+bestehende OF-, NVMEM-, Efuse- und Default-Logik.
+
+Der neue Patchsatz `bpi-r4pro8x-6.18` ändert nur diesen Aufruf. Die normale
+Filogic-Family bleibt unverändert. Der Workflow überwacht den neuen Patchpfad.
+
+Der Patch passt auf den exakten Kernel-Commit `e69eb61a1523`. Projekt-Preflight,
+CI-kompatibler Shellcheck, Workflow-YAML-Prüfung und Diff-Prüfung waren
+erfolgreich.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.

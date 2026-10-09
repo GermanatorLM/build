@@ -7,6 +7,7 @@ on:
       - "config/boards/bananapir4pro8x.csc"
       - "config/sources/families/filogic-r4pro.conf"
       - "patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
+      - "patch/kernel/bpi-r4pro8x-6.18/**"
       - "packages/bpi-r4pro8x-firmware/**"
       - "tools/bpi-r4pro8x-check.sh"
       - "docs/bpi-r4pro8x-bringup.md"

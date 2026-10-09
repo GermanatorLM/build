@@ -18,6 +18,7 @@ cd "${repo_root}"
 board="config/boards/bananapir4pro8x.csc"
 family="config/sources/families/filogic-r4pro.conf"
 uboot_patch="patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
+kernel_patch="patch/kernel/bpi-r4pro8x-6.18/001-mt76-optional-eeprom-no-sysfs-fallback.patch"
 firmware_manifest="packages/bpi-r4pro8x-firmware/manifest.tsv"
 firmware_installer="packages/bpi-r4pro8x-firmware/install.sh"
 
@@ -34,7 +35,7 @@ fi
 pass() { printf 'PASS: %s\n' "$*"; }
 fail() { printf 'FAIL: %s\n' "$*" >&2; exit 1; }
 
-for file in "${board}" "${family}" "${uboot_patch}" "${firmware_manifest}" "${firmware_installer}"; do
+for file in "${board}" "${family}" "${uboot_patch}" "${kernel_patch}" "${firmware_manifest}" "${firmware_installer}"; do
 	[[ -f "${file}" ]] || fail "required file missing: ${file}"
 done
 pass "all R4 Pro port files are present"
@@ -56,6 +57,8 @@ pass "board selects expected U-Boot target, 8X DTB and SD overlay"
 grep -q "KERNELBRANCH='branch:6.18-main'" "${family}" || fail "Frank 6.18 kernel branch not selected"
 grep -q "ATFBRANCH='branch:mtk-atf-2026'" "${family}" || fail "Frank MTK ATF branch not selected"
 grep -q 'DDR4_4BG_MODE=1' "${family}" || fail "8 GiB DDR4 ATF flag missing"
+grep -q "KERNELPATCHDIR='bpi-r4pro8x-6.18'" "${family}" || fail "R4 Pro kernel patch set not selected"
+grep -q 'request_firmware_direct' "${kernel_patch}" || fail "optional EEPROM direct request patch missing"
 pass "kernel and ATF source pins"
 
 grep -q 'mt7988a_bpir4pro_sd_defconfig' "${uboot_patch}" || fail "R4 Pro U-Boot defconfig missing from patch"
