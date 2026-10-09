@@ -140,6 +140,22 @@ for symbol in SRAM GPIO_PCA953X NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_
 done
 pass "R4 Pro SRAM, GPIO and network Kconfig additions"
 
+usb_symbols=(USB_ACM USB_SERIAL USB_SERIAL_WWAN USB_SERIAL_OPTION
+	USB_NET_DRIVERS USB_USBNET USB_WDM USB_NET_CDCETHER USB_NET_CDC_NCM
+	USB_NET_CDC_MBIM USB_NET_QMI_WWAN USB_NET_RNDIS_HOST RFKILL)
+usb_modules="$(sed -n '/opts_m+=(/,/^[[:space:]]*)/p' "${board}")"
+for symbol in "${usb_symbols[@]}"; do
+	grep -q "\"${symbol}\"" <<< "$usb_modules" || fail "USB module config missing: ${symbol}"
+done
+grep -q 'bpi-r4pro-8x-network-v5' "${board}" || fail "USB/PTP kernel config cache hash missing"
+pass "board-local USB serial, LoRa, HaLow and modem modules"
+
+for symbol in PTP_1588_CLOCK NETWORK_PHY_TIMESTAMPING; do
+	grep -q "\"${symbol}\"" "${board}" || fail "PTP kernel config missing: ${symbol}"
+done
+grep -q 'PACKAGE_LIST_BOARD.*linuxptp' "${board}" || fail "linuxptp board package missing"
+pass "board-local PTP clock support and linuxptp tools"
+
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"
 	for mac_script in common.sh import-openwrt.sh apply.sh names.sh provision.sh; do

@@ -8,6 +8,8 @@ INTRODUCED="2025"
 KERNEL_TARGET="current"
 KERNEL_TEST_TARGET="current"
 
+PACKAGE_LIST_BOARD+=" linuxptp"
+
 # U-Boot target added by patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch
 BOOTCONFIG="mt7988a_bpir4pro_sd_defconfig"
 
@@ -106,7 +108,26 @@ function custom_kernel_config__bpi_r4pro_8x_network() {
 		"AS21XXX_PHY"
 		"MEDIATEK_2P5GE_PHY"
 		"NET_MEDIATEK_SOC_WED"
+		"PTP_1588_CLOCK"
+		"NETWORK_PHY_TIMESTAMPING"
 	)
 
-	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v3")
+	# USB modules support LoRa, HaLow and the Quectel modem.
+	opts_m+=(
+		"USB_ACM"
+		"USB_SERIAL"
+		"USB_SERIAL_WWAN"
+		"USB_SERIAL_OPTION"
+		"USB_NET_DRIVERS"
+		"USB_USBNET"
+		"USB_WDM"
+		"USB_NET_CDCETHER"
+		"USB_NET_CDC_NCM"
+		"USB_NET_CDC_MBIM"
+		"USB_NET_QMI_WWAN"
+		"USB_NET_RNDIS_HOST"
+		"RFKILL"
+	)
+
+	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v5")
 }

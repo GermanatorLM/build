@@ -1856,3 +1856,79 @@ Der Mitschnitt enthält Testzugangsdaten.
 Es werden weder EEPROM noch eFuse oder Flash beschrieben.
 
 Status: **6GHZ CLIENT SMOKE PASS / REPEAT AND THROUGHPUT PENDING / FULL HW PASS OPEN**.
+
+## 57. USB-Unterstützung für LoRa, Mobilfunk und HaLow
+
+Der Nutzer bestätigt RAK5166, Quectel RM520N-GL und ALFA AHM27292U-EU als zusätzliche Bestückung.
+USB erkennt Quectel `2c7c:0801` auf `2-1.1` mit 5000 Mbit/s.
+Hersteller- und Produktstrings bestätigen RM520N-GL; fünf USB-Interfaces bleiben ungebunden.
+Die SIM ist laut Nutzer entsperrt; der Kerneltest bestätigt den SIM-Status noch nicht.
+USB erkennt ALFA `1d6b:0104` auf `1-1.2` mit 480 Mbit/s.
+Die Produktstrings bestätigen `AHM27292U 802.11ah`.
+Die Deskriptoren bieten RNDIS-Ethernet und eine ACM-Konsole; beide bleiben ungebunden.
+USB erkennt außerdem STM32 `0483:5740` auf `1-1.4` mit 12 Mbit/s.
+Diese Schnittstelle passt zum RAK5166-USB-Konzentrator; der generische Produktstring bestätigt das Modell nicht unabhängig.
+[RAK beschreibt USB und SX1303 für dieses Modul](https://docs.rakwireless.com/product-categories/wislink/rak5166/datasheet/).
+[Quectel dokumentiert USB-Serial und QMI/MBIM](https://quectel.com/content/uploads/2024/04/Quectel_UMTS_LTE_5G_Linux_USB_Driver_User_Guide_V3.2.pdf).
+[ALFA dokumentiert das eigenständige HaLow-Modul](https://docs.alfa.com.tw/Product/AHM27292U/).
+
+Der laufende Kernel deaktiviert `USB_ACM`, `USB_SERIAL`, `USB_USBNET`, `USB_WDM` und `RFKILL`.
+`lspci` fehlt im Minimal-Image; die USB-Prüfung benötigt dieses Werkzeug nicht.
+Fehlende Treiber erklären die fehlenden seriellen Geräte und USB-Netzwerkinterfaces.
+Der R4-Pro-Board-Hook aktiviert folgende Optionen als Module:
+
+```text
+USB_ACM USB_SERIAL USB_SERIAL_WWAN USB_SERIAL_OPTION
+USB_NET_DRIVERS USB_USBNET USB_WDM USB_NET_CDCETHER USB_NET_CDC_NCM
+USB_NET_CDC_MBIM USB_NET_QMI_WWAN USB_NET_RNDIS_HOST RFKILL
+```
+
+Der Konfigurationshash steigt auf `bpi-r4pro-8x-network-v4`.
+Der Preflight verlangt alle Module und den neuen Hash.
+Die normale Filogic-Family und gemeinsame Kernelkonfiguration bleiben unverändert.
+Der neue Imagebuild enthält auch die bisherigen Wi-Fi-Diagnose- und RF-Ladepatches.
+Er installiert keine ungeprüfte RF-Datei und keine private WLAN-Konfiguration.
+Der Build ändert keine Modulfirmware, SIM-Einstellungen oder Mobilfunkprofile.
+LoRa-Gateway-Software und HaLow-Funkkonfiguration bleiben getrennte nächste Schritte.
+Eine Mobilfunk-Datenverbindung benötigt spätere Zustimmung und einen passenden APN.
+Das laufende Board und alle Flash-Speicher bleiben unverändert.
+
+Preflight, ShellCheck und isolierter Board-Hook-Aufruf bestehen.
+Ein erster ShellCheck-Aufruf ohne Shellangabe meldet SC2148; der korrekte Bash-Aufruf besteht.
+Der Hook enthält alle 13 angeforderten Moduloptionen.
+Die gemeinsame Kernelkonfiguration und Filogic-Family bleiben unverändert.
+
+Status: **STATIC PASS / BUILD AND HW PENDING**.
+
+## 58. PTP-Kernelunterstützung und Werkzeuge
+
+Der Nutzer verlangt PTP im selben neuen Imagebuild.
+Der Board-Hook aktiviert `PTP_1588_CLOCK=y` und sichert `NETWORK_PHY_TIMESTAMPING=y` ab.
+Kconfig aktiviert dabei PPS und die PTP-Paketklassifizierung als Abhängigkeiten.
+Die Board-Paketliste ergänzt `linuxptp` mit `ptp4l`, `phc2sys` und weiteren Diagnosewerkzeugen.
+Der Konfigurationshash steigt auf `bpi-r4pro-8x-network-v5`.
+Der Preflight prüft beide Optionen, das Paket und den neuen Hash.
+Die gemeinsame Filogic-Konfiguration bleibt unverändert.
+
+Die lesende Prüfung des laufenden Images meldet bei `wan` ausschließlich Software-RX-Timestamping und die Systemuhr.
+`ethtool -T wan` meldet `PTP Hardware Clock: none`.
+Die Prüfung für `lan1` endet mit `Operation not supported`.
+`/sys/class/ptp` fehlt im aktuellen Image.
+Das Aktivieren des Frameworks ergänzt keinen fehlenden Hardware-Timestamping-Treiber.
+Ein PTP-Hardware-Pass bleibt ausdrücklich offen.
+[linuxptp dokumentiert Software-Timestamping mit `ptp4l -S`](https://www.linuxptp.org/documentation/ptp4l/).
+Die tatsächliche Portunterstützung und Synchronisationsgüte benötigen spätere Tests mit einem passenden PTP-Gegenüber.
+Der Port startet keinen PTP-Dienst automatisch und verändert jetzt keine Systemuhr.
+Die Änderung erfindet keine PHC und aktiviert keine fremden Clock-Treiber.
+
+Während der lesenden Prüfung meldet der UART-Mitschnitt entfernte SFP-Module und einen Ethernet-Muxwechsel.
+Aeonsemi meldet dabei IPC-Fehler `-14` und einen Polling-Timeout `-110`.
+Danach bindet der WAN-PHY erneut mit Firmware 1.9.1.
+Diese Laufzeitfehler treten vor Installation der neuen Konfiguration auf und bleiben separat offen.
+
+Das Trixie-arm64-Paket `linuxptp_4.2-1+b1` wird vor dem Build geprüft.
+`dpkg-deb` fehlt auf dem Host; `bsdtar` ermöglicht die anschließende Paketprüfung.
+Die PTP-Dienste liegen als Templates vor; die Neuinstallation aktiviert keinen `timemaster`-Dienst.
+Preflight, Bash-ShellCheck und isolierter Board-Hook-Aufruf bestehen.
+
+Status: **STATIC PASS / BUILD AND PTP HW PENDING**.

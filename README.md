@@ -318,6 +318,8 @@ Nachtragen der eigenen SHA.
 | 83 | `SELF` | Wi-Fi-I2C-EEPROM erneut vollständig gelesen und unverändert bestätigt. Laufende Regulatory-Domain auf Nutzerwunsch auf DE gesetzt; untere 6-GHz-Kanäle freigegeben | UART-Diagnose, Laufzeitkonfiguration | DE RUNTIME PASS / RF TEST PENDING |
 | 84 | `SELF` | RF-Datei meldet externe EEPROM-Daten statt Erfolg ohne Daten. MT7996 verwirft gültige Datei nicht mehr vor eFuse-Lesen | R4-Pro-Kernelpatch, C-Stub-Tests, Preflight | STATIC / C-STUB PASS / BUILD AND HW PENDING |
 | 85 | `SELF` | Nutzer-Hotspot auf 5975 MHz gefunden. WPA3-SAE, PMF, DHCP und zehn Gateway-Pings bestehen mit bisherigem Kernel | UART-Mitschnitt, private RAM-Konfiguration | 6GHZ CLIENT SMOKE PASS / REPEAT AND THROUGHPUT PENDING |
+| 86 | `SELF` | USB-Geräte erkannt, aber ACM, Serial und USB-Netzwerktreiber fehlen. Board-Hook aktiviert Module für RAK5166, RM520N-GL und AHM27292U | Board-Hook, Preflight, Bring-up-Dokumentation | STATIC PASS / BUILD AND HW PENDING |
+| 87 | `SELF` | PTP-Clock-Unterstützung und PHY-Timestamping im Board-Hook aktiviert. linuxptp ergänzt. Aktueller WAN-Port meldet keine Hardware-Clock | Board-Hook, Paketliste, Preflight | STATIC PASS / BUILD AND PTP HW PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
