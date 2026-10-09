@@ -325,6 +325,8 @@ Nachtragen der eigenen SHA.
 | 90 | `SELF` | Neues Image erreicht Erstlogin. QMI, Modem-Serial, ACM und ALFA-RNDIS binden. PTP-Kern registriert. Wi-Fi-444-Probe scheitert erneut | UART-Bootlog, Bring-up-Dokumentation | BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL |
 | 91 | `SELF` | Wi-Fi-Diagnose bestätigt Firmware-Hashes und fehlendes Radio. Board für vollständige Stromtrennung heruntergefahren. TF-A unterstützt Power-down nicht | UART-Diagnoselog, Bring-up-Dokumentation | WIFI FAIL / FULL POWER CYCLE PENDING |
 | 92 | `SELF` | Bestätigter Stromtrennungstest reproduziert Variante 444 mit Registerwert null und Probe-Timeout. Firmware-Hashes stimmen. LED-State-Dienst scheitert separat | Vollständiger UART-Kaltstart, Bring-up-Dokumentation | BOOT PASS / WIFI FAIL / POWER CYCLE NOT SUFFICIENT |
+| 93 | `SELF` | Treiber-Neustart und Rebind reproduzieren Wi-Fi-Timeout. Register-Tracing bestätigt Remap-Rücklesung, Resetbit und Variantenregisterwert null | UART-Registertrace, Bring-up-Dokumentation | REGISTER TRACE PASS / WIFI FAIL |
+| 94 | `SELF` | Isolierter Wi-Fi-Bus-Reset scheitert mit -25 und PCIe-AER-Fehlern. Zweiter Reset wird nicht ausgeführt. Board sauber heruntergefahren | UART-Resetlog, Bring-up-Dokumentation | BUS RESET FAIL / POWER CYCLE REQUIRED |
 
 ## Verbindliche Regel für kommende Änderungen
 

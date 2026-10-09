@@ -2086,3 +2086,50 @@ Ein erster Loginversuch enthält Terminalantworten und scheitert; der anschließ
 Das Board bleibt eingeschaltet; die UART-Aufzeichnung bleibt aktiv.
 
 Status: **BOOT PASS / WIFI FAIL / POWER CYCLE NOT SUFFICIENT**.
+
+## 64. Wi-Fi-Neustart und Register-Tracing
+
+Der Nutzer beauftragt die isolierten Laufzeittests.
+Das Log `bpi-r4pro8x-uart/uart-run-37992263277-wifi-coldboot-01.log` zeichnet die Tests weiter auf.
+Beide PCI-Funktionen melden Runtime-Status `active`.
+Die Hauptfunktion bleibt ungebunden; die zweite Funktion bindet weiterhin `mt7996e_hif`.
+Die Modulparameter bieten keinen Variantenoverride an.
+
+Entladen und erneutes Laden von `mt7996e` reproduzieren Variante 444 und den Firmware-Timeout.
+`modprobe` liefert trotzdem Status null; eine erfolgreiche Modulladung bestätigt keine erfolgreiche Geräteprobe.
+Der direkte Rebind scheitert ebenfalls und liefert Shellstatus eins.
+`iw dev` zeigt weiterhin kein Radio.
+
+Eine eigene Trace-Instanz `r4pro_wifi_test` erfasst ausschließlich drei relevante Registeradressen.
+Der Test verändert keine fremde Trace-Instanz und deaktiviert seine Events anschließend wieder.
+Der Trace erfasst alle 20 gefilterten Events ohne Pufferverlust.
+Das L1-Remap-Register `0x155024` übernimmt `0x70027001` für den Resetbereich.
+Der Resetregisterwert bei PCI-Offset `0x138600` wechselt `0x00010340 -> 0x00010341 -> 0x00010340`.
+Die anschließende Remap-Rücklesung liefert `0x70007001` für den Variantenbereich.
+Der PCI-Offset `0x1356f0` liefert `0x00000000` für `MT_PAD_GPIO` bei Adresse `0x700056f0`.
+Dies bestätigt die beobachtete Registertransaktion, nicht die korrekte elektrische Strap-Erkennung.
+Die genaue Ursache der abweichenden 233/444-Erkennung bleibt offen.
+
+Status: **REGISTER TRACE PASS / WIFI FAIL**.
+
+## 65. Fehlgeschlagener Wi-Fi-Bus-Reset
+
+Die Geräteprüfung bestätigt ausschließlich Wi-Fi-Endpunkte unter den PCIe-Controllern `11300000` und `11310000`.
+Der Test entlädt den Wi-Fi-Treiber und wählt vorübergehend Resetmethode `bus`.
+Der erste Reset von `0000:01:00.0` scheitert im Kernel mit `-25`.
+Der Root-Port meldet einen fehlenden aktiven Link und anschließend PCIe-AER-Completion-Timeouts.
+Die Konfigurationswiederherstellung liest Nullwerte und erreicht keine erfolgreiche Geräte-Recovery.
+Der Shellaufruf meldet Status eins.
+Die Testsequenz schreibt anschließend die ursprüngliche Resetmethodenliste `flr bus` zurück.
+Der Fehler stoppt die Sequenz vor dem zweiten Reset und vor der erneuten Treiberladung.
+Weitere Bus-Reset-Versuche werden nicht ausgeführt.
+
+Der Test fährt Linux zur sicheren Beendigung herunter.
+Linux synchronisiert alle Speicher und bestätigt das Unmounten aller Dateisysteme.
+TF-A meldet erneut `Power-down unsupported` mit Panic bei `0x43004898`.
+Ein vollständiger physischer Stromzyklus ist vor weiteren Hardwaretests erforderlich.
+Firmware, EEPROM und Bootloader bleiben unverändert.
+eMMC, NAND, NOR und NVMe erhalten keine testbedingten Schreibzugriffe.
+Dieser fehlgeschlagene Versuch bleibt ausdrücklich Teil der Chronik.
+
+Status: **BUS RESET FAIL / POWER CYCLE REQUIRED**.
