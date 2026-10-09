@@ -1,0 +1,18 @@
+From: Armbian BPI-R4 Pro 8X port
+Subject: [PATCH] wifi: mt76: report RF file as external EEPROM data
+
+Return one when the RF file loads. MT7996 then validates and retains
+the data instead of clearing the buffer before reading eFuse.
+Keep the missing-file fallback unchanged.
+
+--- a/drivers/net/wireless/mediatek/mt76/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/eeprom.c
+@@ -474,7 +474,7 @@ mt76_eeprom_init(struct mt76_dev *dev, int len)
+ 
+ 	ret = mt76_get_eeprom_file(dev, len);
+ 	if (!ret)
+-		return 0;
++		return 1;
+ 
+ 	return !mt76_get_of_eeprom(dev, dev->eeprom.data, len);
+ }

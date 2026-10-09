@@ -1,0 +1,11 @@
+--- a/drivers/net/wireless/mediatek/mt76/eeprom.c
++++ b/drivers/net/wireless/mediatek/mt76/eeprom.c
+@@ -159,7 +159,7 @@ mt76_get_eeprom_file(struct mt76_dev *dev, int len)
+ 
+     dev_info(dev->dev, "Requesting EEPROM: %s\n", fw_name);
+ 
+-    ret = request_firmware(&fw, fw_name, dev->dev);
++    ret = request_firmware_direct(&fw, fw_name, dev->dev);
+     if (ret) {
+         dev_err(dev->dev, "Failed to load EEPROM %s: %d\n", fw_name, ret);
+         return ret;

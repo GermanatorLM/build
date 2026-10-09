@@ -1,0 +1,19 @@
+[Unit]
+Description=Assign R4 Pro 8X Ethernet MACs with guarded EEPROM provisioning
+Wants=systemd-udev-settle.service network-pre.target
+Requires=bpi-r4pro8x-names.service
+After=systemd-udev-settle.service bpi-r4pro8x-names.service
+Before=network-pre.target systemd-networkd.service NetworkManager.service networking.service
+ConditionPathExists=/sys/firmware/devicetree/base/model
+
+[Service]
+Type=oneshot
+StateDirectory=bpi-r4pro8x-mac
+StateDirectoryMode=0700
+ExecStartPre=-/sbin/modprobe at24
+ExecStart=/bin/sh /usr/lib/bpi-r4pro8x-mac/apply.sh --apply
+RemainAfterExit=yes
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target

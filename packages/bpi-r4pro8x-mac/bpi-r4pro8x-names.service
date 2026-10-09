@@ -1,0 +1,15 @@
+[Unit]
+Description=Assign BPI-R4 Pro 8X hardware port names
+Wants=systemd-udev-settle.service network-pre.target
+After=systemd-udev-settle.service
+Before=bpi-r4pro8x-mac.service network-pre.target systemd-networkd.service NetworkManager.service networking.service
+ConditionPathExists=/sys/firmware/devicetree/base/model
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh /usr/lib/bpi-r4pro8x-mac/names.sh
+RemainAfterExit=yes
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
