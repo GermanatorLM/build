@@ -315,6 +315,7 @@ Nachtragen der eigenen SHA.
 | 80 | `SELF` | Wi-Fi-Probe nutzt 444 statt zuvor erfolgreichem 233. Erneuter Probe und PCIe-Funktionsreset scheitern ebenfalls. Alle Firmware-Hashes stimmen | UART-Mitschnitte, Hardwaretests | WIFI FAIL / FULL POWER CYCLE PENDING |
 | 81 | `SELF` | Board-lokaler MT7996-Patch protokolliert Variantenerkennung, Hardware-Register und ROM-Patch-Pfad. Automatische Auswahl bleibt unverändert | Kernel-Diagnosepatch, Preflight | STATIC PASS / BUILD AND HW PENDING |
 | 82 | `SELF` | Vollständige Stromtrennung ermöglicht 233-Firmwarestart ohne Patch-Timeout. phy0 und wlan0 vorhanden. 6 GHz bleibt mit Länderkennung 00 gesperrt | UART-Kaltstartlog, Wi-Fi-Inventar | WIFI PROBE HW PASS / RF TEST PENDING |
+| 83 | `SELF` | Wi-Fi-I2C-EEPROM erneut vollständig gelesen und unverändert bestätigt. Laufende Regulatory-Domain auf Nutzerwunsch auf DE gesetzt; untere 6-GHz-Kanäle freigegeben | UART-Diagnose, Laufzeitkonfiguration | DE RUNTIME PASS / RF TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

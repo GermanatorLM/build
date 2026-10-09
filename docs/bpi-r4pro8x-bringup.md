@@ -1743,3 +1743,31 @@ Ein PCIe-Funktionsreset reicht im vorherigen Versuch nicht aus.
 Es werden keine Firmwaredateien ersetzt und keine Varianten dauerhaft erzwungen.
 
 Status: **WIFI PROBE HW PASS / RF TEST PENDING / WARM-BOOT RELIABILITY OPEN**.
+
+## 54. Wi-Fi-I2C-EEPROM und Deutschland als Laufzeitregion
+
+Der erneute vollständige EEPROM-Dump bestätigt I2C `6-0051`, Treiber `at24` und Compatible `atmel,24c02`.
+Der Chip liefert 256 Bytes.
+Offsets `0x00..0x1f` enthalten `ff`.
+Offsets `0x20..0x29` enthalten ASCII `2025-06-07`; die Bedeutung des Datums ist nicht belegt.
+Offsets `0x2a..0x3f` enthalten `00`.
+Offsets `0x40..0xff` enthalten `ff`.
+SHA256 bleibt `cb4794f91bb479938168654598524203ab457fc5115485fb1d255dd20ec0a26c`.
+Es gibt keinen erkennbaren Länder- oder Variantendatensatz.
+Franks Device Tree bindet diesen Chip als eigenständiges I2C-EEPROM ohne Wi-Fi-NVMEM-Zuordnung ein.
+Das effektive MT76-EEPROM im Debugfs umfasst dagegen 7680 Bytes.
+Dieses Treiberabbild ist kein Rohdump des 256-Byte-I2C-Chips.
+Eigene Kennungen im I2C-Chip würden einen zusätzlichen, ausdrücklich definierten Leser benötigen.
+Ein solcher Datensatz würde den bestätigten Resetfehler nicht automatisch beheben.
+Der Test beschreibt weder das I2C-EEPROM noch Kalibrationsdaten.
+
+Auf ausdrücklichen Nutzerwunsch setzt `iw reg set DE` die laufende Regulatory-Domain.
+`iw reg get` bestätigt `country DE: DFS-ETSI`.
+`iw phy` bestätigt Kanal 1 bei 5955 MHz und Kanal 93 bei 6415 MHz mit maximal 23 dBm.
+Kanäle bei 6435 MHz und 7115 MHz bleiben deaktiviert.
+Die angezeigte 6-GHz-Regel enthält `NO-OUTDOOR`.
+Diese Freigabe bestätigt keinen Funkverkehr und keine korrekte modulspezifische Kalibration.
+Die Änderung ist eine Laufzeiteinstellung; nach einem Neustart muss die Länderkennung erneut gesetzt werden.
+Das allgemeine Image erhält keine fest eingebaute deutsche Länderkennung.
+
+Status: **EEPROM READ-ONLY PASS / DE RUNTIME PASS / RF TEST PENDING**.
