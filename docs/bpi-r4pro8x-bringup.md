@@ -1771,3 +1771,47 @@ Die Änderung ist eine Laufzeiteinstellung; nach einem Neustart muss die Länder
 Das allgemeine Image erhält keine fest eingebaute deutsche Länderkennung.
 
 Status: **EEPROM READ-ONLY PASS / DE RUNTIME PASS / RF TEST PENDING**.
+
+## 55. RF-Datei als externe EEPROM-Quelle erhalten
+
+Franks `mt76_eeprom_init()` liefert nach erfolgreichem RF-Dateiladen bisher null.
+MT7996 behandelt nur positive Werte als externe EEPROM-Daten.
+Der Treiber löscht deshalb die geladene Datei und liest erneut eFuse.
+Der neue R4-Pro-Patch liefert bei erfolgreichem Dateiladen eins.
+MT7996 prüft anschließend die Chipkennung und verwendet den bestehenden externen Ladepfad.
+Die vorhandene Variantenprüfung und die Ergänzung fehlender Sendeleistungswerte bleiben bestehen.
+Fehlende Dateien behalten den direkten Abruf ohne Sysfs-Fallback.
+OF-, eFuse- und Default-Fallback bleiben unverändert.
+
+Der Test extrahiert beide Ladefunktionen aus gepatchten Kernelquellen.
+C-Stubs simulieren Firmware-, OF- und eFuse-Zugriffe.
+Der Test prüft Dateierhalt, ungültige Chipkennung, Dateifehler, OF-Daten, leere eFuse und Speicherfehler.
+Der Test ersetzt keine vollständige Kernelkompilierung oder Hardwareprüfung.
+
+```bash
+bash tools/bpi-r4pro8x-rf-test.sh /pfad/zu/gepatchten/kernelquellen
+```
+
+Es wird keine generische Default-Datei als `mediatek/mt7996e_rf.bin` installiert.
+Eine echte RF-Datei benötigt eine belegte Quelle und Eignung für das verbaute Modul.
+Die Änderung verändert weder das laufende Board noch EEPROM, eFuse oder Flash.
+Deutschland bleibt eine private Laufzeitkonfiguration und keine allgemeine Image-Vorgabe.
+Die bisherige Chronik bleibt vollständig erhalten.
+
+Die Patch-Anwendungsprüfung besteht gegen Kernel-Commit `e69eb61a1523c5e993803c05a42c55c7576b07d3` nach Patch 001.
+Der erste Testaufbau scheitert an einer doppelten Typdeklaration und vorhandenen Vorzeichenwarnungen im extrahierten Kernelcode.
+Die korrigierte Extraktion kompiliert; der Test deaktiviert nur diese Vorzeichenwarnungen.
+Ohne Patch 004 scheitert der Dateierhalt-Test am unerwarteten eFuse-Zugriff.
+Mit Patch 004 bestehen alle sieben Fälle.
+Der vollständige Preflight und ShellCheck bestehen; die bekannte Maintainer-Warnung bleibt bestehen.
+Ein vollständiger Kernelbuild und die Nutzung einer echten RF-Datei bleiben offen.
+
+Die lesende Laufzeitprüfung präzisiert die frühere Aussage über EEPROM-Defaults aus Abschnitt 53.
+Das aktive PCI-Gerät besitzt keinen OF-Knoten; die RF-Datei fehlt.
+Der geprüfte Ladepfad liest daher eFuse und ergänzt fehlende Sendeleistungswerte aus dem passenden Default.
+Der aktive Datensatz unterscheidet sich von allen vier installierten Default-Dateien.
+Aktiver SHA256: `7753b19c90948c284387a83aade8278dafd40915e71f172dcbff6c6223a2d033`.
+Offset `0x04` enthält `00:0c:43:26:60:10`; `wlan0` verwendet dieselbe MAC.
+Die physische Herkunft und individuelle RF-Güte aller Felder bleiben ungeprüft.
+
+Status: **STATIC / C-STUB PASS / BUILD AND HW PENDING**.

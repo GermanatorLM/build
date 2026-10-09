@@ -12,6 +12,7 @@ on:
       - "packages/bpi-r4pro8x-mac/**"
       - "tools/bpi-r4pro8x-check.sh"
       - "tools/bpi-r4pro8x-mac-test.sh"
+      - "tools/bpi-r4pro8x-rf-test.sh"
       - "docs/bpi-r4pro8x-bringup.md"
       - ".github/workflows/bpi-r4pro8x-build.yml"
   workflow_dispatch:

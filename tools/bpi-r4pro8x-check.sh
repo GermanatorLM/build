@@ -47,6 +47,15 @@ grep -q 'MT_PAD_GPIO=0x%08x' "$wifi_patch" || fail "Wi-Fi register diagnostic mi
 grep -q 'ROM patch requested:' "$wifi_patch" || fail "Wi-Fi firmware path diagnostic missing"
 pass "board-local Wi-Fi variant diagnostics"
 
+rf_patch=patch/kernel/bpi-r4pro8x-6.18/004-mt76-preserve-rf-file-eeprom.patch
+[[ -f "$rf_patch" ]] || fail "RF file EEPROM return-value patch missing"
+grep -q '^+.*return 1;' "$rf_patch" || fail "RF file must report external EEPROM data"
+bash -n tools/bpi-r4pro8x-rf-test.sh
+if command -v shellcheck >/dev/null; then
+	shellcheck tools/bpi-r4pro8x-rf-test.sh
+fi
+pass "board-local RF file EEPROM fix and test syntax"
+
 bash -n "${board}"
 bash -n "${family}"
 bash -n "${firmware_installer}"
