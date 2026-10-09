@@ -66,7 +66,7 @@ grep -q 'fdtoverlay_addr_r=0x62080000' "${uboot_patch}" || fail "R4 Pro U-Boot o
 pass "minimal R4 Pro SD U-Boot patch structure and overlay load address"
 
 firmware_count="$(awk -F '\t' 'NF == 3 && $1 !~ /^#/ {count++} END {print count+0}' "${firmware_manifest}")"
-[[ "${firmware_count}" -eq 13 ]] || fail "expected 13 firmware payloads, found ${firmware_count}"
+[[ "${firmware_count}" -eq 15 ]] || fail "expected 15 firmware payloads, found ${firmware_count}"
 
 while IFS=$'\t' read -r blob size path; do
 	[[ -z "${blob}" || "${blob}" == \#* ]] && continue
@@ -77,6 +77,8 @@ done < "${firmware_manifest}"
 
 for path in \
 	mediatek/mt7996/mt7996_eeprom.bin \
+	mediatek/mt7996/mt7996_eeprom_2i5i6i.bin \
+	mediatek/mt7996/mt7996_eeprom_233_2i5i6i.bin \
 	mediatek/mt7996/mt7996_rom_patch.bin \
 	mediatek/mt7996/mt7996_wa.bin \
 	mediatek/mt7996/mt7996_wm.bin; do

@@ -23,12 +23,14 @@ e2baa07cb6f3ccbc96d020bedf7f499929735ddd	131072	mediatek/mt7988/i2p5ge-phy-pmb.b
 # MediaTek MT7996 "444" Wi-Fi 7 firmware selected by the R4 Pro 8X hardware
 fed33fb5bccc9ec6971711241ecf112e2bde51ab	192688	mediatek/mt7996/mt7996_dsp.bin
 6fb81b6ce2d4e576d798f17e7f2ef83e7ec6331e	7680	mediatek/mt7996/mt7996_eeprom.bin
+5ad238a5ae704873933b6df1c9af42ee206a686b	7680	mediatek/mt7996/mt7996_eeprom_2i5i6i.bin
 7cc515b21242dbd101c558b048af8782c8ad4883	37216	mediatek/mt7996/mt7996_rom_patch.bin
 61dc7a97a013d279e5ffee49a455f1e21df5ba3d	510000	mediatek/mt7996/mt7996_wa.bin
 1b8859dd71c2ae092eda5bcf480b3d5d896c83a0	2656440	mediatek/mt7996/mt7996_wm.bin
 #
 # MediaTek MT7996 "233" Wi-Fi 7 firmware set retained for variant coverage
 11eaa85f4682f751da129a86dca7e842a78b6948	7680	mediatek/mt7996/mt7996_eeprom_233.bin
+11eaa85f4682f751da129a86dca7e842a78b6948	7680	mediatek/mt7996/mt7996_eeprom_233_2i5i6i.bin
 f3ab3c14e750264338cfdced394b5bd08599d87e	37216	mediatek/mt7996/mt7996_rom_patch_233.bin
 e620ef142a71d99a93c0850216918f3a7ee01e3d	510000	mediatek/mt7996/mt7996_wa_233.bin
 f701831c480a3c69f2a979c1afc311b29b234cfa	2681656	mediatek/mt7996/mt7996_wm_233.bin

@@ -928,3 +928,32 @@ Quelle für die zu dieser Hardware passende EEPROM-Kalibration abgeglichen.
 eMMC, NAND und NOR wurden weiterhin nicht beschrieben. Die bereits bekannten
 separaten Beobachtungen am PCIe-Port `11280000`, xHCI `11190000` und
 `sys-led-red` bleiben unverändert offen.
+
+## 24. Gepinnte MT7996-Defaults für interne FEMs
+
+Der gebaute Kernelstand `e69eb61a1523c5e993803c05a42c55c7576b07d3`
+definiert zwei zusätzliche MT7996-EEPROM-Defaults. Beide gelten für interne
+Front-End-Module:
+
+```text
+5ad238a5ae704873933b6df1c9af42ee206a686b  7680  mediatek/mt7996/mt7996_eeprom_2i5i6i.bin
+11eaa85f4682f751da129a86dca7e842a78b6948  7680  mediatek/mt7996/mt7996_eeprom_233_2i5i6i.bin
+```
+
+Beide Dateien liegen bereits im gepinnten Firmware-Commit
+`17c8530777b28c3b909dc505b95cf895159bd8b9`. Der zweite Pfad ist bytegleich
+mit `mt7996_eeprom_233.bin`. Beide Pfade haben denselben Git-Blob
+`11eaa85f4682f751da129a86dca7e842a78b6948`.
+
+Der HW-#5-Cold-Boot fordert den internen 233-Pfad an. Der interne 444-Pfad
+deckt die zweite vom gleichen Treiber unterstützte MT7996-Variante ab. Das
+Manifest umfasst nun 15 geprüfte Payloads. Der Firmware-Pin bleibt unverändert.
+
+Der optionale Versuch für `mediatek/mt7996e_rf.bin` bleibt zunächst getrennt.
+Diese Datei ist kein generischer linux-firmware-Payload. Der Treiber wartet bei
+ihrem Fehlen derzeit unnötig auf den Sysfs-Fallback.
+
+Der vollständige Installer-Test schrieb 15 Dateien in ein leeres Test-Root.
+Alle 15 Einträge bestanden die erzeugte SHA256-Auditprüfung.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
