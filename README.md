@@ -287,6 +287,7 @@ Nachtragen der eigenen SHA.
 | 53 | `SELF` | Die beiden vom gebauten MT7996-Treiber gewählten internen-FEM-EEPROM-Defaults für 444 und 233 am bestehenden Firmware-Pin verifiziert und dem auditierten Board-Paket hinzugefügt | `manifest.tsv`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 54 | `SELF` | Den optionalen board-spezifischen MT7996-EEPROM-Abruf im R4-Pro-lokalen Kernel-Patchsatz auf direkten Dateizugriff umgestellt; fehlende Datei löst keinen 60-Sekunden-Sysfs-Fallback mehr aus | `filogic-r4pro.conf`, Kernel-Patch, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
 | 55 | `CI #12` | MT7996-Kalibrationsfix vollständig gebaut; Kernel-Patch, heruntergeladenes Artefakt, Image-SHA256, read-only Rootfs, extlinux und alle 15 gepinnten Firmware-Auditeinträge verifiziert | GitHub Actions Run `37898648988`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
+| 56 | `SD #6` | MT7996-Kalibrationstestimage auf die eindeutig identifizierte 64-GB-SD-Karte geschrieben; Automount vorab deaktiviert und exakt 1476395008 Bytes mit identischem SHA256 roh zurückgelesen | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS / HW TEST READY |
 
 ## Verbindliche Regel für kommende Änderungen
 

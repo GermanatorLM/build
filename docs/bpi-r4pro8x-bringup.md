@@ -1015,3 +1015,31 @@ Der separate fehlende Website-Asset
 erfolgreichen Port-Build nicht.
 
 Status dieses Grobschritts: **BUILD PASS / HW TEST PENDING**.
+
+## 27. SD-Vorbereitung für den MT7996-Kalibrationstest
+
+Das in Abschnitt 26 verifizierte Image wurde auf die eindeutig identifizierte
+64-GB-SD-Karte geschrieben. Das Ziel war `/dev/sdb` mit exakt 63864569856
+Bytes, `RM=1`, `HOTPLUG=1`, Transport `usb`, Modell `STORAGE DEVICE` und
+Serienkennung `Generic_STORAGE_DEVICE-0:0`. Die internen SATA- und
+NVMe-Laufwerke waren davon klar getrennt.
+
+Desktop-Automount wurde vor dem Aushängen deaktiviert. Unmittelbar vor dem
+Schreiben war keine Partition von `/dev/sdb` eingehängt. Geschrieben wurde:
+
+```text
+Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_6.18.53_minimal.img
+Größe: 1476395008 Bytes (352 Blöcke zu 4 MiB)
+SHA256: 0075bc65bc9a2548594c0618434a10464c437ff49e4d92213533c53eac06a216
+```
+
+`dd` schrieb 352 vollständige 4-MiB-Blöcke und schloss mit `fsync`
+fehlerfrei ab. Alle Partitionen blieben vor der Rücklese ausgehängt. Genau
+1476395008 Bytes wurden anschließend roh von `/dev/sdb` gelesen. Ihr SHA256
+war erneut `0075bc65bc9a2548594c0618434a10464c437ff49e4d92213533c53eac06a216`.
+
+Die SD-Karte wurde danach logisch abgeschaltet. Die ursprünglichen
+Automount-Einstellungen wurden wiederhergestellt. eMMC, NAND und NOR wurden
+nicht beschrieben.
+
+Status dieses Grobschritts: **SD WRITE/READBACK PASS / HW TEST READY**.
