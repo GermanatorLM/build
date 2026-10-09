@@ -1220,3 +1220,37 @@ Die UCI-Netzwerkkonfiguration enthält keinen gefundenen MAC-Override.
 `fw_printenv` scheitert am fehlenden `/etc/fw_env.config`; die Prüfung verändert diese Konfiguration nicht.
 
 Status dieses Grobschritts: **PERSISTED RANDOM MAC / FACTORY MAC UNCONFIRMED**.
+
+## 34. Boot des vorhandenen Hersteller-eMMC-Systems
+
+Der Nutzer startet das Board mit eMMC-Bootauswahl.
+BL2 und BL31 melden `mt7988-emmc-comb` und erkennen 8 GiB RAM.
+U-Boot 2024.10 liest sein MMC-Environment ohne CRC-Warnung.
+Der Mitschnitt zeigt hierbei keinen automatischen Environment-Schreibvorgang.
+U-Boot liest das vorhandene FIT von eMMC und startet OpenWrt Linux 6.6.93.
+Die Root-Konsole meldet `root@(none)`.
+
+Linux bildet `mmcblk0p5` auf `/dev/fit0` und `/dev/fitrw` ab.
+Das Root-FIT liefert SquashFS; `/dev/fitrw` liefert das schreibbare F2FS-Overlay.
+Die Prüfkommandos lesen nur. Es wird kein neues Image installiert.
+Der Hersteller-Boot verwendet schreibbare Dateisysteme und ist kein Schreibschutztest.
+Das System meldet außerdem ein fehlendes Root-Passwort.
+
+`eth0` verwendet `da:68:a5:94:9a:ee` mit `addr_assign_type=0`.
+Diese Adresse unterscheidet sich vom NAND-Environment. Eine werkseitige Herkunft bleibt unbestätigt.
+`eth1` verwendet `a6:b0:8a:c0:4d:df`, `eth2` verwendet `32:45:8d:c7:62:ec`.
+Beide Geräte melden `addr_assign_type=1`.
+Der eMMC-Boot prüft nicht die Wiederverwendung des separaten NAND-Environments.
+
+U-Boot meldet beim zusätzlichen FIT-Konfigurationsversuch `Could not find configuration node` und `load of <NULL> failed`.
+Der Boot setzt danach erfolgreich fort.
+Linux meldet PCIe-Timeouts für `11280000` und `11290000`.
+DSA meldet MTU-Fehler; INA2xx meldet einen Konfigurationsfehler mit `-6`.
+MT7996 meldet wiederholte MCU-Timeouts für Nachricht `00000007`.
+Diese Meldungen betreffen das vorhandene Hersteller-System, nicht den Armbian-Kernel.
+
+Der vollständige empfangene Mitschnitt heißt `bpi-r4pro8x-uart/uart-2026-10-09-emmc-boot-01.log`.
+Er enthält auch den vorherigen Hersteller-Shutdown mit TF-A-Panic bei `0x430047ec`.
+Die UART-Aufzeichnung bleibt geöffnet.
+
+Status dieses Grobschritts: **VENDOR EMMC BOOT PASS / ARMBIAN EMMC UNTESTED**.
