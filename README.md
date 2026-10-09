@@ -290,6 +290,8 @@ Nachtragen der eigenen SHA.
 | 56 | `SD #6` | MT7996-Kalibrationstestimage auf die eindeutig identifizierte 64-GB-SD-Karte geschrieben; Automount vorab deaktiviert und exakt 1476395008 Bytes mit identischem SHA256 roh zurückgelesen | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS / HW TEST READY |
 | 57 | `HW #6` | Vollständiger SD-Cold-Boot bestätigt den MT7996-Kalibrationsfix: Die optionale RF-Datei endet sofort mit `-ENOENT`, der Treiber nutzt den EEPROM-Default und registriert `mt76-phy0`; Login und `multi-user.target` werden ohne die bisherigen 60-Sekunden-Fallbacks erreicht | UART-Log `uart-2026-10-09-c77e5da20-hw6.log`, `docs/bpi-r4pro8x-bringup.md` | MT7996 PROBE HW PASS / OTHER HW BLOCKERS REMAIN |
 
+| 58 | `SELF` | Fehlenden PCA9555-Treiber in der gebauten Konfiguration bestätigt und `GPIO_PCA953X` im Board-Hook aktiviert. XS-PHY-Meldung nachträglich als vorübergehenden Probe-Aufschub eingeordnet | `bananapir4pro8x.csc`, `bpi-r4pro8x-check.sh`, `docs/bpi-r4pro8x-bringup.md` | STATIC PASS / BUILD PENDING |
+
 ## Verbindliche Regel für kommende Änderungen
 
 Ab jetzt gilt für diesen Branch:

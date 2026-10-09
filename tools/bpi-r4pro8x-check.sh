@@ -103,10 +103,10 @@ grep -q 'add_firmware "aeonsemi/as21x1x_fw.bin"' "${board}" || fail "Aeonsemi fi
 grep -q 'firmware-sha256=' "${board}" || fail "Aeonsemi initramfs cache-busting hash missing"
 pass "board-local Aeonsemi firmware initramfs hook"
 
-for symbol in SRAM NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
+for symbol in SRAM GPIO_PCA953X NET_DSA_MXL862 NET_DSA_TAG_MXL862_8021Q AS21XXX_PHY MEDIATEK_2P5GE_PHY NET_MEDIATEK_SOC_WED; do
 	grep -q "\"${symbol}\"" "${board}" || fail "kernel config symbol missing: ${symbol}"
 done
-pass "R4 Pro SRAM and network Kconfig additions"
+pass "R4 Pro SRAM, GPIO and network Kconfig additions"
 
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"

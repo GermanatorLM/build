@@ -1078,3 +1078,25 @@ deferred probe. eMMC, NAND und NOR wurden nicht beschrieben.
 
 Status dieses Grobschritts:
 **MT7996 PROBE HW PASS / OTHER HW BLOCKERS REMAIN**.
+
+## 29. PCA9555-Treiber und korrigierte Fehlerzuordnung
+
+Die weitere Logprüfung korrigiert die erste Einordnung aus Abschnitt 28.
+XS-PHY registriert bei 2,61 s den PHY mit `type_sw - reg 0x194`.
+Die Clock-Meldung bei 0,38 s beschreibt einen vorübergehenden Probe-Aufschub.
+Sie belegt keinen dauerhaften XS-PHY-Ausfall. Die vorherige Einordnung bleibt
+zur Nachvollziehbarkeit erhalten.
+
+PCIe `11280000` meldet `detect.quiet` und einen fehlenden Link.
+Die Bestückung dieses M.2-Ports muss vor einer Fehlerbewertung geprüft werden.
+Der xHCI-Timeout bei `11190000` bleibt separat offen.
+
+Der Device Tree verbindet beide System-LEDs mit dem PCA9555 an I2C `3-0020`.
+Die gebaute Konfiguration enthält `# CONFIG_GPIO_PCA953X is not set`.
+Damit fehlt der Treiber für diesen GPIO-Expander.
+
+Der Board-Hook aktiviert jetzt `GPIO_PCA953X=y`.
+Der Konfigurationshash steigt auf `bpi-r4pro-8x-network-v3`.
+Der Preflight prüft die neue Option. Die gemeinsame Filogic-Konfiguration bleibt unverändert.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.
