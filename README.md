@@ -294,6 +294,7 @@ Nachtragen der eigenen SHA.
 | 59 | `SELF` | Speicher ausschließlich lesend geprüft. SPI-NAND und WLAN-EEPROM bestätigt. Gemeinsamer MMC-Controller verhindert gleichzeitigen SD/eMMC-Zugriff. NOR-Bestückung beim Pro 8X bleibt unbelegt | `docs/bpi-r4pro8x-bringup.md` | STORAGE INVENTORY / EMMC TEST PENDING |
 | 60 | `SELF` | Hersteller-NAND-Boot gestartet. U-Boot schreibt nach ungültigen Environment-Prüfsummen selbstständig nach UBI. Autoboot nicht rechtzeitig gestoppt. Kein Linux-Prompt oder eMMC-Nachweis | UART-Beobachtungen, `docs/bpi-r4pro8x-bringup.md` | NAND TEST INCOMPLETE / AUTOMATIC UBI WRITES |
 | 61 | `SELF` | UART nach Debug-Neuverbindung wieder erreichbar. Hersteller-Linux erkennt eMMC 8GTF4R mit HS400, Bootpartitionen und RPMB. EXT_CSD lesbar. Hersteller-System mountet NAND und NVMe schreibbar | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | EMMC DETECTION PASS ON VENDOR KERNEL |
+| 62 | `SELF` | Ethernet-MACs im Hersteller-System lesend geprüft. U-Boot speichert seine zufällige eth0-Adresse als `ethaddr`. eth1 und eth2 bleiben zufällig. Keine Werks-MAC bestätigt | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | PERSISTED RANDOM MAC / FACTORY MAC UNCONFIRMED |
 
 ## Verbindliche Regel für kommende Änderungen
 

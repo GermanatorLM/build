@@ -1202,3 +1202,21 @@ Der Mitschnitt heißt `bpi-r4pro8x-uart/uart-2026-10-09-nand-debug-replug.log`.
 Der nächste Armbian-eMMC-Test benötigt einen Root-Datenträger außerhalb des gemeinsamen SD/eMMC-Controllers.
 
 Status dieses Grobschritts: **EMMC DETECTION PASS ON VENDOR KERNEL**.
+
+## 33. Persistierte Zufallsadresse statt bestätigter Werks-MAC
+
+Das Hersteller-System verwendet `92:cb:91:79:fc:94` für `eth0` und dessen LAN-Ports.
+Der vorherige U-Boot-Mitschnitt bezeichnet genau diese Adresse ausdrücklich als zufällig erzeugt.
+Ein lesender Zugriff auf `ubi0_1` findet jetzt `ethaddr=92:cb:91:79:fc:94`.
+Die frühere SD-Prüfung fand dort keinen passenden MAC-Schlüssel.
+U-Boot hat seine Zufallsadresse offenbar beim automatischen Environment-Schreiben persistiert.
+Ein weiterer Boot muss deren Wiederverwendung noch bestätigen.
+
+Der aktive Device Tree enthält diese Adresse in beiden MAC-Eigenschaften von `mac@0`.
+`ethtool -P eth0` meldet dieselbe Adresse. Das beweist keine werkseitig programmierte Adresse.
+`eth1` verwendet `ea:2a:2d:7b:f5:53`, `eth2` verwendet `b2:f4:99:cc:37:31`.
+Beide Geräte melden `addr_assign_type=1`; `ethtool -P` meldet jeweils `not set`.
+Die UCI-Netzwerkkonfiguration enthält keinen gefundenen MAC-Override.
+`fw_printenv` scheitert am fehlenden `/etc/fw_env.config`; die Prüfung verändert diese Konfiguration nicht.
+
+Status dieses Grobschritts: **PERSISTED RANDOM MAC / FACTORY MAC UNCONFIRMED**.
