@@ -324,6 +324,7 @@ Nachtragen der eigenen SHA.
 | 89 | `SELF` | Image aus Run 37992263277 auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / HW TEST PENDING |
 | 90 | `SELF` | Neues Image erreicht Erstlogin. QMI, Modem-Serial, ACM und ALFA-RNDIS binden. PTP-Kern registriert. Wi-Fi-444-Probe scheitert erneut | UART-Bootlog, Bring-up-Dokumentation | BOOT PASS / USB BIND PASS / WIFI FAIL / HW PARTIAL |
 | 91 | `SELF` | Wi-Fi-Diagnose bestätigt Firmware-Hashes und fehlendes Radio. Board für vollständige Stromtrennung heruntergefahren. TF-A unterstützt Power-down nicht | UART-Diagnoselog, Bring-up-Dokumentation | WIFI FAIL / FULL POWER CYCLE PENDING |
+| 92 | `SELF` | Bestätigter Stromtrennungstest reproduziert Variante 444 mit Registerwert null und Probe-Timeout. Firmware-Hashes stimmen. LED-State-Dienst scheitert separat | Vollständiger UART-Kaltstart, Bring-up-Dokumentation | BOOT PASS / WIFI FAIL / POWER CYCLE NOT SUFFICIENT |
 
 ## Verbindliche Regel für kommende Änderungen
 

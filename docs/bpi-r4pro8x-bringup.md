@@ -1703,6 +1703,35 @@ Die Wi-Fi-Modulbestückung und automatische Erkennung müssen zusammenpassen.
 
 Status: **WIFI FAIL / FULL POWER CYCLE PENDING**.
 
+## 63. Wi-Fi-Kaltstart mit dem neuen Diagnosepatch
+
+Der Nutzer bestätigt die Stromtrennung und startet das Board erneut.
+`bpi-r4pro8x-uart/uart-run-37992263277-wifi-coldboot-01.log` zeichnet BootROM, TF-A, U-Boot und Linux vollständig auf.
+Das Board verwendet unverändert das Image aus Run `37992263277`.
+TF-A meldet Cold Boot; Linux erreicht den Login auf dem bisherigen SD-Rootfs.
+
+Bei 26,00 Sekunden meldet MT7996 Variante 444 mit `MT_PAD_GPIO=0x00000000`.
+Der Treiber fordert den unsuffigierten ROM-Patch an und meldet Build-Time `20260311120419a`.
+Bei 31,12 Sekunden scheitert der Patchstart mit MCU-Timeout.
+Bei 36,17 Sekunden endet die Probe mit `-11`.
+`iw dev` und `iw phy` zeigen erneut keine Radios.
+Alle 15 Firmware-Prüfsummen bestehen auf dem Board.
+Die Stromtrennung allein reproduziert den früheren erfolgreichen 233-Start diesmal nicht.
+Die Ursache ist weiterhin offen; eine fehlende Firmwaredatei erklärt diesen Versuch nicht.
+
+Die Quellprüfung bestätigt die automatische Auswahl über Bit 19 von `MT_PAD_GPIO`.
+Auch [OpenWrt mt76](https://github.com/openwrt/mt76/blob/master/mt7996/init.c) verwendet diese Auswahl vor dem MCU-Start.
+Die Nullmessung beweist weder eine echte 444-Bestückung noch eine fehlerhafte Registerlesung.
+Der nächste isolierte Diagnoseschritt soll Registerzugriff und Resetreihenfolge mit dem erfolgreichen Stand vergleichen.
+Es werden keine Varianten erzwungen, Kalibrationsdaten verändert oder Firmwaredateien ersetzt.
+
+Der LED-State-Dienst scheitert separat mit `Invalid state file, syntax error in configuration file`.
+Dieser Fehler tritt vor dem Login auf und wird nicht als Wi-Fi-Ursache eingeordnet.
+Ein erster Loginversuch enthält Terminalantworten und scheitert; der anschließende Root-Login besteht.
+Das Board bleibt eingeschaltet; die UART-Aufzeichnung bleibt aktiv.
+
+Status: **BOOT PASS / WIFI FAIL / POWER CYCLE NOT SUFFICIENT**.
+
 ## 52. Board-lokale Wi-Fi-Variantendiagnose
 
 Der zusätzliche Kernelpatch protokolliert `MT_PAD_GPIO`, die erkannte MT7996-Variante und den angeforderten ROM-Patch-Pfad.
