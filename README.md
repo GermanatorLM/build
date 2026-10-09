@@ -296,6 +296,7 @@ Nachtragen der eigenen SHA.
 | 61 | `SELF` | UART nach Debug-Neuverbindung wieder erreichbar. Hersteller-Linux erkennt eMMC 8GTF4R mit HS400, Bootpartitionen und RPMB. EXT_CSD lesbar. Hersteller-System mountet NAND und NVMe schreibbar | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | EMMC DETECTION PASS ON VENDOR KERNEL |
 | 62 | `SELF` | Ethernet-MACs im Hersteller-System lesend geprüft. U-Boot speichert seine zufällige eth0-Adresse als `ethaddr`. eth1 und eth2 bleiben zufällig. Keine Werks-MAC bestätigt | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | PERSISTED RANDOM MAC / FACTORY MAC UNCONFIRMED |
 | 63 | `SELF` | Vorhandenes Hersteller-System von eMMC bis zur Root-Konsole gebootet. Root-FIT stammt aus `mmcblk0p5`. eMMC-Overlay ist schreibbar. MACs unterscheiden sich vom NAND-System; mehrere Hersteller-Warnungen bleiben sichtbar | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | VENDOR EMMC BOOT PASS / ARMBIAN EMMC UNTESTED |
+| 64 | `SELF` | MAC-Herkunft lesend geklärt: eMMC-Environment enthält eth0-Adresse. Alle drei NAND-NVMEM-MAC-Felder enthalten nur `ff`; eth1 und eth2 nutzen Linux-Zufallsadressen | UART-Mitschnitt, `docs/bpi-r4pro8x-bringup.md` | MAC SOURCE TRACE PASS / FACTORY MAC UNCONFIRMED |
 
 ## Verbindliche Regel für kommende Änderungen
 

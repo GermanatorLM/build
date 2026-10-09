@@ -1254,3 +1254,31 @@ Er enthält auch den vorherigen Hersteller-Shutdown mit TF-A-Panic bei `0x430047
 Die UART-Aufzeichnung bleibt geöffnet.
 
 Status dieses Grobschritts: **VENDOR EMMC BOOT PASS / ARMBIAN EMMC UNTESTED**.
+
+## 35. Herkunft der eMMC-Boot-MAC-Adressen
+
+Ein lesender Zugriff auf `mmcblk0p1` findet `ethaddr=da:68:a5:94:9a:ee`.
+Diese Partition beginnt bei Sektor 8192, also 4 MiB.
+U-Boot liest sein MMC-Environment erfolgreich und übergibt diese Adresse in beiden MAC-Eigenschaften von `mac@0`.
+Linux und `ethtool -P eth0` melden dieselbe Adresse.
+Damit ist die aktuelle Quelle das eMMC-Environment, nicht ein nachgewiesenes Werks-EEPROM.
+Die Adresse ist lokal administriert. Ihre ursprüngliche Erzeugung bleibt ohne älteren Mitschnitt offen.
+
+Die drei Ethernet-NVMEM-Verweise zeigen auf den NAND-Bereich `Factory` bei 2 MiB.
+Der Knotenname `partition@180000` stimmt nicht mit dessen tatsächlichem `reg`-Offset überein.
+`mac@0` verweist auf sechs Bytes bei Factory-Offset `0xffff4`.
+`mac@1` verweist auf sechs Bytes bei Factory-Offset `0xfffee`.
+`mac@2` verweist auf sechs Bytes bei Factory-Offset `0xffffa`.
+Alle drei lesend geprüften Felder enthalten ausschließlich `ff`.
+Sie enthalten keine gültigen MAC-Adressen.
+
+`eth1` und `eth2` melden weiterhin `addr_assign_type=1` und keine permanente Adresse.
+Linux nutzt dort den Zufallsfallback statt dieser ungültigen NAND-Felder.
+Die auffällige Kernel-Ausgabe `65:74:68:25:64:00` entspricht nicht den tatsächlichen Interface-Adressen.
+Der Hersteller-Treiber liefert hier keine verlässliche Darstellung der erzeugten Adresse.
+
+Im weiteren Boot meldet MT7996 nach seinen Timeouts außerdem Warnungen beim Freigeben von IRQ 104.
+Der vollständige Mitschnitt erhält diese Hersteller-Warnungen.
+Die MAC-Prüfung verändert weder Environment noch Factory-Daten.
+
+Status dieses Grobschritts: **MAC SOURCE TRACE PASS / FACTORY MAC UNCONFIRMED**.
