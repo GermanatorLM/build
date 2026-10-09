@@ -889,3 +889,42 @@ ein vollständig aufgezeichneter Cold Boot des physischen BPI-R4 Pro 8X, bei dem
 zuerst das Laden des unsuffigierten MT7996-ROM-Patches und anschließend der
 OF/NVMEM-Fallback für eine möglicherweise angeforderte
 `mediatek/mt7996e_rf.bin` bewertet werden.
+
+## 23. Hardwaretest des MT7996-444-Firmwaresatzes
+
+Der UART-Logger wurde vor dem Einschalten des physischen BPI-R4 Pro 8X
+gestartet. Der vollständige Cold Boot ist erhalten als:
+
+```text
+UART-Log: uart-2026-10-09-632a0a6e0-hw5.log
+Größe: 95727 Bytes, 1238 Zeilen
+SHA256: d23749a76e51bf006feb01ba21fe51e5cb37518706f58abb7c99e026ef5097fa
+```
+
+Bestätigt wurden `WDT: Cold boot`, BL2, 8192 MiB DRAM, BL31,
+U-Boot 2025.04, SD/extlinux, Linux 6.18.53, der read/write-Mount von
+`mmcblk0p5`, Login und `multi-user.target`. Beide Aeonsemi-PHYs melden erneut
+Firmware 1.9.1.
+
+Der vorausgegangene MT7996-Blocker ist behoben: Die Anforderung des
+unsuffigierten `mediatek/mt7996/mt7996_rom_patch.bin` endet nicht mehr mit
+`-ENOENT`. Der Treiber erreicht anschließend die laufende MCU und meldet bei
+25,76 s, 25,82 s und 25,88 s erfolgreich WM-, DSP- und WA-Firmware aus dem
+444-Satz. Damit ist dieser isolierte Grobschritt als
+**MT7996 444 FW HW PASS** bestätigt.
+
+Der neue früheste Wi-Fi-Blocker betrifft die Kalibration. Bei 26,21 s fordert
+der Treiber `mediatek/mt7996e_rf.bin` an. Die Datei fehlt, der Sysfs-Fallback
+endet bei 90,08 s mit `-110`, und danach wird
+`mediatek/mt7996/mt7996_eeprom_233_2i5i6i.bin` angefordert. Auch diese Datei
+fehlt; nach einem zweiten Fallback-Fenster endet der `mt7996e`-Probe bei
+151,52 s mit `-110`. Das restliche System erreicht bei 152,43 s dennoch
+`multi-user.target`.
+
+Die beiden beobachteten Kalibrationsdateien werden nicht ungeprüft durch eine
+generische Payload ersetzt. Als nächster Grobschritt werden die Auswahl im
+gebauten Frank-Kernel, die R4-Pro-8X-Gerätetopologie und eine autoritative
+Quelle für die zu dieser Hardware passende EEPROM-Kalibration abgeglichen.
+eMMC, NAND und NOR wurden weiterhin nicht beschrieben. Die bereits bekannten
+separaten Beobachtungen am PCIe-Port `11280000`, xHCI `11190000` und
+`sys-led-red` bleiben unverändert offen.

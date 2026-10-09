@@ -283,6 +283,7 @@ Nachtragen der eigenen SHA.
 | 49 | `CI #11` | MT7996-444-Firmwarefix vollständig gebaut; heruntergeladenes Artefakt, Image-SHA256, read-only Rootfs, extlinux und alle 13 gepinnten Firmware-Auditeinträge verifiziert | GitHub Actions Run `37837041222`, `docs/bpi-r4pro8x-bringup.md` | BUILD PASS / HW TEST PENDING |
 | 50 | `PR BOT` | Upstream-Wartungscheck meldet das fehlende Imager-Bild `board-images/bananapir4pro8x.png` im separaten Repository `armbian/armbian.github.io`; alle portrelevanten Build- und Analysechecks bleiben erfolgreich | GitHub Actions Run `37837035403`, `docs/bpi-r4pro8x-bringup.md` | EXTERNAL ASSET OPEN / BUILD UNAFFECTED |
 | 51 | `SD #5` | MT7996-444-Testimage auf die eindeutig als USB/removable identifizierte 64-GB-SD-Karte geschrieben; Desktop-Automount vorab deaktiviert und exakt 1476395008 Bytes mit identischem SHA256 roh zurückgelesen | `docs/bpi-r4pro8x-bringup.md` | SD WRITE/READBACK PASS / HW TEST READY |
+| 52 | `HW #5` | Vollständiger SD-Cold-Boot bestätigt den MT7996-444-Firmwaresatz: ROM-Patch sowie WM, DSP und WA laden und das System erreicht Login und `multi-user.target`. Der Wi-Fi-Probe scheitert danach separat an fehlender RF-/EEPROM-Kalibration | UART-Log `uart-2026-10-09-632a0a6e0-hw5.log`, `docs/bpi-r4pro8x-bringup.md` | MT7996 444 FW HW PASS / WIFI CALIBRATION BLOCKED |
 
 ## Verbindliche Regel für kommende Änderungen
 
