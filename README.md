@@ -317,6 +317,7 @@ Nachtragen der eigenen SHA.
 | 82 | `SELF` | Vollständige Stromtrennung ermöglicht 233-Firmwarestart ohne Patch-Timeout. phy0 und wlan0 vorhanden. 6 GHz bleibt mit Länderkennung 00 gesperrt | UART-Kaltstartlog, Wi-Fi-Inventar | WIFI PROBE HW PASS / RF TEST PENDING |
 | 83 | `SELF` | Wi-Fi-I2C-EEPROM erneut vollständig gelesen und unverändert bestätigt. Laufende Regulatory-Domain auf Nutzerwunsch auf DE gesetzt; untere 6-GHz-Kanäle freigegeben | UART-Diagnose, Laufzeitkonfiguration | DE RUNTIME PASS / RF TEST PENDING |
 | 84 | `SELF` | RF-Datei meldet externe EEPROM-Daten statt Erfolg ohne Daten. MT7996 verwirft gültige Datei nicht mehr vor eFuse-Lesen | R4-Pro-Kernelpatch, C-Stub-Tests, Preflight | STATIC / C-STUB PASS / BUILD AND HW PENDING |
+| 85 | `SELF` | Nutzer-Hotspot auf 5975 MHz gefunden. WPA3-SAE, PMF, DHCP und zehn Gateway-Pings bestehen mit bisherigem Kernel | UART-Mitschnitt, private RAM-Konfiguration | 6GHZ CLIENT SMOKE PASS / REPEAT AND THROUGHPUT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

@@ -1815,3 +1815,44 @@ Offset `0x04` enthält `00:0c:43:26:60:10`; `wlan0` verwendet dieselbe MAC.
 Die physische Herkunft und individuelle RF-Güte aller Felder bleiben ungeprüft.
 
 Status: **STATIC / C-STUB PASS / BUILD AND HW PENDING**.
+
+## 56. Erster 6-GHz-Clienttest am Nutzer-Hotspot
+
+Der Nutzer bestätigt angeschlossene Antennen und aktiviert einen privaten 6-GHz-Hotspot.
+Die ersten passiven Scans zeigen den Hotspot nicht.
+Nach erneuter Aktivierung erscheint der vollständige WLAN-Name auf 5975 MHz mit etwa -54 dBm.
+Der Test verwendet weiterhin das Image aus Run `37975601363` mit Linux `6.18.53-current-filogic`.
+Die Diagnose- und RF-Ladepatches sind auf dieser Hardware noch nicht installiert.
+
+Ein separater wpa_supplicant verwaltet nur `wlan0`.
+Die private Testkonfiguration nutzt WPA3-SAE, `sae_pwe=2` und verpflichtendes PMF.
+Die anfängliche automatische Suche findet den Hotspot verzögert.
+Der Test begrenzt anschließend Frequenz und BSSID auf den gefundenen Hotspot.
+Das zusätzliche `reassociate` unterbricht die bereits begonnene Verbindung.
+Der Hotspot lehnt mehrere folgende Association-Versuche mit Status 30 ab.
+Ein anschließender Versuch verbindet erfolgreich; die Ablehnungen bleiben im UART-Log erhalten.
+
+wpa_supplicant meldet `COMPLETED`, `key_mgmt=SAE`, `pmf=2` und `wifi_generation=6`.
+`iw` bestätigt 5975 MHz, 160 MHz Kanalbreite und zwei räumliche Streams.
+Die angezeigte TX-Linkrate beträgt 2401,9 Mbit/s; die RX-Linkrate beträgt später 1729,6 Mbit/s.
+Diese Linkraten sind kein gemessener Nutzdatendurchsatz und kein Wi-Fi-7-Verbindungsnachweis.
+Der Signalpegel liegt während des Pingtests bei etwa -42 dBm.
+
+Eine temporäre networkd-Datei verwaltet ausschließlich `wlan0` und erhält eine DHCPv4-Adresse.
+Die Datei übernimmt weder DHCP-Routen noch DHCP-DNS.
+Die vorhandene Ethernet-Konfiguration bleibt unverändert.
+Zehn Gateway-Pings bestehen mit null Prozent Verlust und durchschnittlich 6,815 ms Laufzeit.
+Die Station meldet keinen Beacon-Verlust, aber sechs TX-Fehler und 1177 `rx drop misc`.
+Diese kumulativen Zähler enthalten den Verbindungsaufbau; ihre Ursache ist noch nicht geklärt.
+Der Test beweist keine Dauerstabilität oder vollständige RF-Kalibration.
+
+Teststeuerung und Protokoll liegen unter `/run/r4pro-wifi-test`.
+Die DHCP-Konfiguration liegt unter `/run/systemd/network/05-r4pro-wifi-test.network`.
+Beide Konfigurationen verschwinden beim Neustart; die Verbindung bleibt für weitere Tests aktiv.
+WLAN-Name und Passwort werden nicht in Repository oder Image eingetragen.
+Deutschland bleibt privat und lokal.
+Der UART-Mitschnitt heißt `uart-run-37975601363-wifi-coldboot-02-reconnected.log` und muss privat bleiben.
+Der Mitschnitt enthält Testzugangsdaten.
+Es werden weder EEPROM noch eFuse oder Flash beschrieben.
+
+Status: **6GHZ CLIENT SMOKE PASS / REPEAT AND THROUGHPUT PENDING / FULL HW PASS OPEN**.
