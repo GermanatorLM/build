@@ -2181,3 +2181,24 @@ Die neue Vorher/Nachher-Messung benötigt einen neuen Kernelbuild und anschließ
 Ein Wi-Fi-Fix oder erfolgreicher Registervergleich ist damit noch nicht bestätigt.
 
 Status: **STATIC PASS / BUILD AND RESET COMPARISON PENDING**.
+
+## 68. Erfolgreicher Reset-Diagnosebuild
+
+[GitHub-Run `38003437809`](https://github.com/GermanatorLM/build/actions/runs/38003437809) besteht Preflight und vollständigen Imagebau.
+Der Branch-Commit lautet `641274dc35a1646f6ea7fb8f863f25ce2551a787`.
+Der gebaute PR-Merge-Commit lautet `95f94932ba4cc83183495cccad880c562b16c0c8`.
+Der Imagejob dauert 34 Minuten und 53 Sekunden.
+Der Buildlog bestätigt den erweiterten Reset-Diagnosepatch und den bisherigen RF-EEPROM-Fix.
+Kernel und Firmware-Pin bleiben unverändert.
+Das Image-Artefakt trägt ID `11650893309` und umfasst als ZIP 1480610049 Bytes.
+Der Download läuft mit geprüften parallelen Bereichsdownloads.
+Die nachfolgende Imageprüfung soll die Vorher/Nachher-Meldung im tatsächlich gebauten Treibermodul bestätigen.
+Das neue Image wird bislang auf keine SD geschrieben.
+
+Der Nutzer verlangt während des Downloads das Herunterfahren des Boards.
+Linux synchronisiert die Speicher und bestätigt `All filesystems unmounted`.
+TF-A meldet anschließend erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Das UART-Log `uart-run-37992263277-wifi-recovery-coldboot-02.log` sichert auch diesen Shutdown.
+Physische Stromtrennung bleibt erforderlich; das Linux-Dateisystem ist bereits sicher ausgehängt.
+
+Status: **BUILD PASS / DOWNLOAD AND HW TEST PENDING**.
