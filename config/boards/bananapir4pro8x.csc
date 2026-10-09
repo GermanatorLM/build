@@ -27,13 +27,16 @@ function post_family_tweaks__bpi_r4pro_8x() {
 
 	display_alert "${BOARD}" "Applying BPI-R4 Pro 8X image tweaks" "info"
 
-	# Read provisioned board identity before network startup. Never write EEPROM at boot.
+	# Provision an empty board EEPROM once, before network startup.
 	local mac_package="${SRC}/packages/bpi-r4pro8x-mac"
 	install -d "${SDCARD}/usr/lib/bpi-r4pro8x-mac" \
 		"${SDCARD}/usr/lib/systemd/system" "${SDCARD}/etc/systemd/system/multi-user.target.wants"
-	install -m 0644 "${mac_package}/common.sh" "${mac_package}/apply.sh" \
-		"${mac_package}/import-openwrt.sh" "${SDCARD}/usr/lib/bpi-r4pro8x-mac/"
+	install -m 0644 "${mac_package}/common.sh" "${mac_package}/apply.sh" "${mac_package}/names.sh" \
+		"${mac_package}/import-openwrt.sh" "${mac_package}/provision.sh" "${SDCARD}/usr/lib/bpi-r4pro8x-mac/"
 	install -m 0644 "${mac_package}/bpi-r4pro8x-mac.service" "${SDCARD}/usr/lib/systemd/system/"
+	install -m 0644 "${mac_package}/bpi-r4pro8x-names.service" "${SDCARD}/usr/lib/systemd/system/"
+	ln -sf /usr/lib/systemd/system/bpi-r4pro8x-names.service \
+		"${SDCARD}/etc/systemd/system/multi-user.target.wants/bpi-r4pro8x-names.service"
 	ln -sf /usr/lib/systemd/system/bpi-r4pro8x-mac.service \
 		"${SDCARD}/etc/systemd/system/multi-user.target.wants/bpi-r4pro8x-mac.service"
 

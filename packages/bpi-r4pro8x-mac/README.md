@@ -76,41 +76,68 @@ These offsets are a port-specific format, not an existing manufacturer standard.
 
 The source MAC remains a locally stored identity, not a proven globally unique factory assignment.
 Cloned vendor environments can produce duplicate identities. Check uniqueness when provisioning multiple boards.
-The importer embeds no individual board MAC. The boot reader includes the explicitly requested fixed fallback.
+No individual board MAC is embedded in the importer or boot reader.
 
 ## Armbian boot reader
 
 `apply.sh --show` reads and validates the record without changing interfaces.
 `apply.sh --apply` sets addresses before network startup. It refuses already-UP interfaces.
-The board-local systemd service loads at24 and runs before network-pre.target and supported network managers.
+The board-local naming service runs before the MAC service and supported network managers.
+The MAC service loads at24 and requires successful hardware naming.
 A valid EEPROM record supplies the base MAC.
-An unavailable EEPROM, empty record, unreadable record, or invalid checksum selects `da:68:a5:94:9a:ee` as fallback.
-The reader logs the selected source and warns about fixed fallback collisions.
+An empty record triggers one-time random EEPROM provisioning during `--apply`.
+Preview mode reports an unprovisioned record without generating or storing an address.
+Missing EEPROMs, unknown occupied layouts, and corrupt records cause refusal. There is no shared fixed fallback.
 It generates sequential addresses with byte carry, not SHA256.
 
 | Interface | Role | Offset | Reference address |
 | --- | --- | --- | --- |
-| `eth0` | Management switch conduit | +0 | `da:68:a5:94:9a:ee` |
-| `eth1` | 10G WAN RJ45 / SFP mux | +1 | `da:68:a5:94:9a:ef` |
-| `eth2` | MaxLinear switch conduit | +2 | `da:68:a5:94:9a:f0` |
-| `mgmt` | Management RJ45 | +3 | `da:68:a5:94:9a:f1` |
-| `lan0` | 2.5G RJ45 | +4 | `da:68:a5:94:9a:f2` |
-| `lan1` | 2.5G RJ45 | +5 | `da:68:a5:94:9a:f3` |
-| `lan2` | 2.5G RJ45 | +6 | `da:68:a5:94:9a:f4` |
-| `lan3` | 2.5G RJ45 | +7 | `da:68:a5:94:9a:f5` |
-| `lan4` | 10G LAN RJ45 / SFP mux | +8 | `da:68:a5:94:9a:f6` |
+| `eth0` | GMAC2 to MaxLinear switch | +0 | `da:68:a5:94:9a:ee` |
+| `eth1` | GMAC0 to internal MT7988 switch | +1 | `da:68:a5:94:9a:ef` |
+| `wan` | GMAC1 to 10G RJ45 / SFP mux | +2 | `da:68:a5:94:9a:f0` |
+| `lan1` | MaxLinear 2.5G port 0 | +3 | `da:68:a5:94:9a:f1` |
+| `lan2` | MaxLinear 2.5G port 1 | +4 | `da:68:a5:94:9a:f2` |
+| `lan3` | MaxLinear 2.5G port 2 | +5 | `da:68:a5:94:9a:f3` |
+| `lan4` | MaxLinear 2.5G port 3 | +6 | `da:68:a5:94:9a:f4` |
+| `lan5` | Internal switch 1G RJ45 port 0 | +7 | `da:68:a5:94:9a:f5` |
+| `lan6` | MaxLinear 10G RJ45 / SFP mux | +8 | `da:68:a5:94:9a:f6` |
+| `fpc` | Internal switch 1G FPC port 3 | +9 | `da:68:a5:94:9a:f7` |
 
-The mapping follows [Frank's board DT](https://github.com/frank-w/BPI-Router-Linux/tree/6.18-main/arch/arm64/boot/dts/mediatek).
+The board-local 8X DT patch assigns front-panel labels and enables the existing port-3 PHY for FPC.
+[The manufacturer identifies FPC as internal switch port 3](https://docs.banana-pi.org/en/BPI-R4_Pro/GettingStarted_BPI-R4_Pro#_1g_eth_fpc_connector).
+`names.sh` identifies GMACs by their Device Tree node and `reg`, never by MAC or discovery order.
+It stages all three GMACs through temporary names before assigning `eth0`, `eth1`, and `wan`.
+Occupied target names, ambiguous identities, active interfaces, or unexpected DSA labels cause refusal.
+An interrupted rename requires inspection. The MAC service does not run after a naming failure.
+The hardware GMAC numbers and Device Tree Ethernet aliases remain unchanged.
 Muxed RJ45 and SFP connections share their interface identity. Separate simultaneous identities require separate interfaces.
-The reader waits up to 20 seconds for all nine interfaces, then checks every interface before assignment.
+The services wait up to 20 seconds for their expected interfaces before assignment.
 Missing or already-UP interfaces cause refusal without applying the plan.
 Overflow or a multicast boundary also causes refusal before assignment.
-The reader replaces existing MACs on all nine DOWN interfaces, including non-random addresses.
+The reader replaces existing MACs on all ten DOWN interfaces, including non-random addresses.
 Network configuration applied later can override these addresses.
-The reader never writes EEPROM. No kernel MAC parser or Device Tree format change is required.
+Armbian's existing Netplan matches cover `eth*`, `lan*`, and `wan*`.
+Configure `fpc` explicitly when needed. This change does not create bridges or router rules.
+Wi-Fi remains entirely under driver control. No WLAN MACs or calibration data are modified.
 
-Every board needs a unique nine-address block. Adjacent EEPROM base MACs can produce overlapping blocks.
-All boards using the fixed fallback receive identical addresses. Do not connect those boards to the same Layer-2 network.
+## Random EEPROM provisioning
+
+The boot reader invokes `provision.sh` only after verifying all interfaces are present and DOWN.
+The helper requires the audited board EEPROM, an empty `0x40..0x4f` region, and the known vendor header.
+A fully erased 256-byte EEPROM is also supported. Other occupied layouts are preserved.
+It reads six bytes from `/dev/random`, sets local/unicast bits, and aligns the base to a 16-address block.
+Random block collisions remain theoretically possible. Imported bases can overlap and require external uniqueness checks.
+Existing valid records are reused without EEPROM writes.
+The helper serializes its own invocations using `flock`.
+Do not run the OpenWrt importer concurrently; it does not share that lock.
+
+Private backups reside in `/var/lib/bpi-r4pro8x-mac/provision.*`, managed by the service's `StateDirectory`.
+Backups contain the complete EEPROM before and after writing, the record, source metadata, and SHA256 checksums.
+The helper flushes the backup and checks for concurrent EEPROM changes before writing through at24.
+It preserves every byte outside `0x40..0x4f` and verifies the complete readback.
+Missing entropy, unavailable backup storage, write protection, or readback mismatches cause failure without network MAC assignment.
+An interrupted or mismatching record is not overwritten automatically. Inspect the backup before recovery.
+The scripts never alter eMMC/NAND environments or Wi-Fi EEPROMs.
 
 ## Verification status
 
@@ -124,6 +151,7 @@ The hardware test changes only offsets `0x40` through `0x4f`. All other EEPROM b
 The record survives a cold boot into vendor SPI-NAND OpenWrt.
 The importer reads the eMMC environment from that NAND boot and detects the matching record without writing.
 The previous three-controller reader preview passes under both vendor boot modes.
-Local fixtures cover the new nine-interface sequence, byte carry, fallback, range rejection, and interface readiness.
+Local fixtures cover ten-interface sequences, hardware naming, byte carry, random provisioning, and interface readiness.
+They verify reuse, private backups, readback failure, and rejection of corrupt or unknown layouts.
 Initial programming from NAND remains untested.
-The new nine-interface assignment and Armbian boot integration remain hardware tests.
+The new ten-interface assignment, FPC link, random provisioning, and Armbian boot integration remain hardware tests.

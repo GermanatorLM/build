@@ -307,6 +307,8 @@ Nachtragen der eigenen SHA.
 | 72 | `SELF` | OpenWrt-Importer sichert Daten auf USB und programmiert die EEPROM-MAC. Vollständige Rückleseprüfung, Leser und schreibfreie Wiederholung bestehen | MAC-Paket, EEPROM, UART-Mitschnitt | EEPROM PROVISIONING HW PASS / ARMBIAN BOOT PENDING |
 | 73 | `SELF` | SPI-NAND-Cold-Boot erhält EEPROM-Datensatz. Importer liest weiterhin eMMC-MAC. Leser und schreibfreie Wiederholung bestehen; OpenWrt-Netzwerk bleibt unverändert | MAC-Paket, UART-Mitschnitt | NAND IMPORT REPEAT PASS / EEPROM PERSISTENCE PASS |
 | 74 | `SELF` | Armbian-Bootleser erzeugt fortlaufende MACs für alle RJ45-Interfaces und interne Controller. Fehlender gültiger EEPROM-Datensatz nutzt festen Fallback. Kollisionsrisiko dokumentiert | MAC-Paket, Fixture-Tests | STATIC PASS / NEW IMAGE AND HW PENDING |
+| 75 | `SELF` | Frontplattennamen lan1–lan6, wan und fpc eingeführt. Hersteller bestätigt FPC-Port 3. Hardwarebasierte GMAC-Umbenennung ordnet eth0 dem MxL und eth1 dem internen Switch zu | 8X-DT-Patch, Naming-Dienst, Fixture-Tests | STATIC PASS / BUILD AND HW PENDING |
+| 76 | `SELF` | Gemeinsamen festen Fallback entfernt. Leeres bekanntes EEPROM erhält einmalig einen zufälligen lokalen MAC-Block mit Backup und Rückleseprüfung. WLAN bleibt beim Treiber | MAC-Paket, Provisionierungs-Tests | STATIC PASS / RANDOM PROVISIONING HW PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

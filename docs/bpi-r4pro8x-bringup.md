@@ -1548,3 +1548,74 @@ Die bekannte Warnung zum leeren `BOARD_MAINTAINER` bleibt erhalten.
 Das neue Image und die tatsächliche Zuweisung beim Armbian-SD-Boot sind noch nicht getestet.
 
 Status dieses Grobschritts: **STATIC PASS / NEW IMAGE AND HW PENDING**.
+
+## 46. Frontplattennamen und aktivierter FPC-Port
+
+Der Nutzer legt die Frontplattennamen fest und vertauscht ausdrücklich die bisherigen internen Linux-Namen.
+`eth0` bezeichnet jetzt GMAC2 zum MxL86252C; `eth1` bezeichnet GMAC0 zum internen MT7988-Switch.
+GMAC1 erhält `wan`; seine Hardwarekennung bleibt unverändert.
+Die vier MaxLinear-2,5G-Ports erhalten `lan1` bis `lan4`.
+Der externe MT7988-1G-Port erhält `lan5`; der MaxLinear-10G-Combo erhält `lan6`.
+
+Die Suche nach einem Frank-FPC-Overlay endet zunächst mit HTTP 404.
+[Die Herstelleranleitung bestätigt anschließend FPC an Port 3 des internen MT7988-Switches](https://docs.banana-pi.org/en/BPI-R4_Pro/GettingStarted_BPI-R4_Pro#_1g_eth_fpc_connector).
+Der bestehende SoC-DT enthält dafür bereits PHY, Kalibrierungszellen und Port-Anbindung.
+Ein ausschließlich auf die 8X-DTS beschränkter Patch aktiviert PHY und Port und benennt ihn `fpc`.
+Die gemeinsame R4-Pro-DTSI und die normale Filogic-Family bleiben unverändert.
+
+Der Naming-Dienst liest GMAC-Hardwarekennungen aus den Sysfs-Device-Tree-Knoten.
+Temporäre Namen verhindern Kollisionen beim Tausch von `eth0` und `eth1`.
+Belegte Zielnamen, aktive Links, falsche Portlabels und uneindeutige GMACs führen zum Abbruch.
+Der MAC-Dienst benötigt einen erfolgreichen Naming-Dienst und läuft danach vor den Netzwerkdiensten.
+Die statische Unit-Prüfung scheitert zunächst an Sandbox-Socketrechten und besteht anschließend außerhalb der Sandbox.
+Die neue MAC-Sequenz lautet `eth0`, `eth1`, `wan`, `lan1` bis `lan6`, `fpc`, jeweils Basis+0 bis Basis+9.
+Die Frontplattenumstellung ändert damit auch bisher abgeleitete Portadressen; die EEPROM-Basis bleibt erhalten.
+Combo-RJ45 und SFP teilen weiterhin ihre jeweilige Interface-Identität.
+
+Armbians vorhandene Netplan-Muster decken `eth*`, `lan*` und `wan*` ab.
+`fpc` benötigt bei Verwendung eine explizite Netzwerkkonfiguration.
+Die Änderung erstellt keine Bridges, Firewallregeln oder Routerkonfiguration.
+Der Nutzer belässt WLAN ausdrücklich beim Treiber; WLAN-Adressen und Kalibrierungsdaten bleiben unverändert.
+
+Fixture-Tests prüfen den Hardwaretausch, kollisionsfreie Zwischen­namen, Wiederholung und belegte Namen sowie aktive Links.
+ShellCheck meldet zunächst `SC2094` für eine zusätzliche Leseoperation innerhalb der Mapping-Schleife.
+Eine vorher ermittelte Namensliste beseitigt diese neue Meldung.
+Der DT-Patch besteht `git apply --check` gegen Franks unveränderte 6.18-main-Quelle.
+Eine vollständige DT-Kompilierung und ein neuer Imagebuild stehen noch aus; lokal fehlt `dtc`.
+CI-Run `37928486295` bestätigt nur den vorherigen, gepushten Stand als erfolgreichen Imagebuild.
+Die separate PR-Asset-Prüfung schlägt weiterhin fehl; sie wird nicht durch diese Portänderung korrigiert.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD AND HW PENDING**.
+
+## 47. Einmalige zufällige EEPROM-Erstbelegung
+
+Der Nutzer ersetzt den gemeinsamen festen MAC-Fallback durch eine zufällige, dauerhaft gespeicherte Basis.
+Der Bootleser verwendet vorhandene gültige EEPROM-Datensätze unverändert.
+Bei einem leeren Datensatz erzeugt `--apply` einmalig einen zufälligen lokalen Unicast-Block.
+`--show` erzeugt keine Adresse und schreibt nichts.
+Die Zufallsquelle `/dev/random` wartet auf initialisierte Kernel-Entropie.
+Die letzten vier Basisbits werden gelöscht; zehn Portadressen passen damit in einen getrennten 16er-Block.
+Diese Zufallsvergabe reduziert Kollisionen, garantiert aber keine weltweite Eindeutigkeit.
+
+Die Erstbelegung akzeptiert nur den bekannten Herstellerheader oder einen vollständig gelöschten 256-Byte-Chip.
+Der Zielbereich `0x40` bis `0x4f` muss vollständig `ff` enthalten.
+Unbekannte belegte Layouts, beschädigte Datensätze und nicht verfügbare EEPROMs führen zum Abbruch statt Überschreiben.
+Die vorhandene Herstellerkennung wird nicht verändert.
+Alle zehn Interfaces müssen vor der Erstbelegung vorhanden und DOWN sein.
+
+Der Dienst sichert Daten privat unter `/var/lib/bpi-r4pro8x-mac/provision.*` und synchronisiert das Backup vor dem Schreiben.
+Ein Lock verhindert gleichzeitig laufende Erstbelegungen; der separate OpenWrt-Importer darf nicht parallel laufen.
+Die erneute EEPROM-Prüfung verhindert Schreiben nach zwischenzeitlichen Änderungen.
+Die vollständige Rückleseprüfung verlangt unveränderte Bytes außerhalb des Datensatzes.
+Ein Fehler verhindert die MAC-Zuweisung; beschädigte Teil-Schreibvorgänge werden nicht automatisch wiederholt oder zurückgesetzt.
+eMMC-Environment, NAND und Wi-Fi-EEPROM bleiben außerhalb der Schreibziele.
+
+Fixture-Tests prüfen Erstbelegung, Wiederverwendung ohne weitere EEPROM-Schreiboperation und private Backup-Prüfsummen.
+Sie prüfen auch unbekannte Header, beschädigte Datensätze, fehlende EEPROMs, aktive Ports und emulierten Schreibschutz.
+Ein vollständig leerer Chip wird ohne erfundene Herstellerdaten unterstützt.
+Der neue Schreibschutz-Test erzeugt zunächst ShellCheck-Meldung `SC2155`; getrennte Zuweisung und Export beseitigen sie.
+Der vollständige Preflight und ShellCheck bestehen danach; die bekannte Maintainer-Warnung bleibt bestehen.
+Diese Tests schreiben ausschließlich temporäre Fixtures; das angeschlossene Board wird nicht verändert.
+Die bereits provisionierte Hardware-MAC bleibt gültig; die neue automatische Zufalls-Erstbelegung ist noch nicht hardwaregetestet.
+
+Status dieses Grobschritts: **STATIC PASS / RANDOM PROVISIONING HW PENDING**.
