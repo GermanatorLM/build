@@ -21,6 +21,7 @@ uboot_patch="patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
 kernel_patch="patch/kernel/bpi-r4pro8x-6.18/001-mt76-optional-eeprom-no-sysfs-fallback.patch"
 firmware_manifest="packages/bpi-r4pro8x-firmware/manifest.tsv"
 firmware_installer="packages/bpi-r4pro8x-firmware/install.sh"
+mac_package="packages/bpi-r4pro8x-mac"
 
 image_root=""
 if [[ $# -gt 0 ]]; then
@@ -44,6 +45,19 @@ bash -n "${board}"
 bash -n "${family}"
 bash -n "${firmware_installer}"
 pass "Bash syntax for board, family and firmware installer"
+
+for mac_script in common.sh import-openwrt.sh apply.sh; do
+	[[ -f "${mac_package}/${mac_script}" ]] || fail "MAC script missing: ${mac_script}"
+	sh -n "${mac_package}/${mac_script}"
+done
+[[ -f "${mac_package}/bpi-r4pro8x-mac.service" ]] || fail "MAC boot service missing"
+grep -q 'Before=network-pre.target' "${mac_package}/bpi-r4pro8x-mac.service" || fail "MAC service ordering missing"
+grep -q 'bpi-r4pro8x-mac.service' "${board}" || fail "MAC boot reader is not installed"
+sh tools/bpi-r4pro8x-mac-test.sh
+if command -v shellcheck >/dev/null; then
+	shellcheck -s sh "${mac_package}"/*.sh tools/bpi-r4pro8x-mac-test.sh
+fi
+pass "EEPROM MAC scripts, boot ordering and fixture tests"
 
 python3 tools/validate-board-config.py "${board}"
 pass "Armbian board metadata validation"
@@ -110,6 +124,15 @@ pass "R4 Pro SRAM, GPIO and network Kconfig additions"
 
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"
+	for mac_script in common.sh import-openwrt.sh apply.sh; do
+		cmp -s "${mac_package}/${mac_script}" "${image_root}/usr/lib/bpi-r4pro8x-mac/${mac_script}" ||
+			fail "MAC script missing or mismatched in image: ${mac_script}"
+	done
+	cmp -s "${mac_package}/bpi-r4pro8x-mac.service" "${image_root}/usr/lib/systemd/system/bpi-r4pro8x-mac.service" ||
+		fail "MAC service missing or mismatched in image"
+	[[ "$(readlink "${image_root}/etc/systemd/system/multi-user.target.wants/bpi-r4pro8x-mac.service")" == \
+		/usr/lib/systemd/system/bpi-r4pro8x-mac.service ]] || fail "MAC service is not enabled in image"
+	pass "EEPROM MAC boot reader installed and enabled"
 
 	doc_dir="${image_root}/usr/share/doc/bpi-r4pro8x-firmware"
 	source_meta="${doc_dir}/SOURCE"

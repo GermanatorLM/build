@@ -1332,3 +1332,39 @@ Shell-Syntax und ShellCheck bestehen. OpenWrt-Ausführung und EEPROM-Schreiben s
 Das ausgeschaltete Board bleibt unverändert. Es wurde kein EEPROM-Schreibversuch ausgeführt.
 
 Status dieses Grobschritts: **STATIC PASS / EEPROM WRITE UNTESTED**.
+
+## 38. Board-lokaler EEPROM-Boot-Leser
+
+Der Board-Hook installiert den MAC-Leser und aktiviert eine eigene systemd-Unit.
+Die Unit lädt at24 und läuft vor `network-pre.target` sowie den unterstützten Netzwerkdiensten.
+Der Leser prüft Kennung, MAC und Checksumme des Datensatzes vollständig.
+Er schreibt nie EEPROM und verweigert Änderungen an bereits aktiven Interfaces.
+Ein leerer Datensatz erhält das bisherige Bootverhalten.
+Ein beschädigter Datensatz führt zu einem protokollierten Fehler ohne Übernahme.
+
+`eth0` erhält die gespeicherte Basis-MAC.
+Für zufällige `eth1`- und `eth2`-Adressen erzeugt SHA256 stabile, getrennte lokale Adressen.
+Diese Ableitung vermeidet die Überlappung benachbarter Basis-MACs durch einfache Addition.
+Vorhandene nicht-zufällige Sekundäradressen bleiben erhalten; Kollisionen führen zum Abbruch.
+Eine spätere Netzwerkkonfiguration kann die Adressen weiterhin überschreiben.
+Die gemeinsame Filogic-Family und der Kernel bleiben unverändert.
+
+Der Preflight prüft die Skripte und führt isolierte Boot-Leser-Tests aus.
+Die Tests ersetzen `ip` und sämtliche Sysfs-Pfade durch temporäre Fixtures.
+Sie prüfen Vorschau, Übernahme, Prüfsummenfehler, aktive Interfaces und vorhandene Sekundäradressen.
+Die Image-Prüfung verlangt identische installierte Skripte und eine aktivierte Unit.
+Der Workflow berücksichtigt Änderungen am MAC-Paket und dessen Tests.
+
+Der erste erweiterte Korruptionstest scheitert wegen eines unveränderten Prüfbytes bei Index 14.
+Das Prüfbyte enthält bereits `ff`; derselbe Schreibwert verändert nichts.
+Der korrigierte Test kippt jetzt bei jedem Byte ein Bit und besteht.
+ShellCheck meldet außerdem zunächst `SC2015`; explizite Bedingungen beseitigen diese neue Meldung.
+Die Board-Konfiguration benötigt beim isolierten ShellCheck weiterhin die übliche Ausnahme für externe Variablen, `SC2034`.
+Die Unit-Prüfung meldet zunächst Sandbox-Einschränkungen. Die anschließende rein statische Prüfung außerhalb der Sandbox besteht.
+
+Der vollständige lokale Preflight, ShellCheck und `systemd-analyze verify` bestehen.
+Die bekannte Warnung zum leeren `BOARD_MAINTAINER` bleibt erhalten.
+OpenWrt-Importer, physischer EEPROM-Schreibschutz, Programmierung und echter Armbian-Boot stehen noch aus.
+Der Port enthält keine feste individuelle MAC-Adresse.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD AND HW PENDING**.

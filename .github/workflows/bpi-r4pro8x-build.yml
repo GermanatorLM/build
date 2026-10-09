@@ -9,7 +9,9 @@ on:
       - "patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
       - "patch/kernel/bpi-r4pro8x-6.18/**"
       - "packages/bpi-r4pro8x-firmware/**"
+      - "packages/bpi-r4pro8x-mac/**"
       - "tools/bpi-r4pro8x-check.sh"
+      - "tools/bpi-r4pro8x-mac-test.sh"
       - "docs/bpi-r4pro8x-bringup.md"
       - ".github/workflows/bpi-r4pro8x-build.yml"
   workflow_dispatch:

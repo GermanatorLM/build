@@ -1,0 +1,16 @@
+[Unit]
+Description=Read provisioned R4 Pro 8X Ethernet MACs
+Wants=systemd-udev-settle.service network-pre.target
+After=systemd-udev-settle.service
+Before=network-pre.target systemd-networkd.service NetworkManager.service networking.service
+ConditionPathExists=/sys/firmware/devicetree/base/model
+
+[Service]
+Type=oneshot
+ExecStartPre=-/sbin/modprobe at24
+ExecStart=/bin/sh /usr/lib/bpi-r4pro8x-mac/apply.sh --apply
+RemainAfterExit=yes
+TimeoutStartSec=30
+
+[Install]
+WantedBy=multi-user.target
