@@ -1142,3 +1142,31 @@ Linux hängt alle Dateisysteme aus und meldet `reboot: Power down`.
 TF-A meldet danach `Power-down unsupported` und einen Panic bei `0x43004898`.
 Dieser Fehler betrifft den Ausschaltpfad, nicht den vorherigen SD-Boot.
 Die Versorgung muss nach diesem geordneten Shutdown physisch getrennt werden.
+
+## 31. Hersteller-NAND-Boot mit unerwarteten Schreibvorgängen
+
+Der Nutzer startet das Board mit NAND-Bootauswahl.
+BL2 meldet `mt7988-spim-nand-ubi-comb`, 8 GiB RAM und 256 MiB SPI-NAND.
+Der vorhandene U-Boot ist `2024.10-OpenWrt-unknown` vom 17. Juni 2025.
+Er erkennt das Modell `BananaPi BPI-R4 Pro 8X` und einen MMC-Controller.
+Ein erkannter Controller belegt noch keinen erkannten eMMC-Chip.
+
+Beide Environment-Leseversuche melden `bad CRC, using default environment`.
+Danach meldet U-Boot zweimal `Saving Environment to UBI` und `Writing to UBI... done`.
+Diese automatischen Schreibvorgänge erfolgen vor dem Bootmenü.
+Der Bediener führt keinen Flash-Schreibbefehl und kein `saveenv` aus.
+Die Aussage „kein Flash beschrieben“ gilt ausdrücklich nicht für diesen NAND-Versuch.
+Der nächste Versuch muss dieses automatische Herstellerverhalten berücksichtigen.
+
+U-Boot erzeugt außerdem eine zufällige Ethernet-MAC-Adresse.
+Der Autoboot läuft vor dem Eingriff ab und startet OpenWrt Linux 6.6.93.
+Die letzte erfasste Kernel-Ausgabe endet bei `0.043661` mit `work`.
+Ein Linux-Prompt und eine eMMC-Identifikation fehlen.
+Ein Kernelstillstand ist wegen des UART-Verbindungsfehlers noch nicht bewiesen.
+Die UART-Verbindung wird mit 115200 Baud erneut geöffnet.
+
+Die lokalen Beobachtungen stehen in `bpi-r4pro8x-uart/nand-2026-10-09-observations.md`.
+Dieses Dokument enthält Tool-Auszüge, keinen vollständigen Rohmitschnitt.
+Die späteren Rohmitschnitte heißen `uart-2026-10-09-nand-storage.log` und `uart-2026-10-09-nand-storage-reconnect.log`.
+
+Status dieses Grobschritts: **NAND TEST INCOMPLETE / AUTOMATIC UBI WRITES**.
