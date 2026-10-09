@@ -2154,3 +2154,30 @@ Ein Vergleich mit dem früher erfolgreichen Treiberstand bleibt ebenfalls erford
 Firmware und EEPROM bleiben unverändert; das Board bleibt eingeschaltet.
 
 Status: **BOOT PASS / PCIE RECOVERY PASS / WIFI FAIL**.
+
+## 67. Variantenregister vor und nach internem Wi-Fi-Reset
+
+Die vorhandenen Register-Tracepoints erfassen keinen Variantenregisterwert vor dem internen Reset.
+Der board-lokale Diagnosepatch `003-mt7996-variant-diagnostics.patch` ergänzt deshalb zwei Registerlesungen in `mt7996_wfsys_reset()`.
+Die neue Meldung lautet `Wi-Fi reset MT_PAD_GPIO: before=... after=...`.
+Der Patch erhält Resetbit, Resetreihenfolge, beide 20-ms-Wartezeiten und automatische Variantenauswahl.
+Zusätzliche Registerzugriffe und die Diagnosemeldung können das zeitliche Verhalten beeinflussen.
+Der Patch erzwingt keine Variante und verändert keine Firmware- oder Kalibrationsdateien.
+Der Preflight verlangt die neue Diagnosemeldung.
+Die gemeinsame Filogic-Family bleibt unverändert.
+
+Ein erster Patchentwurf ist syntaktisch fehlerhaft.
+Weitere Kontextprüfungen benötigen zunächst Fuzz; der korrigierte Entwurf besteht anschließend ohne Fuzz.
+`git apply --check` und `patch --dry-run --fuzz=0` bestehen gegen die vorhandene Frank-6.18-Quelle.
+Die bisherige Variantendiagnose liegt in dieser Quelle vier Zeilen versetzt; der Kontext stimmt vollständig überein.
+Ein isolierter C-Test kompiliert die tatsächlich gepatchte Resetfunktion mit `-Wall -Wextra -Werror`.
+Vier Fälle prüfen Nullwerte, gesetztes Variantenbit und beide Änderungsrichtungen über den Reset.
+Alle Fälle bestätigen die Resetfolge, beide Wartezeiten und unverfälschte protokollierte Werte.
+Der lokale Test liegt unter `/tmp/r4pro8x-reset-diagnostics.YHzD1t`.
+Preflight, Bash-ShellCheck und Git-Whitespace-Prüfung bestehen.
+
+Das laufende Board verwendet weiterhin das unveränderte Image aus Run `37992263277`.
+Die neue Vorher/Nachher-Messung benötigt einen neuen Kernelbuild und anschließend einen Hardwaretest.
+Ein Wi-Fi-Fix oder erfolgreicher Registervergleich ist damit noch nicht bestätigt.
+
+Status: **STATIC PASS / BUILD AND RESET COMPARISON PENDING**.

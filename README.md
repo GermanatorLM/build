@@ -328,6 +328,7 @@ Nachtragen der eigenen SHA.
 | 93 | `SELF` | Treiber-Neustart und Rebind reproduzieren Wi-Fi-Timeout. Register-Tracing bestätigt Remap-Rücklesung, Resetbit und Variantenregisterwert null | UART-Registertrace, Bring-up-Dokumentation | REGISTER TRACE PASS / WIFI FAIL |
 | 94 | `SELF` | Isolierter Wi-Fi-Bus-Reset scheitert mit -25 und PCIe-AER-Fehlern. Zweiter Reset wird nicht ausgeführt. Board sauber heruntergefahren | UART-Resetlog, Bring-up-Dokumentation | BUS RESET FAIL / POWER CYCLE REQUIRED |
 | 95 | `SELF` | Kaltstart stellt Wi-Fi-PCIe-Erkennung nach Bus-Reset wieder her. Keine erneute AER-Fehlerserie im Bootlog. Wi-Fi-Probe scheitert unverändert | UART-Wiederherstellungsboot, Bring-up-Dokumentation | BOOT PASS / PCIE RECOVERY PASS / WIFI FAIL |
+| 96 | `SELF` | Board-lokale Diagnose liest MT_PAD_GPIO vor und nach internem Wi-Fi-Reset. Resetfolge und Variantenauswahl bleiben erhalten. Patch- und C-Tests bestehen | Wi-Fi-Patch, Preflight, Bring-up-Dokumentation | STATIC PASS / BUILD AND RESET COMPARISON PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

@@ -44,6 +44,7 @@ pass "all R4 Pro port files are present"
 wifi_patch=patch/kernel/bpi-r4pro8x-6.18/003-mt7996-variant-diagnostics.patch
 [[ -f "$wifi_patch" ]] || fail "Wi-Fi variant diagnostics patch missing"
 grep -q 'MT_PAD_GPIO=0x%08x' "$wifi_patch" || fail "Wi-Fi register diagnostic missing"
+grep -q 'Wi-Fi reset MT_PAD_GPIO: before=0x%08x after=0x%08x' "$wifi_patch" || fail "Wi-Fi reset comparison missing"
 grep -q 'ROM patch requested:' "$wifi_patch" || fail "Wi-Fi firmware path diagnostic missing"
 pass "board-local Wi-Fi variant diagnostics"
 
