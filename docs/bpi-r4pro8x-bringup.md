@@ -1713,3 +1713,33 @@ Die Patch-Anwendungsprüfung gegen Franks 6.18-main-Quelle und der lokale Prefli
 Ein neuer Kernelbuild und der Hardwaretest der Diagnosemeldungen stehen noch aus.
 
 Status: **STATIC PASS / BUILD AND HW PENDING**.
+
+## 53. Wi-Fi-Probe nach vollständiger Stromtrennung
+
+Der Nutzer bestätigt die vollständige Stromtrennung und startet anschließend dasselbe SD-Image erneut.
+Der Diagnosepatch aus Abschnitt 52 ist noch nicht gebaut oder auf dem Board installiert.
+Der UART-Adapter wird während der Stromtrennung neu eingesteckt; die ursprüngliche Aufzeichnung endet deshalb mit einem I/O-Fehler.
+`uart-run-37975601363-wifi-coldboot-02.log` enthält keinen vollständigen Bootmitschnitt.
+Die neu geöffnete UART-Verbindung zeichnet ab etwa Kernelzeit 9 Sekunden auf.
+Das neue Log heißt `uart-run-37975601363-wifi-coldboot-02-reconnected.log`.
+BootROM, TF-A und U-Boot sind für diesen Versuch nicht aufgezeichnet.
+Das SD-Rootfilesystem behält UUID `cd06581f-85c5-45fc-83a9-99b65dc6d27f`.
+
+Bei 25,52 Sekunden meldet der ROM-Patch Build-Time `20260311120705a`; dies entspricht dem 233-Payload.
+WM-, DSP- und WA-Firmware starten anschließend erfolgreich.
+Der Patch-Start-Timeout tritt in diesem Versuch nicht auf.
+Die optionale Kalibrationsdatei `mediatek/mt7996e_rf.bin` fehlt weiterhin.
+Der Treiber verwendet anschließend die vorhandenen EEPROM-Defaults und registriert bei 26,37 Sekunden `mt76-phy0`.
+`iw dev` bestätigt `phy0` und `wlan0` im Managed-Modus.
+Die Treiber-MAC lautet `00:0c:43:26:60:10`; die Ethernet-MAC-Mechanik verändert diese Adresse nicht.
+`iw phy` listet 2,4 GHz, 5 GHz und 6 GHz als Band 1, 2 und 4.
+Mit der aktuellen globalen Länderkennung `00` sind die geprüften 6-GHz-Kanäle deaktiviert.
+Länderkennung, Funkverkehr, AP-Betrieb und modulspezifische Kalibration sind noch nicht hardwarevalidiert.
+
+Der erste Loginversuch scheitert; die Wiederholung mit denselben bestätigten Testdaten gelingt.
+Naming- und EEPROM-MAC-Dienst bleiben aktiv; alle zehn Ethernet-Identitäten bleiben korrekt.
+Die Stromtrennung stellt die Wi-Fi-Probe wieder her, beweist aber nicht die genaue Ursache des vorherigen Zustands.
+Ein PCIe-Funktionsreset reicht im vorherigen Versuch nicht aus.
+Es werden keine Firmwaredateien ersetzt und keine Varianten dauerhaft erzwungen.
+
+Status: **WIFI PROBE HW PASS / RF TEST PENDING / WARM-BOOT RELIABILITY OPEN**.
