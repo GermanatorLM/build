@@ -46,10 +46,10 @@ done
 [ -n "$emmc" ] || { mac_fail 'eMMC unavailable; boot OpenWrt from eMMC or NAND, not SD'; exit 1; }
 [ -b "/dev/$emmc" ] || { mac_fail 'eMMC block device missing'; exit 1; }
 # Only the audited vendor layout supports this import.
-[ "$(cat "/sys/class/block/${emmc}p1/start")" = 8192 ] &&
-	[ "$(cat "/sys/class/block/${emmc}p1/size")" = 1024 ] || {
+if [ "$(cat "/sys/class/block/${emmc}p1/start")" != 8192 ] ||
+	[ "$(cat "/sys/class/block/${emmc}p1/size")" != 1024 ]; then
 	mac_fail 'unsupported vendor environment partition'; exit 1;
-}
+fi
 umask 077
 tmp=$(mktemp -d /tmp/bpi-r4pro8x-mac.XXXXXX)
 trap 'rm -f "$tmp"/*; rmdir "$tmp"' EXIT

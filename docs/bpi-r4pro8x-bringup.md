@@ -1619,3 +1619,14 @@ Diese Tests schreiben ausschließlich temporäre Fixtures; das angeschlossene Bo
 Die bereits provisionierte Hardware-MAC bleibt gültig; die neue automatische Zufalls-Erstbelegung ist noch nicht hardwaregetestet.
 
 Status dieses Grobschritts: **STATIC PASS / RANDOM PROVISIONING HW PENDING**.
+
+## 48. CI-Preflight: ShellCheck SC2015
+
+CI-Run `37972445834` scheitert im Preflight; der Imagebuild startet nicht.
+Der Runner meldet `SC2015` im OpenWrt-Importer und Naming-Script.
+Lokales ShellCheck 0.11.0 meldet diese Hinweise zuvor nicht.
+Explizite Bedingungen ersetzen beide UND/ODER-Ketten ohne Verhaltensänderung.
+Der vollständige lokale Preflight besteht erneut.
+Die SD-Karte ist als 63.864.569.856-Byte-USB-Gerät sichtbar und bleibt bis zum erfolgreichen Imagebuild unverändert.
+
+Status dieses Grobschritts: **STATIC PASS / BUILD PENDING**.

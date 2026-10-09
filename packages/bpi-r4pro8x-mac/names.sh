@@ -15,7 +15,7 @@ while :; do
 	for dev in /sys/class/net/*; do
 		node=$(readlink -f "$dev/of_node") || continue
 		case "$node" in */ethernet@15100000/mac@*) ;; *) continue ;; esac
-		[ -r "$node/compatible" ] && [ -r "$node/reg" ] || continue
+		if [ ! -r "$node/compatible" ] || [ ! -r "$node/reg" ]; then continue; fi
 		tr '\000' '\n' < "$node/compatible" | grep -qx mediatek,eth-mac || continue
 		case "$(mac_hex "$node/reg")" in
 			00000000) target=eth1 ;;

@@ -309,6 +309,7 @@ Nachtragen der eigenen SHA.
 | 74 | `SELF` | Armbian-Bootleser erzeugt fortlaufende MACs für alle RJ45-Interfaces und interne Controller. Fehlender gültiger EEPROM-Datensatz nutzt festen Fallback. Kollisionsrisiko dokumentiert | MAC-Paket, Fixture-Tests | STATIC PASS / NEW IMAGE AND HW PENDING |
 | 75 | `SELF` | Frontplattennamen lan1–lan6, wan und fpc eingeführt. Hersteller bestätigt FPC-Port 3. Hardwarebasierte GMAC-Umbenennung ordnet eth0 dem MxL und eth1 dem internen Switch zu | 8X-DT-Patch, Naming-Dienst, Fixture-Tests | STATIC PASS / BUILD AND HW PENDING |
 | 76 | `SELF` | Gemeinsamen festen Fallback entfernt. Leeres bekanntes EEPROM erhält einmalig einen zufälligen lokalen MAC-Block mit Backup und Rückleseprüfung. WLAN bleibt beim Treiber | MAC-Paket, Provisionierungs-Tests | STATIC PASS / RANDOM PROVISIONING HW PENDING |
+| 77 | `SELF` | CI-Run 37972445834 scheitert vor dem Imagebuild an SC2015. Explizite Bedingungen ersetzen zwei UND/ODER-Ketten ohne Verhaltensänderung | Naming-Script, OpenWrt-Importer | STATIC PASS / BUILD PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
