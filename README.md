@@ -303,6 +303,7 @@ Nachtragen der eigenen SHA.
 | 68 | `SELF` | Herstellerseite bestätigt P24C02A ausdrücklich für den R4 Pro. Quelle ergänzt; Write-Protect-Verschaltung und erster EEPROM-Schreibtest bleiben offen | MAC-Paketdokumentation, Bring-up-Dokumentation | EEPROM TYPE DOCUMENTED / WRITE UNTESTED |
 | 69 | `SELF` | Echter OpenWrt-Vorabcheck zeigt fehlende `od`- und `cksum`-Werkzeuge. Helfer nutzen jetzt `hexdump` und eine getestete POSIX-Checksumme in AWK. Datensatzformat bleibt unverändert | MAC-Paket, Fixture-Tests | STATIC PASS / OPENWRT COMPATIBILITY FIX |
 | 70 | `SELF` | Erste Import-Vorschau verweigert Hersteller-DT mit `page-size` statt `pagesize`. Beide Schreibweisen unterstützt. Erneute Vorschau liest eMMC-MAC korrekt; EEPROM-Hash bleibt unverändert | MAC-Paket, UART-Mitschnitt | OPENWRT IMPORT DRY-RUN PASS / WRITE PENDING |
+| 71 | `SELF` | USB-Stick V7 Data Drive 3.0 identifiziert. Drei alte Partitionen durch GPT und ext4 ersetzt. Schreib-/Lesetest besteht | USB-Backup-Datenträger, UART-Mitschnitt | USB BACKUP STORAGE PASS / EEPROM WRITE PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

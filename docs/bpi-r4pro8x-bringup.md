@@ -1423,3 +1423,27 @@ Ein USB-Backup-Datenträger ist vor dem vorgesehenen Schreibtest noch bereitzust
 Die lokalen Tests unterstützen beide DT-Schreibweisen und bestehen weiterhin.
 
 Status dieses Grobschritts: **OPENWRT IMPORT DRY-RUN PASS / WRITE PENDING**.
+
+## 42. Externer USB-Backup-Datenträger
+
+Der Nutzer beauftragt das Leeren des neu angeschlossenen USB-Sticks.
+Das Board erkennt einen V7 Data Drive 3.0 als `/dev/sda` mit 31.457.280.512 Bytes.
+Die USB-Gerätezuordnung, Herstellerkennung und Sektorzahl bestätigen das Ziel vor der Änderung.
+Der Stick enthält drei alte Partitionen und eine GPT mit falscher Endposition.
+OpenWrt mountet zunächst die zweite Partition unter `/mnt/sda2`.
+Der Automounter wird vorübergehend gestoppt und diese Partition ausgehängt.
+
+Eine neue GPT ersetzt die alten Partitionen durch eine Linux-Partition ab Sektor 2048.
+Diese Partition erhält ext4 und das Label `EEPROM_BACKUP`.
+Das Dateisystem ist unter `/mnt/usb-backup` mit Zugriffsrechten `0700` eingebunden.
+Ein Schreib-/Lesetest besteht; die Testdatei wird anschließend entfernt.
+Die GPT-Prüfung meldet keine Fehler.
+Das leere Dateisystem enthält nur `lost+found` und bietet ungefähr 28,6 GiB freien Speicher.
+
+Die Formatierung ist keine sichere Überschreibung aller alten Daten.
+Die alten Partitionen sind nicht mehr regulär nutzbar; eine einfache Rücknahme ist nicht vorgesehen.
+EEPROM, eMMC und NAND werden durch diese Vorbereitung nicht beschrieben.
+Die EEPROM-Programmierung bleibt ausstehend.
+Der UART-Mitschnitt enthält Identifikation, Formatierung und Prüfungen.
+
+Status dieses Grobschritts: **USB BACKUP STORAGE PASS / EEPROM WRITE PENDING**.
