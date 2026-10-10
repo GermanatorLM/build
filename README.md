@@ -340,6 +340,7 @@ Nachtragen der eigenen SHA.
 | 105 | `SELF` | Folgender isolierter Boot nach BE14-Neueinsetzen ohne andere Module verwendet wieder 444-Firmware und scheitert mit -11. Hashprüfungen bestehen | Separates UART-Log, Bring-up-Dokumentation | BOOT PASS / WIFI FAIL / VARIANT CHANGE OBSERVED |
 | 106 | `SELF` | Angeforderter Warmstart bestätigt TF-A-Software-Reset. Wi-Fi-444-Patchstart scheitert weiterhin. Linux anschließend sauber heruntergefahren; Kalt-/Warmvergleich vorbereitet | UART-Mitschnitt, Bring-up-Dokumentation | WARM BOOT PASS / WIFI FAIL / COLD-WARM PAIR PENDING |
 | 107 | `SELF` | Angefordertes Kalt-/Warmvergleichspaar abgeschlossen. Beide Starts wählen 444-Payload und scheitern mit -11. Firmware- und EEPROM-Prüfungen bestehen | Durchgehendes UART-Log, Bring-up-Dokumentation | COLD AND WARM BOOT PASS / WIFI FAIL / CAUSE OPEN |
+| 108 | `SELF` | Erstes Vergleichspaar mit wieder eingesetzten Modulen reproduziert Wi-Fi-444-Timeout in Kalt- und Warmstart. Linux heruntergefahren; zweites Paar vorbereitet | Separates UART-Log, Bring-up-Dokumentation | PAIR 1 BOOT PASS / WIFI FAIL / PAIR 2 PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

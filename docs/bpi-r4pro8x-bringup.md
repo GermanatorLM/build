@@ -2513,3 +2513,34 @@ Weitere Neustarts erfolgen nicht ohne neuen Testauftrag.
 Das Board bleibt nach dem Warmstart eingeschaltet; der UART-Recorder bleibt aktiv.
 
 Status: **COLD AND WARM BOOT PASS / WIFI FAIL / CAUSE OPEN**.
+
+## 79. Erstes Kalt-/Warmvergleichspaar mit eingesetzten Modulen
+
+Der Nutzer setzt die Erweiterungsmodule wieder ein und beauftragt zwei weitere Kalt-/Warmvergleichspaare.
+Das erste vollständige Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-modules-cold-warm-pair1.log`.
+TF-A bestätigt zuerst `Cold boot`.
+USB-Sysfs bestätigt Quectel `2c7c:0801`, ALFA `1d6b:0104` und STM32 `0483:5740`.
+Die Kaltstart-Boot-ID lautet `5791fe6c-e9b0-42b2-a0d7-742b2197a797`.
+Bei 25,85 Sekunden meldet der ROM-Patch Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Bei 30,88 Sekunden scheitert der Patchstart; bei 35,93 Sekunden endet die Probe mit `-11`.
+Linux erreicht `multi-user.target`; `iw dev` zeigt kein Radio.
+Beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+
+Der beauftragte Warmstart beginnt bei 82,39 Sekunden mit `Restarting system`.
+TF-A bestätigt `Software reset (reboot)`.
+Bei 25,58 Sekunden meldet der ROM-Patch erneut Build-Time `20260311120419a`.
+Bei 30,64 Sekunden scheitert der Patchstart; bei 35,69 Sekunden endet die Probe mit `-11`.
+Auch der Warmstart erreicht `multi-user.target`; `iw dev` zeigt kein Radio.
+Die Warmstart-Boot-ID lautet `9a264e0e-4375-4e0e-bf6d-b3496359d56c`.
+Alle 15 Firmware-Prüfsummen und beide EEPROM-Hashes bestehen die Laufzeitprüfung.
+Die ersten Loginversuche enthalten Terminal-Antwortzeichen; die Wiederholungen gelingen mit denselben Testdaten.
+
+Dieses Paar reproduziert den früheren erfolgreichen 233-Start mit angeschlossenen Modulen nicht.
+Die eingesetzten Module allein garantieren damit keinen erfolgreichen Wi-Fi-Start.
+Der anschließende Shutdown bestätigt `All filesystems unmounted` bei 86,71 Sekunden.
+TF-A meldet erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Das Board benötigt physische Stromtrennung vor dem zweiten Kaltstart.
+Der zweite Recorder wartet bereits unter `bpi-r4pro8x-uart/uart-run-37975601363-modules-cold-warm-pair2.log`.
+SD, Module, Firmware und EEPROMs bleiben für das zweite Paar unverändert.
+
+Status: **PAIR 1 BOOT PASS / WIFI FAIL / PAIR 2 PENDING**.
