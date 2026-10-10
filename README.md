@@ -357,6 +357,7 @@ Nachtragen der eigenen SHA.
 | 122 | `HW` | Erste 233-Probe nach Kaltstart scheitert ebenfalls beim Patchstart mit `-11`. Keine frühere Wi-Fi-Probe. Trace verlustfrei; EEPROMs und Originalmodul unverändert. Diagnose-Timer deaktiviert, Testmodul entladen | UART, Registertrace, Hashvergleich, Bring-up-Dokumentation Abschnitt 93 | FIRST233 COLD BOOT WIFI FAIL |
 | 123 | `HW` | Originaltreiber mit vollständigem mt76-Register- und IRQ-Trace geprüft. 286 Ereignisse ohne Verluste. Frühe MCU-RX-Interrupts vorhanden; Patchstart scheitert erneut | UART, Registertrace, Bring-up-Dokumentation Abschnitt 94 | MCU TRACE PASS / WIFI FAIL |
 | 124 | `SELF` | Ursprüngliches Initramfs aus geprüfter Sicherung wiederhergestellt. Diagnose-Hooks gesichert und deaktiviert; beide Testtimer deaktiviert. Board sauber heruntergefahren für Original-Kaltstart | SHA256, Dateivergleich, UART, Bring-up-Dokumentation Abschnitt 95 | ORIGINAL INITRAMFS RESTORED / COLD START PENDING |
+| 125 | `HW` | Kaltstart mit Original-Initramfs reproduziert Patchstartfehler `-11`. Kein früher Trace; Originalhashes bestätigt. Beide Wi-Fi-Links sichtbar. Zusätzliche MxL-MMD-/PHY-Warnung gesichert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 96 | BOOT PASS / ORIGINAL INITRAMFS WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 

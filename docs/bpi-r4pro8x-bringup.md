@@ -3164,3 +3164,35 @@ Der nächste Kaltstart soll mit unveränderter Bestückung und SD erfolgen.
 Der bestehende UART-Recorder bleibt für den Vergleich aktiv.
 
 Status: **ORIGINAL INITRAMFS RESTORED / COLD START PENDING**.
+
+## 96. Kaltstart mit Original-Initramfs reproduziert Wi-Fi-Fehler
+
+TF-A bestätigt `Cold boot`; Linux erreicht `multi-user.target` und den Login.
+Die Boot-ID lautet `bbff42e8-ced9-4cd4-b851-4c8583b2c198`.
+Die Initrd-, uInitrd- und Originalmodulhashes entsprechen den geprüften Sicherungen.
+Beide Diagnose-Timer bleiben deaktiviert; die frühe Trace-Instanz fehlt.
+Das Originalmodul startet automatisch bei etwa 25,60 Sekunden.
+Der ROM-Patch meldet 444-Build-Time `20260311120419a` bei 25,767829 Sekunden.
+Der Patchstart scheitert bei 30,802577 Sekunden nach Nachricht-7-Timeout.
+Die Semaphore-Freigabe scheitert nach Nachricht-10-Timeout.
+Die Geräteprobe endet bei 35,849088 Sekunden mit `-11`.
+WM-, DSP- und WA-Start fehlen; `iw dev` bleibt leer.
+Beide PCIe-Links melden 8,0 GT/s und zwei Lanes.
+Die Hauptfunktion bleibt ungebunden; die zweite Funktion bindet `mt7996e_hif`.
+Beide EEPROM-Hashes bleiben unverändert.
+
+USB-Controller `11190000` meldet instabile Clocks; PCIe-Controller `11280000` meldet Probe-Fehler `-110`.
+Die AER-Ausgabe zeigt Aktivierung, aber keine neue Fehlerserie.
+MxL meldet bei 38,114711 Sekunden einen MMD-Lesefehler für Port 2.
+`_phy_start_aneg` liefert danach `-110`; die PHY-Zustandsmaschine erzeugt eine Kernel-Warnung.
+Diese Ethernet-Warnung entsteht nach dem Wi-Fi-Fehler; eine gemeinsame Ursache bleibt ungeklärt.
+`armbian-led-state.service` bleibt der einzige fehlgeschlagene systemd-Dienst.
+
+Ergebnisse liegen unter `/root/r4pro-force233-diag/original-initramfs-bbff42e8-ced9-4cd4-b851-4c8583b2c198`.
+Der Recorder schreibt weiterhin `uart-run-37975601363-first233-coldboot-20261010T104027.log`; dieses Log enthält mehrere Boots.
+Die frühe Trace-Vorbereitung ist keine notwendige Voraussetzung für den beobachteten Wi-Fi-Fehler.
+Der Versuch beweist weder einen Hardwaredefekt noch eine ausschließlich softwarebedingte Ursache.
+Ein nächster unabhängiger Vergleich kann das vorhandene OpenWrt ohne Flash-Schreibzugriffe booten und dessen BE14-Probe prüfen.
+Das Board bleibt eingeschaltet; es erfolgen keine weiteren Resets oder Firmwareänderungen.
+
+Status: **BOOT PASS / ORIGINAL INITRAMFS WIFI FAIL / CAUSE OPEN**.
