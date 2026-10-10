@@ -355,6 +355,7 @@ Nachtragen der eigenen SHA.
 | 120 | `SELF` | Vergleichstreiber reproduziert 444-Fehler. Erzwungener 233-Payload scheitert ebenfalls bei erneuter Laufzeitprobe. Beide Module laden korrekt; Originaldatei und EEPROMs unverändert | UART, zwei Registertraces, Bring-up-Dokumentation | MODULE LOAD PASS / BOTH WIFI FAIL |
 | 121 | `SELF` | Erster 233-Kaltstart vorbereitet. Automatische Originalprobe gesperrt; gesonderter Timer lädt Diagnosemodul nach 90 Sekunden. Originaldatei bleibt erhalten. Board sauber heruntergefahren | Timer-/Scriptprüfung, UART, Bring-up-Dokumentation | FIRST233 COLD BOOT PREPARED |
 | 122 | `HW` | Erste 233-Probe nach Kaltstart scheitert ebenfalls beim Patchstart mit `-11`. Keine frühere Wi-Fi-Probe. Trace verlustfrei; EEPROMs und Originalmodul unverändert. Diagnose-Timer deaktiviert, Testmodul entladen | UART, Registertrace, Hashvergleich, Bring-up-Dokumentation Abschnitt 93 | FIRST233 COLD BOOT WIFI FAIL |
+| 123 | `HW` | Originaltreiber mit vollständigem mt76-Register- und IRQ-Trace geprüft. 286 Ereignisse ohne Verluste. Frühe MCU-RX-Interrupts vorhanden; Patchstart scheitert erneut | UART, Registertrace, Bring-up-Dokumentation Abschnitt 94 | MCU TRACE PASS / WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 

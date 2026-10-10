@@ -3111,3 +3111,34 @@ Eine gemeinsame Ursache ist nicht bewiesen.
 Der nächste Diagnosefokus liegt auf dem MCU-Patchstart und dem Hardwarezustand vor der Firmwareinitialisierung.
 
 Status: **FIRST233 COLD BOOT WIFI FAIL / ORIGINAL AUTOLOAD RESTORED**.
+
+## 94. Register- und IRQ-Trace beim Original-Patchstart
+
+Der Nutzer verlangt den nächsten Versuch und erwägt ein zuvor funktionierendes Image.
+Das laufende Image aus Run `37975601363` besteht bereits den früheren 6-GHz-Test aus Abschnitt 56.
+Dasselbe Image initialisiert Wi-Fi auch in Abschnitt 75 erfolgreich.
+Ein identisches Neuaufspielen liefert daher allein keinen neuen Softwarevergleich.
+
+Eine getrennte Trace-Instanz zeichnet alle mt76-Ereignisse mit 4096 KiB Puffer pro CPU auf.
+Der Versuch lädt ausschließlich das installierte Originalmodul.
+Der Versuch führt keinen PCIe-Busreset aus.
+Die Probe startet bei 331,997150 Sekunden im Boot aus Abschnitt 93.
+Der Trace enthält 286 Ereignisse und 17 `dev_irq`-Ereignisse ohne Überlauf oder Verluste.
+`MT_PAD_GPIO` bleibt null; der Treiber verwendet 444-Build-Time `20260311120419a`.
+Die Ownership-Prüfung liefert für beide Bänder null nach Anforderung der Hostkontrolle.
+`MT_TOP_MISC` wechselt im Trace von null auf eins.
+Die Firmwarezustandsprüfung erreicht anschließend den Patchdownload.
+MCU-RX-Interrupts mit Bit 0 erscheinen bei 332,126422 und 332,140349 Sekunden.
+Interrupts und frühe MCU-Antworten fehlen somit nicht grundsätzlich.
+Der Trace beweist keine korrekte Verarbeitung sämtlicher DMA-Daten.
+
+Der Patchstart scheitert bei 337,202785 Sekunden nach Nachricht-7-Timeout.
+Die Geräteprobe endet bei 342,249281 Sekunden nach Semaphore-Timeout mit `-11`.
+`iw dev` bleibt leer; der Originalmodulhash bleibt unverändert.
+Die Quellprüfung bestätigt: Der Treiber erreicht Patchstart nach erfolgreichen Rückgaben der Downloadanforderungen und Sendefunktionen.
+Diese Rückgaben beweisen keine erfolgreiche Ausführung des Patches auf dem MCU.
+Ergebnisse liegen unter `/root/r4pro-force233-diag/mcu-original-20261010T044439Z`.
+Das Boarddatum im Verzeichnisnamen weicht von der Hostzeit ab.
+Der Versuch deaktiviert anschließend Trace und Ereignisse und entlädt das Originalmodul.
+
+Status: **MCU TRACE PASS / ORIGINAL WIFI FAIL / CAUSE OPEN**.
