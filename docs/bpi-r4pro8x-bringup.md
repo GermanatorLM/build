@@ -3196,3 +3196,33 @@ Ein nächster unabhängiger Vergleich kann das vorhandene OpenWrt ohne Flash-Sch
 Das Board bleibt eingeschaltet; es erfolgen keine weiteren Resets oder Firmwareänderungen.
 
 Status: **BOOT PASS / ORIGINAL INITRAMFS WIFI FAIL / CAUSE OPEN**.
+
+## 97. Referenzimage des erfolgreichen Tests aus f77368177 erneut geschrieben
+
+Der Nutzer fordert das funktionierende Image zum Stand `f77368177`.
+Commit `f773681774f69860ce51eeef94099ffb9a86c5c1` dokumentiert den erfolgreichen 6-GHz-Test aus Abschnitt 56.
+Dieser Dokumentationscommit erzeugt kein eigenes Image.
+Abschnitt 56 nennt ausdrücklich Run `37975601363` als verwendetes Image.
+Das lokale Originalimage dieses Runs bleibt verfügbar und besteht seine veröffentlichte SHA256-Prüfung.
+Die Image-Metadaten nennen Sources-Revision `b94e6d9`.
+Die aktuelle Branchhistorie und sämtliche Fehlversuche bleiben erhalten; es erfolgt kein Git-Reset.
+
+Linux hängt vor der Kartenentnahme alle Dateisysteme bei 178,159440 Sekunden aus.
+Der Host erkennt die bekannte 64-GB-SD als `/dev/sdb` im Generic-USB-Kartenleser.
+Das Flashscript prüft Größe, USB-Pfad, Removable-Flag, Modell und bisherige Rootfs-UUID.
+Das Script heißt lokal `flash-r4pro8x-f77368177-reference.sh`; Bash-Syntaxprüfung und ShellCheck bestehen.
+Der Nutzer bestätigt die pkexec-Anfrage.
+Das Script sichert Diagnoseergebnisse und ursprüngliche Bootdatei-Sicherungen vor dem Überschreiben.
+Die private Sicherung liegt unter `/home/lukas/Work/bpi-r4pro8x-f77368177-reflash.JRISz7/sd-diagnostics-before-reflash.tar.gz`.
+Archiv-SHA256: `a656619b70fa0fc1d22e65be1d7f741c0ff429cbab0227dec52b89ac0c79ff92`.
+
+Das Script schreibt 1476395008 Bytes nach vollständigem Aushängen der SD-Partitionen.
+Das Script liest anschließend den gesamten geschriebenen Imagebereich zurück.
+Image und SD-Rücklesung liefern SHA256 `14bb7d95874d1133945f95b3cecde55306813604a948a0f23987a63fc3301768`.
+Der Schreibvorgang entfernt die bisherigen lokalen SD-Diagnoseänderungen; die externe Sicherung erhält deren Ergebnisse.
+`udisksctl power-off` trennt den Kartenleser anschließend erfolgreich.
+Es erfolgen keine Schreibzugriffe auf Board-EEPROM, eMMC, NAND oder NOR.
+Das Neuaufspielen bestätigt keinen aktuellen Wi-Fi-Erfolg; der nächste Kaltstart bleibt erforderlich.
+Das Flashlog liegt im selben lokalen Sicherungsverzeichnis.
+
+Status: **REFERENCE IMAGE FLASH PASS / COLD BOOT PENDING**.

@@ -358,6 +358,7 @@ Nachtragen der eigenen SHA.
 | 123 | `HW` | Originaltreiber mit vollständigem mt76-Register- und IRQ-Trace geprüft. 286 Ereignisse ohne Verluste. Frühe MCU-RX-Interrupts vorhanden; Patchstart scheitert erneut | UART, Registertrace, Bring-up-Dokumentation Abschnitt 94 | MCU TRACE PASS / WIFI FAIL |
 | 124 | `SELF` | Ursprüngliches Initramfs aus geprüfter Sicherung wiederhergestellt. Diagnose-Hooks gesichert und deaktiviert; beide Testtimer deaktiviert. Board sauber heruntergefahren für Original-Kaltstart | SHA256, Dateivergleich, UART, Bring-up-Dokumentation Abschnitt 95 | ORIGINAL INITRAMFS RESTORED / COLD START PENDING |
 | 125 | `HW` | Kaltstart mit Original-Initramfs reproduziert Patchstartfehler `-11`. Kein früher Trace; Originalhashes bestätigt. Beide Wi-Fi-Links sichtbar. Zusätzliche MxL-MMD-/PHY-Warnung gesichert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 96 | BOOT PASS / ORIGINAL INITRAMFS WIFI FAIL |
+| 126 | `SELF` | Nutzer fordert Rückkehr zum erfolgreichen Teststand aus `f77368177`. Zugehöriges Originalimage aus Run `37975601363` erneut auf SD geschrieben. Diagnosedaten gesichert; vollständiger Imagebereich zurückgelesen und verifiziert. SD sicher getrennt | Flashlog, SHA256, Bring-up-Dokumentation Abschnitt 97 | REFERENCE IMAGE FLASH PASS / BOOT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
