@@ -2367,3 +2367,40 @@ Ein nächster kontrollierter Hardwaretest kann externe USB-Verbindungen als mög
 Dieser Test benötigt eine neue Stromtrennung und unveränderte SD sowie BE14-Bestückung.
 
 Status: **BOOT PASS / WIFI COMPARISON FAIL / CAUSE OPEN**.
+
+## 74. Kaltstart ohne externe USB-Geräte
+
+Der Nutzer verlangt den Shutdown vor der Entfernung der USB-Geräte beziehungsweise Module.
+Linux bestätigt im Vergleichslog aus Abschnitt 73 `All filesystems unmounted`.
+TF-A meldet anschließend erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Der Nutzer bestätigt die Trennung und startet danach dasselbe SD-Image.
+Ein separater UART-Recorder erfasst BootROM, TF-A, U-Boot und Linux vollständig.
+Das Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-without-usb-coldboot-01.log`.
+Linux erreicht erneut `multi-user.target` und den Login.
+Der erste Login enthält Terminal-Antwortzeichen und scheitert; die Wiederholung gelingt mit denselben Testdaten.
+
+Die USB-Sysfs-Prüfung zeigt nur Root-Hubs und Hubs `2109:2822` sowie `2109:0822`.
+Die zuvor erkannten RAK-, Quectel- und ALFA-USB-Geräte fehlen.
+Der Test bestätigt ihre fehlende USB-Erkennung, nicht ihren physischen Ausbau.
+Beide Wi-Fi-PCIe-Funktionen bleiben mit 8,0 GT/s, zwei Lanes und Runtime-Status `active` sichtbar.
+Die gefilterte Dmesg-Prüfung zeigt keine PCIe-AER-Fehlerserie.
+
+Bei 26,68 Sekunden meldet der ROM-Patch weiterhin Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Bei 31,76 Sekunden scheitert der Patchstart nach MCU-Nachricht-7-Timeout.
+Bei 36,81 Sekunden endet die Probe nach Semaphore-Timeout mit `-11`.
+`iw dev` zeigt weiterhin kein Radio.
+Alle 15 Firmware-Prüfsummen bestehen.
+Beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+`armbian-led-state.service` scheitert separat mit `Invalid state file, syntax error in configuration file`.
+Der früheste Wi-Fi-Fehler bleibt der Linux-Firmware-Patchstart.
+
+Die Entfernung der externen USB-Geräte stellt Wi-Fi in diesem Versuch nicht wieder her.
+Ihre Anwesenheit ist damit keine notwendige Voraussetzung für den beobachteten Fehler.
+Die elektrische Versorgung des BE14 und seine Strap-Erkennung bleiben ungeprüft.
+Ein Hardwaredefekt ist weiterhin nicht bestätigt.
+Weitere Resets, Firmwarewechsel und EEPROM-Schreibzugriffe werden nicht ausgeführt.
+Das Board bleibt eingeschaltet; der UART-Recorder bleibt aktiv.
+Der nächste Hardwarevergleich kann den Sitz und die Anschlüsse des BE14 prüfen.
+Solche Arbeiten benötigen zuvor einen sauberen Shutdown und vollständige Stromtrennung.
+
+Status: **BOOT PASS / USB ISOLATION NO RECOVERY / WIFI FAIL / CAUSE OPEN**.
