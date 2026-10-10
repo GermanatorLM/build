@@ -3541,3 +3541,27 @@ Es erfolgt kein Board-Reset und kein Zugriff auf eMMC, SPI-NAND, NOR oder EEPROM
 Ein rc6-Bootlog und Hardwaretests stehen noch aus.
 
 Status: **DOWNLOAD / SHA256 / SD WRITE / READBACK PASS / BOOT PENDING**.
+
+## 109. Aufgezeichneter Kaltstart verwendet eMMC statt rc6-SD
+
+Die neue UART-Aufzeichnung läuft mit 115200 Baud und automatischer Wiederverbindung.
+Die alte Aufzeichnung wird beendet; ihre Logs bleiben erhalten.
+Beim Start verbindet sich das Debug-Kabel erneut; der Recorder legt ein neues Log an.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-20261010T184922.log`.
+Der Dateiname bezeichnet den geplanten Versuch, nicht das tatsächlich gebootete System.
+
+Das Log enthält BootROM-Ausgaben und `WDT: Cold boot`.
+BL2 und BL31 melden OpenWrt TF-A 2.10 mit `mt7988-emmc-comb`.
+U-Boot meldet Version 2024.10 und zeigt das Bootmenü `[eMMC]`.
+Der FIT-Lader wählt das eMMC-Overlay und setzt `rootdisk-emmc`.
+Linux meldet Version 6.6.93; das OpenWrt-Rootfilesystem wird eingebunden.
+Diese Bootkette stammt nicht aus dem neuen rc6-SD-Image.
+Der Versuch bestätigt weder einen rc6-Booterfolg noch einen rc6-Kernelfehler.
+Die früheste Abweichung liegt bei der Bootmedienauswahl vor der SD-Bootkette.
+Die konkrete Schalterstellung wird nicht aus dem Log abgeleitet.
+
+Die nächste Prüfung benötigt einen Kaltstart im SD-Boot-Modus.
+Es erfolgen keine Änderungen an Bootloader, eMMC, NAND, NOR oder EEPROM.
+Die UART-Aufzeichnung bleibt aktiv.
+
+Status: **EMMC BOOT / RC6 UNTESTED / SD BOOT SELECTION REQUIRED**.

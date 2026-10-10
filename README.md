@@ -374,6 +374,7 @@ Nachtragen der eigenen SHA.
 | 135 | `SELF` | Run `38051805424` erfolgreich. Linux 7.3.0-rc6, MT7996-Modul, U-Boot/TF-A und vollständiges Trixie-Minimal-Image gebaut. Latest installiert 15 Payloads. Logs gesichert; Image-Download läuft noch | Actions-Ergebnis, Buildlogs, Bring-up-Dokumentation Abschnitt 106 | BUILD PASS / DOWNLOAD PENDING / HW UNTESTED |
 | 136 | `SELF` | Erster Image-Download scheitert beim temporären ZIP an `disk quota exceeded`. Wiederholung verwendet `TMPDIR` auf der Arbeitsplatte mit 66 GB frei. SD bleibt unverändert | Downloadfehler, Bring-up-Dokumentation Abschnitt 107 | DOWNLOAD RETRY / HASH PENDING |
 | 137 | `SELF` | Zweiter Download abgeschlossen; SHA256 stimmt. rc6-Image nach pkexec-Freigabe auf die identifizierte 64-GB-SD geschrieben. Vollständiger Datenvergleich besteht; Karte sicher getrennt | Imagehash, SD-Schreiben, Readback, Bring-up-Dokumentation Abschnitt 108 | DOWNLOAD / SD WRITE / READBACK PASS; BOOT offen |
+| 138 | `SELF` | Erster aufgezeichneter Start verwendet OpenWrt aus eMMC: TF-A 2.10, U-Boot 2024.10 und Linux 6.6.93. Das rc6-SD-Image wird nicht gestartet | UART-Kaltstart, Bring-up-Dokumentation Abschnitt 109 | EMMC BOOT / RC6 UNTESTED |
 
 ## Verbindliche Regel für kommende Änderungen
 
