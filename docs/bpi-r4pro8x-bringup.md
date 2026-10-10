@@ -3404,3 +3404,49 @@ Die bestehenden 6.18-Quellen bleiben unverändert.
 Ein Patchtest und ein rc6-Imagebuild stehen noch aus.
 
 Status: **SOURCE VERIFIED / PORT TEST PENDING**.
+
+## 104. Board-lokale rc6-Portierung
+
+Die R4-Pro-Family pinnt den offiziellen rc6-Commit aus Abschnitt 103.
+Der neue Patchsatz heißt `bpi-r4pro8x-7.3`.
+Die normale Filogic-Family und der alte 6.18-Patchsatz bleiben unverändert.
+Der erste vollständige Prüfdownload wird zugunsten eines gezielten Sparse-Checkouts abgebrochen.
+Ein separater frischer Worktree prüft anschließend die exportierten Patches ohne Dreiwege-Fallback.
+Ein erster Test findet dort noch keine ausgecheckten Dateien.
+Nach der Indexinitialisierung bestehen alle drei Patches sequenziell `git apply --check` und `git apply`.
+
+Die Frank-Erweiterungen verursachen Dreiwege-Konflikte in `mxl862xx.c`, `mtk_eth_soc.c` und `mtk_eth_soc.h`.
+Die Auflösung erhält rc6-EEE-Grenzen und den Statistics-Worker-Stopp beim MaxLinear-Teardown.
+Die MediaTek-Probe alloziert NAPI vor der Interface-Registrierung, mit Franks RSS/LRO-Arrays.
+Die Fehlerbereinigung entfernt registrierte RX-NAPI-Instanzen.
+MaxLinear richtet MDIO vor dem Start des Statistics-Workers ein.
+Die Patchdokumentation nennt Herkunft, Umfang und Konfliktauflösung.
+Neun geerbte Whitespace-Warnungen bleiben sichtbar; sie blockieren den Patchtest nicht.
+
+Der aktualisierte gemeinsame Device Tree enthält bereits `lan1` bis `lan5`.
+Der 8X-Patch aktiviert `fpc` und `lan6`, einschließlich der RJ45-Multiplexer-Auswahl.
+Franks aktualisierter Switchtreiber verwendet Portnummer 13 für den LAN-Combo-Port.
+Die Wi-Fi-Diagnose protokolliert Register und Firmwarepfad, ohne Variante oder Resetzeiten zu erzwingen.
+Der neue MT76-Treiber enthält keine alte RF-Dateierweiterung.
+Die alten RF-Dateipatches bleiben archiviert; rc6 verwendet die native OF/eFuse-Auswertung.
+Wi-Fi-MAC-Adressen bleiben beim Treiber.
+EEPROM-Ethernet-MAC-Zuordnung, USB-Moduloptionen und PTP bleiben erhalten.
+Ein board-lokaler Versionsschutz verlangt `7.3.0-rc6` während der Kernelkonfiguration.
+
+Der erste DT-Präprozessorlauf scheitert an einem fehlenden Header im Sparse-Checkout.
+Nach dem Headerdownload kompiliert der 8X-DTB erfolgreich.
+Der Compiler meldet eine bestehende `avoid_unnecessary_addr_size`-Warnung am MaxLinear-Knoten.
+Das SD-Overlay kompiliert und lässt sich mit `fdtoverlay` erfolgreich anwenden.
+Die Makefile meldet weiterhin Version 7.3.0-rc6.
+`make -s kernelversion` bestätigt `7.3.0-rc6`.
+Der Versionsschutz akzeptiert rc6 und verwirft eine simulierte rc1-Version.
+Der statische Preflight besteht; die Maintainer-Warnung bleibt bestehen.
+Der Preflight findet zunächst noch den alten Cache-Hash; der Check erhält anschließend den neuen rc6-Hash.
+Shellcheck besteht mit den üblichen Ausnahmen für Frameworkvariablen und externe Sources.
+Der lokale Kconfig-Test scheitert zunächst am fehlenden `ld.lld`.
+Ein erneuter Versuch mit GCC scheitert am ebenfalls fehlenden `ld`.
+Diese Hostfehler bestätigen keinen Kernel-Kompilierfehler und keinen erfolgreichen Kconfig-Test.
+GitHub Actions übernimmt den vollständigen Build mit seinem eigenen Toolchain-Setup.
+Ein vollständiger Kernelbuild und Hardwaretests stehen noch aus.
+
+Status: **STATIC / PATCH / DT PASS / BUILD PENDING / HW UNTESTED**.

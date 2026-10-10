@@ -18,7 +18,8 @@ cd "${repo_root}"
 board="config/boards/bananapir4pro8x.csc"
 family="config/sources/families/filogic-r4pro.conf"
 uboot_patch="patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
-kernel_patch="patch/kernel/bpi-r4pro8x-6.18/001-mt76-optional-eeprom-no-sysfs-fallback.patch"
+kernel_patch_dir="patch/kernel/bpi-r4pro8x-7.3"
+kernel_patch="${kernel_patch_dir}/000-frank-r4pro-support.patch"
 firmware_manifest="packages/bpi-r4pro8x-firmware/manifest.tsv"
 firmware_installer="packages/bpi-r4pro8x-firmware/install.sh"
 mac_package="packages/bpi-r4pro8x-mac"
@@ -41,21 +42,15 @@ for file in "${board}" "${family}" "${uboot_patch}" "${kernel_patch}" "${firmwar
 done
 pass "all R4 Pro port files are present"
 
-wifi_patch=patch/kernel/bpi-r4pro8x-6.18/003-mt7996-variant-diagnostics.patch
+wifi_patch="${kernel_patch_dir}/003-mt7996-variant-diagnostics.patch"
 [[ -f "$wifi_patch" ]] || fail "Wi-Fi variant diagnostics patch missing"
 grep -q 'MT_PAD_GPIO=0x%08x' "$wifi_patch" || fail "Wi-Fi register diagnostic missing"
 grep -q 'Wi-Fi reset MT_PAD_GPIO: before=0x%08x after=0x%08x' "$wifi_patch" || fail "Wi-Fi reset comparison missing"
 grep -q 'ROM patch requested:' "$wifi_patch" || fail "Wi-Fi firmware path diagnostic missing"
 pass "board-local Wi-Fi variant diagnostics"
 
-rf_patch=patch/kernel/bpi-r4pro8x-6.18/004-mt76-preserve-rf-file-eeprom.patch
-[[ -f "$rf_patch" ]] || fail "RF file EEPROM return-value patch missing"
-grep -q '^+.*return 1;' "$rf_patch" || fail "RF file must report external EEPROM data"
-bash -n tools/bpi-r4pro8x-rf-test.sh
-if command -v shellcheck >/dev/null; then
-	shellcheck tools/bpi-r4pro8x-rf-test.sh
-fi
-pass "board-local RF file EEPROM fix and test syntax"
+# The upstream rc6 driver uses OF/eFuse, without the old RF-file extension.
+pass "upstream rc6 EEPROM path; legacy RF-file patches remain archived"
 
 bash -n "${board}"
 bash -n "${family}"
@@ -69,7 +64,7 @@ done
 [[ -f "${mac_package}/bpi-r4pro8x-mac.service" ]] || fail "MAC boot service missing"
 [[ -f "${mac_package}/bpi-r4pro8x-names.service" ]] || fail "port naming service missing"
 grep -q 'Requires=bpi-r4pro8x-names.service' "${mac_package}/bpi-r4pro8x-mac.service" || fail "names must precede MAC assignment"
-[[ -f patch/kernel/bpi-r4pro8x-6.18/002-front-panel-port-labels.patch ]] || fail "front panel DT patch missing"
+[[ -f "${kernel_patch_dir}/002-front-panel-port-labels.patch" ]] || fail "front panel DT patch missing"
 grep -q 'Before=network-pre.target' "${mac_package}/bpi-r4pro8x-mac.service" || fail "MAC service ordering missing"
 grep -q 'bpi-r4pro8x-mac.service' "${board}" || fail "MAC boot reader is not installed"
 sh tools/bpi-r4pro8x-mac-test.sh
@@ -87,11 +82,13 @@ grep -q 'mt7988a-bananapi-bpi-r4-pro-8x.dtb' "${board}" || fail "8X Linux DTB mi
 grep -q 'mt7988a-bananapi-bpi-r4-pro-sd.dtbo' "${board}" || fail "R4 Pro SD overlay missing"
 pass "board selects expected U-Boot target, 8X DTB and SD overlay"
 
-grep -q "KERNELBRANCH='branch:6.18-main'" "${family}" || fail "Frank 6.18 kernel branch not selected"
+grep -q "KERNELSOURCE='https://github.com/torvalds/linux.git'" "${family}" || fail "upstream kernel source missing"
+grep -q "KERNELBRANCH='commit:a90ee4305c4a5df72c11b31dacfdc76e00fcf78a'" "${family}" || fail "exact rc6 commit missing"
+grep -q "KERNEL_MAJOR_MINOR='7.3'" "${family}" || fail "unexpected kernel series"
+[[ -f "${kernel_patch_dir}/000-frank-r4pro-support.patch" ]] || fail "Frank hardware extensions missing"
 grep -q "ATFBRANCH='branch:mtk-atf-2026'" "${family}" || fail "Frank MTK ATF branch not selected"
 grep -q 'DDR4_4BG_MODE=1' "${family}" || fail "8 GiB DDR4 ATF flag missing"
-grep -q "KERNELPATCHDIR='bpi-r4pro8x-6.18'" "${family}" || fail "R4 Pro kernel patch set not selected"
-grep -q 'request_firmware_direct' "${kernel_patch}" || fail "optional EEPROM direct request patch missing"
+grep -q "KERNELPATCHDIR='bpi-r4pro8x-7.3'" "${family}" || fail "R4 Pro kernel patch set not selected"
 pass "kernel and ATF source pins"
 
 grep -q 'mt7988a_bpir4pro_sd_defconfig' "${uboot_patch}" || fail "R4 Pro U-Boot defconfig missing from patch"
@@ -148,7 +145,7 @@ usb_modules="$(sed -n '/opts_m+=(/,/^[[:space:]]*)/p' "${board}")"
 for symbol in "${usb_symbols[@]}"; do
 	grep -q "\"${symbol}\"" <<< "$usb_modules" || fail "USB module config missing: ${symbol}"
 done
-grep -q 'bpi-r4pro-8x-network-v5' "${board}" || fail "USB/PTP kernel config cache hash missing"
+grep -q 'bpi-r4pro-8x-network-v6-rc6' "${board}" || fail "USB/PTP kernel config cache hash missing"
 pass "board-local USB serial, LoRa, HaLow and modem modules"
 
 for symbol in PTP_1588_CLOCK NETWORK_PHY_TIMESTAMPING; do

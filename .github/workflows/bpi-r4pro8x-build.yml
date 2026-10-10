@@ -8,6 +8,7 @@ on:
       - "config/sources/families/filogic-r4pro.conf"
       - "patch/u-boot/u-boot-filogic/451-add-bpi-r4pro-8x.patch"
       - "patch/kernel/bpi-r4pro8x-6.18/**"
+      - "patch/kernel/bpi-r4pro8x-7.3/**"
       - "packages/bpi-r4pro8x-firmware/**"
       - "packages/bpi-r4pro8x-mac/**"
       - "tools/bpi-r4pro8x-check.sh"

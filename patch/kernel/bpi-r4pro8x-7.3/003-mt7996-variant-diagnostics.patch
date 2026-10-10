@@ -1,0 +1,47 @@
+diff --git i/drivers/net/wireless/mediatek/mt76/mt7996/init.c w/drivers/net/wireless/mediatek/mt76/mt7996/init.c
+index da5eb745e4d6a2673ada941b1c84dee926ba15a0..c798f876c879a7298fc6ec3b237d6ba87e50bc1a 100644
+--- i/drivers/net/wireless/mediatek/mt76/mt7996/init.c
++++ w/drivers/net/wireless/mediatek/mt76/mt7996/init.c
+@@ -807,11 +807,17 @@ static void mt7996_init_work(struct work_struct *work)
+ void mt7996_wfsys_reset(struct mt7996_dev *dev)
+ {
+ 	if (!is_mt7990(&dev->mt76)) {
++		u32 pad_before = mt76_rr(dev, MT_PAD_GPIO);
++		u32 pad_after;
++
+ 		mt76_set(dev, MT_WF_SUBSYS_RST, 0x1);
+ 		msleep(20);
+ 
+ 		mt76_clear(dev, MT_WF_SUBSYS_RST, 0x1);
+ 		msleep(20);
++		pad_after = mt76_rr(dev, MT_PAD_GPIO);
++		dev_info(dev->mt76.dev, "Wi-Fi reset MT_PAD_GPIO: before=0x%08x after=0x%08x\n",
++			 pad_before, pad_after);
+ 
+ 		return;
+ 	}
+@@ -1221,6 +1227,11 @@ static int mt7996_variant_type_init(struct mt7996_dev *dev)
+ 	}
+ 
+ 	dev->var.type = var_type;
++	if (mt76_chip(&dev->mt76) == MT7996_DEVICE_ID)
++		dev_info(dev->mt76.dev,
++			 "MT7996 variant %s, MT_PAD_GPIO=0x%08x\n",
++			 var_type == MT7996_VAR_TYPE_233 ? "233" : "444",
++			 val);
+ 	return 0;
+ }
+ 
+diff --git i/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c w/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+index cd7587ce5b8a6ecf34321fe4be24db2c5448e523..dfadee2f3e0d7d80142a4da08445e153c22d8e56 100644
+--- i/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
++++ w/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+@@ -3361,6 +3361,8 @@ static int mt7996_load_patch(struct mt7996_dev *dev)
+ 		return -EAGAIN;
+ 	}
+ 
++	dev_info(dev->mt76.dev, "ROM patch requested: %s\n",
++		 fw_name(dev, ROM_PATCH));
+ 	ret = request_firmware(&fw, fw_name(dev, ROM_PATCH), dev->mt76.dev);
+ 	if (ret)
+ 		goto out;

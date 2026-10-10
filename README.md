@@ -10,7 +10,7 @@ bpi-r4pro-8x-7.3-rc6
 ```
 
 Der neue Branch zielt auf Linux **7.3-rc6** und aktuelle Firmware.
-Die Kernelumstellung ist noch nicht implementiert; die Buildkonfiguration verwendet weiterhin die bisherige 6.18-Basis.
+Die Buildkonfiguration verwendet den offiziellen rc6-Commit mit board-lokal portierten Frank-Erweiterungen.
 Der Referenzbranch `bpi-r4pro-8x`, sämtliche Dateien und die vollständige Chronik bleiben erhalten.
 
 > **Referenzstatus:** Der bisherige 6.18-Port erreicht `BOOT PASS`; `HW PASS` bleibt offen.
@@ -27,7 +27,7 @@ BootROM
   -> U-Boot
   -> SD-Karte
   -> extlinux
-  -> Linux 6.18
+  -> Linux 7.3-rc6
   -> Debian Trixie / Armbian Login
 ```
 
@@ -53,12 +53,12 @@ die Regression eingeführt hat.
 | SoC | MediaTek MT7988A | implementiert |
 | RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
 | Distribution | Debian Trixie | vorgesehen |
-| Kernel | Frank Wunderlich `BPI-Router-Linux`, `6.18-main` / 6.18.53 | BUILD PASS |
+| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | PATCH / DT PASS; BUILD offen |
 | Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
 | Bootformat | extlinux | integriert |
-| Firmware | `pinned` / `latest` / `ref`, 13 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
+| Firmware | `pinned` / `latest` / `ref`, 15 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
 | Hardwaretest | UART/SD | BOOT PASS (zweifach reproduziert) |
 | Hardwaretest | Netzwerk/PCIe/Wi-Fi | HW PASS noch offen |
@@ -68,7 +68,7 @@ die Regression eingeführt hat.
 ```bash
 git clone https://github.com/GermanatorLM/build.git
 cd build
-git switch bpi-r4pro-8x
+git switch bpi-r4pro-8x-7.3-rc6
 
 bash tools/bpi-r4pro8x-check.sh
 
@@ -78,7 +78,8 @@ bash tools/bpi-r4pro8x-check.sh
   RELEASE=trixie \
   BUILD_MINIMAL=yes \
   BUILD_DESKTOP=no \
-  KERNEL_CONFIGURE=no
+  KERNEL_CONFIGURE=no \
+  BPI_R4PRO8X_FIRMWARE_MODE=latest
 ```
 
 Die vollständige Build-, Flash-, UART- und Hardware-Checkliste steht in:
@@ -368,6 +369,7 @@ Nachtragen der eigenen SHA.
 | 130 | `SELF` | Actions erhält manuelle Firmwarewahl `pinned/latest`; Standard bleibt pinned. Latest-Installer installiert 15 geprüfte Payloads, derzeit bytegleich zum Pin. Neuere Frank-Kernelbranches geprüft; Kernelmigration noch nicht gewählt | Preflight, Workflowprüfung, Firmwareaudit, Bring-up-Dokumentation Abschnitt 101 | STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING |
 | 131 | `SELF` | Nutzer verwirft Löschung. Neuer Entwicklungsbranch `bpi-r4pro-8x-7.3-rc6` entsteht aus dem aktuellen Stand. Dateien und Historie bleiben erhalten. Ziel ist exaktes 7.3-rc6; Buildkonfiguration noch unverändert | Git-Branch, Bring-up-Dokumentation Abschnitt 102 | NEW BRANCH / RC6 MIGRATION PENDING |
 | 132 | `SELF` | Offizielles rc6 aufgelöst. Franks rc1 enthält 153 Zusatzcommits. Separater Prüfcheckout exportiert Erweiterungen; erster rc6-Objektdownload bei Frank scheitert. Downloadquelle korrigiert | Kernelquellenvergleich, Bring-up-Dokumentation Abschnitt 103 | SOURCE VERIFIED / PORT TEST PENDING |
+| 133 | `SELF` | Exaktes rc6 ersetzt die 6.18-Quelle nur im neuen Branch. Frank-Erweiterungen erhalten rc6-Konfliktkorrekturen. Neue 8X-Port- und Wi-Fi-Diagnosepatches; native EEPROM-Auswertung statt alter RF-Dateierweiterung | Neuer board-lokaler Patchsatz, Versionsschutz, sequenzieller Patchtest, DTB und SD-Overlay, Abschnitt 104 | STATIC / PATCH / DT PASS; BUILD offen |
 
 ## Verbindliche Regel für kommende Änderungen
 

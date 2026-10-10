@@ -1,0 +1,42 @@
+diff --git i/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dts w/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dts
+index 2c65825b9e8d5e42b4101515531bc299125be423..19fcba36a808aaf398d61e87d4fcf6742d579fe8 100644
+--- i/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dts
++++ w/arch/arm64/boot/dts/mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dts
+@@ -22,6 +22,37 @@ &gmac1 {
+ 	status = "okay";
+ };
+ 
++&gsw_phy3 { status = "okay"; };
++&gsw_port3 { label = "fpc"; status = "okay"; };
++
++&switch16 {
++	ports {
++		port@13 {
++			reg = <13>;
++			label = "lan6";
++			phy-mode = "usxgmii";
++			managed = "in-band-status";
++			phy-handle = <&phy24>;
++			status = "okay";
++		};
++	};
++};
++
++&pio {
++	lan-phy-hog {
++		gpio-hog;
++		gpios = <54 GPIO_ACTIVE_HIGH>;
++		line-name = "lan-phy-hog";
++		output-high;
++	};
++	wan-phy-hog {
++		gpio-hog;
++		gpios = <3 GPIO_ACTIVE_HIGH>;
++		line-name = "wan-phy-hog";
++		output-low;
++	};
++};
++
+ &mdio_bus {
+ 	/* external Aeonsemi AS21 phy connected to MXL switch */
+ 	phy24: ethernet-phy@24 {

@@ -100,6 +100,14 @@ function post_family_tweaks__bpi_r4pro_8x() {
 # config: MaxLinear switch + Aeonsemi 10G PHY. Keep this board-local so the
 # normal BPI-R4 kernel configuration remains untouched.
 function custom_kernel_config__bpi_r4pro_8x_network() {
+	if [[ -f .config ]]; then
+		local kernel_version
+		kernel_version="$(make -s kernelversion)" ||
+			exit_with_error "Cannot read R4 Pro kernel version"
+		[[ "${kernel_version}" == '7.3.0-rc6' ]] ||
+			exit_with_error "R4 Pro requires exact Linux 7.3-rc6" "${kernel_version}"
+	fi
+
 	opts_y+=(
 		"SRAM"
 		"GPIO_PCA953X"
@@ -129,5 +137,5 @@ function custom_kernel_config__bpi_r4pro_8x_network() {
 		"RFKILL"
 	)
 
-	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v5")
+	kernel_config_modifying_hashes+=("bpi-r4pro-8x-network-v6-rc6")
 }
