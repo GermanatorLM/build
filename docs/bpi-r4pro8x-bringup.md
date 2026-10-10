@@ -3851,3 +3851,16 @@ Der Nutzer erlaubt die Korrektur und einen neuen Build.
 Das laufende Board, seine SD-Ladesperre und die UART-Aufzeichnung bleiben unverändert.
 
 Status: **FIRST GUARD BUILD FAIL / CORRECTION STATIC AND PATCH PASS / REBUILD PENDING**.
+
+## 118. Korrigierten Schutzpatch-Build gestartet
+
+Commit `d0329f25e6cd762b70fb992e21eb5188fa070d6d` ist auf `origin/bpi-r4pro-8x-7.3-rc6` gepusht.
+Der Nutzer erlaubt den neuen Build; der manuelle Workflow verwendet erneut `firmware_mode=latest`.
+Run: `38082815846`.
+URL: https://github.com/GermanatorLM/build/actions/runs/38082815846
+GitHub bestätigt den korrigierten Buildcommit und Status `in_progress`.
+Der frühere fehlgeschlagene Run und seine Chronik bleiben erhalten.
+Das neue Build-Ergebnis und der Schutzpatch-Hardwaretest stehen noch aus.
+Board, SD-Ladesperre und UART-Aufzeichnung bleiben unverändert.
+
+Status: **REBUILD STARTED / RESULT PENDING / FIX HW TEST PENDING**.

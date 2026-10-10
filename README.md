@@ -383,6 +383,7 @@ Nachtragen der eigenen SHA.
 | 144 | `SELF` | rc6-MCU-Timeout startet Recovery vor mac80211-Registrierung. Restart-Worker greift auf fehlende Workqueue zu. Board-lokaler Schutzpatch unterdrückt frühe Recovery, erhält Laufzeit-Recovery und Timeoutfehler. Patchprüfung, Preflight und Shellcheck bestehen | `004-mt7996-skip-preinit-timeout-recovery.patch`, Checker, Bring-up-Dokumentation Abschnitt 115 | STATIC / PATCH PASS / BUILD AND HW PENDING |
 | 145 | `SELF` | Schutzpatch und Testchronik gepusht. Manueller Actions-Build startet mit latest-Firmware für Commit `aae03a372` als Run `38079324031`. Laufende SD-Ladesperre bleibt unverändert | GitHub Actions, Bring-up-Dokumentation Abschnitt 116 | BUILD STARTED / RESULT PENDING |
 | 146 | `SELF` | Run `38079324031` scheitert beim MT7996-Kompilieren: READ_ONCE unterstützt das Bitfeld hw_init_done nicht. Schutzpatch verwendet jetzt direkten Zugriff wie der bestehende Recovery-Einstieg. Checker verhindert Wiederholung; Patchprüfung, Preflight und Shellcheck bestehen | Schutzpatch, Checker, Bring-up-Dokumentation Abschnitt 117 | FIRST GUARD BUILD FAIL / CORRECTION STATIC PASS |
+| 147 | `SELF` | Korrigierter Schutzpatch `d0329f25e` gepusht. Neuer manueller latest-Build startet als Run `38082815846` auf dem rc6-Branch | GitHub Actions, Bring-up-Dokumentation Abschnitt 118 | REBUILD STARTED / RESULT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
