@@ -2201,4 +2201,17 @@ TF-A meldet anschließend erneut `Power-down unsupported` und Panic bei `0x43004
 Das UART-Log `uart-run-37992263277-wifi-recovery-coldboot-02.log` sichert auch diesen Shutdown.
 Physische Stromtrennung bleibt erforderlich; das Linux-Dateisystem ist bereits sicher ausgehängt.
 
-Status: **BUILD PASS / DOWNLOAD AND HW TEST PENDING**.
+Die Übertragung stoppt nach 162 geprüften Blöcken mit HTTP-403-Fehlern und einzelnen Zeitüberschreitungen.
+Ein erneuerter Downloadlink ermöglicht die restlichen 15 Blöcke ohne Verlust der geprüften Daten.
+Alle 177 Blöcke, ZIP-Prüfung und Image-Prüfsumme bestehen anschließend.
+Das Image umfasst 1480589312 Bytes.
+SHA256: `88c43d9d1d7a750f76de830f54e36474317f9564df1d79346cf38ca6dbd1b46a`.
+
+Die lesende Imageprüfung bestätigt USB-Module, PTP-Konfiguration, linuxptp und die SD-Extlinux-Konfiguration.
+Die Firmwarequelle bleibt gepinnt; alle 15 Firmware-Prüfsummen bestehen.
+Das dekomprimierte `mt7996e`-Modul enthält die neue Vorher/Nachher-Resetmeldung und die bisherige Variantendiagnose.
+Debugfs meldet erneut Eigentümerfehler beim unprivilegierten Export; die exportierten Nutzdaten bestehen den Hashvergleich.
+Das lokale Audit liegt unter `bpi-r4pro8x-images/run-38003437809/audit.SYCQuL`.
+Die Hardwaremessung benötigt weiterhin das neue Image auf SD.
+
+Status: **BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING**.
