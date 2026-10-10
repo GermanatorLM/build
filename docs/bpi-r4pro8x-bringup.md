@@ -3516,3 +3516,28 @@ Die genaue Ursache der /tmp-Quota ist nicht weiter untersucht.
 Es erfolgt kein Schreibzugriff auf die SD-Karte.
 
 Status: **DOWNLOAD RETRY / HASH PENDING / SD UNCHANGED**.
+
+## 108. rc6-Image auf SD geschrieben und vollständig geprüft
+
+Der zweite Download aus Run `38051805424` endet erfolgreich.
+Das Image umfasst 1.488.977.920 Bytes.
+SHA256: `078df2072cfcc82e7c686e6e23942737773fc43f3cfe26786875c0c19b6e538a`.
+`sha256sum -c` bestätigt die mitgelieferte Prüfsumme vor dem Schreiben.
+
+Der Nutzer verlangt das Schreiben auf SD und bestätigt die pkexec-Anfrage.
+Das Ziel ist `/dev/sdb`, USB-Kartenleser `Generic_STORAGE_DEVICE-0:0`, mit 63.864.569.856 Bytes.
+Der Prüfpfad `/dev/disk/by-diskseq/26` bindet den Schreibvorgang an die identifizierte Geräteinstanz.
+Die Prüfung bestätigt Größe, Wechselmedium, Serienkennung und USB-Pfad vor dem Schreiben.
+Die Rootpartition wird ausgehängt; kein SD-Dateisystem bleibt eingehängt.
+Der Vorgang überschreibt den bisherigen SD-Inhalt mit dem geprüften rc6-Image.
+Bestehende Referenzimages, Backups und UART-Logs bleiben erhalten.
+
+Der Schreibvorgang endet erfolgreich mit `conv=fsync`.
+Nach dem Leeren der Gerätebuffer vergleicht `cmp` alle 1.488.977.920 Imagebytes mit der SD-Karte.
+Der vollständige Vergleich endet mit Exitcode 0.
+Die Ausgabe bestätigt `WRITE PASS / FULL IMAGE READBACK PASS`.
+`udisksctl power-off` trennt die Karte anschließend sicher vom Host.
+Es erfolgt kein Board-Reset und kein Zugriff auf eMMC, SPI-NAND, NOR oder EEPROM.
+Ein rc6-Bootlog und Hardwaretests stehen noch aus.
+
+Status: **DOWNLOAD / SHA256 / SD WRITE / READBACK PASS / BOOT PENDING**.
