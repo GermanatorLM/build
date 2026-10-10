@@ -2955,3 +2955,44 @@ Die Laufzeitprüfung bestätigt weiterhin das unveränderte Originalmodul mit de
 Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
 
 Status: **FIRST MODULE BUILD FAIL / CORRECTED BUILD AUTHENTICATION PENDING / RUNTIME TEST PENDING**.
+
+## 90. Erfolgreicher Vergleichs- und Diagnosemodulbau
+
+Die vorherige Buildanfrage erhält inzwischen ihre Authentifizierung.
+Ein erneuter Start scheitert am bereits verwendeten Containernamen; kein zweiter Build läuft parallel.
+Der vorhandene Container heißt `r4pro-force233-build-v2` und bleibt nach seinem Ende erhalten.
+Weitere Prepare-Versuche scheitern zunächst an fehlenden Quellen für `resolve_btfids`, Scheduler-Offsets und ARM64-vDSO.
+Die fehlenden BTF-Werkzeuge, Kernel-Unterbäume, vDSO-Dateien und x86-Syscall-Tabellen werden am selben Commit ergänzt.
+Ein erster zusätzlicher Inspektionsbefehl verwendet falsche relative Pfade; die Wiederholung liest die richtigen Dateien.
+Der anschließende Prepare-Schritt und beide Modulbauten gelingen.
+
+GCC-Version 13.3.0 und pahole-Version 1.25 entsprechen dem Originalbuild.
+Aktivierte Kerneloptionen bleiben unverändert.
+Der Konfigurationsvergleich zeigt nur den Compiler-Aufrufnamen und entfernte Kommentare für deaktivierte Realtek-Treiber.
+Das fehlende `Module.symvers` erzeugt Warnungen für ungelöste externe Symbole.
+Der Build verwendet deshalb ausdrücklich `KBUILD_MODPOST_WARN=1`.
+Die konfigurierte Modulversionierung bleibt deaktiviert.
+Das fehlende `vmlinux` verhindert die BTF-Metadatengenerierung für beide Module.
+Die BTF-Kerneloptionen und damit die Modulstruktur bleiben trotzdem erhalten.
+Beide Module besitzen zunächst leere automatisch erzeugte Abhängigkeitslisten.
+Der Laufzeittest muss vorhandene Original-Abhängigkeitsmodule verwenden und die tatsächliche Symbolauflösung prüfen.
+
+Original, Vergleich und Diagnose besitzen Vermagic `6.18.53-current-filogic SMP mod_unload aarch64`.
+Alle drei ELF-Modulstrukturen umfassen `0x4c0` Bytes.
+Die Vergleichsvariante importiert exakt dieselben Symbole wie das Original.
+Original und Vergleich besitzen byteidentischen `.text`-Maschinencode.
+Dessen SHA256 lautet `9a4d92d921ba7cf6df6f058df0630e82e04134b3f9b607919a20017759b2118a`.
+Die Diagnosevariante ergänzt nur das importierte Symbol `of_machine_compatible_match`.
+Der zugehörige Kernel-Export wurde bereits direkt in der Quelle geprüft.
+
+Die ungekürzte Vergleichsvariante trägt SHA256 `1f5cd85ee11c2ea3fa55d9f8eea269d9358be28c2e91ee714848c0e5e92d648f`.
+Die ungekürzte Diagnosevariante trägt SHA256 `d92d5bd0a3eae29f5befd6f81d7e47f7d4da2a5e6eed2ab365e567827721af92`.
+Die Übertragungsvarianten entfernen nur Debug-Metadaten und behalten getrennte Dateien.
+Vergleich: `0bc2b609a22db6e1343b38fa3210641dac49a42f3d97b14b7fe78a8b2c47feeb`.
+Diagnose: `8639b37740fc099a832809fef59553f45eb9def39b3b25f9b6e2204072a6ebde`.
+Große UART-Eingaben werden zweimal wegen ihrer Größe abgewiesen.
+Die Übertragung gelingt anschließend in kleinen Blöcken.
+Beide vollständigen Board-Hashes und Vermagic-Prüfungen stimmen mit den Hostdateien überein.
+Das installierte Originalmodul wird nicht überschrieben.
+
+Status: **DIAGNOSTIC MODULE BUILD PASS / MODULE TRANSFER PASS / RUNTIME TEST PENDING**.
