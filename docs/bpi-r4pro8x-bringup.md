@@ -2482,3 +2482,34 @@ Dieser zweite Kalt-/Warmvergleich steht noch aus.
 Firmware, EEPROMs und Kernelstand bleiben unverändert.
 
 Status: **WARM BOOT PASS / WIFI FAIL / COLD-WARM PAIR PENDING**.
+
+## 78. Angefordertes Kalt-/Warmvergleichspaar abgeschlossen
+
+Der Nutzer startet das Board nach der angeforderten Stromtrennung.
+Das durchgehende Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-cold-then-warm-01.log`.
+SD-Image, BE14 und getrennte Erweiterungsmodule bleiben während des Vergleichs unverändert.
+TF-A meldet zuerst `Cold boot`.
+Bei 27,67 Sekunden meldet der ROM-Patch Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Bei 32,72 Sekunden scheitert der Patchstart; bei 37,77 Sekunden endet die Probe mit `-11`.
+Linux erreicht `multi-user.target`; `iw dev` zeigt kein Radio.
+Die Kaltstart-Boot-ID lautet `65c191d0-b36d-46f0-b4ff-26e7df1b5b6b`.
+Beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+
+Der beauftragte Warmstart beginnt mit Linux-Meldung `Restarting system` bei 89,47 Sekunden.
+TF-A bestätigt `Software reset (reboot)` bei Logzeile 1411.
+Bei 26,66 Sekunden meldet der ROM-Patch erneut Build-Time `20260311120419a`.
+Bei 31,68 Sekunden scheitert der Patchstart; bei 36,73 Sekunden endet die Probe mit `-11`.
+Auch der Warmstart erreicht `multi-user.target`; `iw dev` zeigt kein Radio.
+Die neue Boot-ID lautet `a2917475-08b2-456c-8d86-1710fdd693d1`.
+Alle 15 Firmware-Prüfsummen und beide EEPROM-Hashes bestehen die anschließende Laufzeitprüfung.
+USB-Sysfs zeigt weiterhin ausschließlich Root-Hubs und Hubs `2109:2822` sowie `2109:0822`.
+Die ersten Loginversuche enthalten Terminal-Antwortzeichen; die Wiederholungen gelingen mit denselben Testdaten.
+
+Dieses Vergleichspaar zeigt keinen Wechsel zu erfolgreicher 233-Firmware zwischen Kalt- und Warmstart.
+Es widerlegt keine mögliche Timing- oder Versorgungsabhängigkeit über andere Versuche.
+Der erfolgreiche 233-Start aus Abschnitt 75 bleibt als separater Befund erhalten.
+Firmware, EEPROMs und Variantenauswahl werden nicht verändert.
+Weitere Neustarts erfolgen nicht ohne neuen Testauftrag.
+Das Board bleibt nach dem Warmstart eingeschaltet; der UART-Recorder bleibt aktiv.
+
+Status: **COLD AND WARM BOOT PASS / WIFI FAIL / CAUSE OPEN**.
