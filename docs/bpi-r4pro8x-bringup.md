@@ -2666,3 +2666,46 @@ Ein isolierter Timing-Test muss dieselbe Firmware und dieselbe Hardwarekonfigura
 Eine feste 233-Auswahl wäre ein Experiment, kein bestätigter allgemeiner Fix.
 
 Status: **TRACE PASS / WIFI FAIL / CAUSE OPEN**.
+
+## 83. Frühe Variantenaufzeichnung für den nächsten Kaltstart
+
+Der Nutzer beauftragt die Registermessung für einen erfolgreichen 233-Start.
+Ein erfolgreicher Start lässt sich bisher nicht reproduzierbar erzwingen.
+Die Vorbereitung erfasst deshalb die erste reguläre Probe unabhängig von deren Ergebnis.
+Die Vorbereitung verändert ausschließlich das laufende SD-Testimage aus Run `37975601363`.
+Die Repository-Konfiguration und die Wi-Fi-Treiberquelle bleiben unverändert.
+
+Das lokale Script heißt `bpi-r4pro8x-install-early-trace.sh` und liegt außerhalb des Repositorys.
+Das Script prüft Boardkennung, Kernelversion und Root-UUID.
+Bash-Syntaxprüfung und ShellCheck bestehen.
+Das Script sichert Initramfs, U-Boot-Initramfs und extlinux-Konfiguration unter `/root/r4pro-early-trace-backup`.
+Die drei Sicherungen bestehen anschließend die SHA256-Prüfung.
+
+Ein lokaler Initramfs-Hook nimmt `mt76` und dessen Abhängigkeiten auf.
+Ein lokales init-top-Script erstellt die Trace-Instanz `r4pro_early_variant`.
+Der Registerfilter erfasst ausschließlich `0x155024`, `0x1356f0` und `0x138600`.
+Der Trace-Puffer umfasst 128 KiB pro CPU.
+Das Script meldet `R4PRO_EARLY_TRACE_READY` oder `R4PRO_EARLY_TRACE_FAILED` im Kernel-Log.
+Ein Vorbereitungsfehler soll den normalen Boot nicht anhalten.
+Die Trace-Vorbereitung verändert keine Resetfolge und erzwingt keine Firmwarevariante.
+Das frühere Laden der Trace-Abhängigkeiten kann trotzdem das Boot-Timing beeinflussen.
+
+`update-initramfs` erstellt den neuen Initramfs und dessen U-Boot-Version erfolgreich.
+Die Generierung warnt vor fehlender `mt7981_wo.bin` für den eingebauten Ethernet-Treiber.
+Diese Warnung verhindert die Generierung nicht; der Hardwaretest bleibt ausstehend.
+Die extrahierte ORDER-Datei bestätigt die Trace-Vorbereitung vor udev.
+Der extrahierte Initramfs enthält `mt76`, aber keinen `mt7996e`-Treiber.
+Damit bleibt die eigentliche Wi-Fi-Probe außerhalb des Initramfs.
+Ein zusätzlicher BusyBox-Test findet keinen BusyBox-Binary an den zwei geprüften Pfaden.
+Dieser Zusatztest bleibt unbestätigt; die Script-Syntaxprüfung besteht.
+
+Der neue Initramfs trägt SHA256 `9543703f9d50e5243b92bde7ee4e854943c1e68187ea8b6a25879a201ecf796f`.
+Die U-Boot-Version trägt SHA256 `5f58624daaba46c2fb0929e24b96cda55aeeead17a9c98e60d6c543a665e829f`.
+Linux fährt herunter und bestätigt vollständig ausgehängte Dateisysteme bei 833,93 Sekunden.
+TF-A meldet erneut `Power-down unsupported`; die elektrische Stromtrennung bleibt erforderlich.
+Das neue UART-Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-early-variant-coldboot-01.log`.
+Der Recorder läuft vor dem nächsten Start.
+Der Nutzer muss das Board vollständig stromlos machen und anschließend starten.
+Nach dem Boot müssen Trace-Bereitschaft, Registerwerte und Firmwareauswahl gemeinsam geprüft werden.
+
+Status: **EARLY TRACE PREPARED / COLD BOOT PENDING**.
