@@ -2839,3 +2839,46 @@ Der nächste Versuch benötigt einen vollständigen Kaltstart mit unveränderten
 Der Nutzer muss nach dem Einschalten mindestens etwa 105 Sekunden für Probe und Ergebnisaufzeichnung einplanen.
 
 Status: **DELAYED FIRST PROBE PREPARED / COLD BOOT PENDING**.
+
+## 87. Ergebnis der verzögerten ersten Wi-Fi-Probe
+
+Der Nutzer startet das Board.
+Der Recorder erfasst BootROM, TF-A, U-Boot und Linux; TF-A meldet `Cold boot`.
+Das Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-delayed-first-probe-20261010T014146.log`.
+Die Boot-ID lautet `1d2844be-e60c-46a3-a0f9-f6c091811307`.
+Die frühe Trace-Vorbereitung meldet Bereitschaft bei 16,316930 Sekunden.
+Linux erreicht `multi-user.target` vor der Wi-Fi-Probe.
+Die Laufzeitprüfung bei 81,28 Sekunden bestätigt fehlendes Modul `mt7996e`.
+Damit führt der Timer tatsächlich die erste Wi-Fi-Probe dieses Boots aus.
+
+Die Startmarkierung erscheint bei 90,902198 Sekunden und nennt Uptime 90,89 Sekunden.
+Der Trace enthält 20 Ereignisse ohne Überlauf oder verlorene Ereignisse.
+Der interne Reset setzt und löscht Bit 0; der Anfangswert lautet wieder `0x00010340`.
+Der L1-Remap schreibt `0x70007001` und bestätigt diesen Wert durch Rücklesen.
+Der Variantenzugriff liest `0x1356f0=0x00000000` bei 91,053470 Sekunden.
+Der Treiber meldet den 444-Payload bei 91,101826 Sekunden.
+Patchstart scheitert bei 96,162492 Sekunden.
+Die Semaphore-Freigabe scheitert ebenfalls; die Geräteprobe endet bei 101,209038 Sekunden mit `-11`.
+Die Abschlussmarkierung erscheint bei 101,284869 Sekunden.
+
+Der Dienst meldet Erfolg, weil Modulanforderung und Ergebnisaufzeichnung gelingen.
+Dieser Dienststatus ist kein Wi-Fi-Erfolg; `iw dev` bleibt leer.
+Beide Wi-Fi-PCIe-Links melden weiterhin 8,0 GT/s und zwei Lanes.
+Beide EEPROM-Hashes bleiben unverändert.
+Trace, Pufferstatistik, Dmesg und `iw dev` liegen unter `/root/r4pro-delayed-wifi-1d2844be-e60c-46a3-a0f9-f6c091811307`.
+Der Trace trägt SHA256 `d0984cef570f520ee0078dd080ef785d2f45f8f81e5e5f8e42df4f879852068d`.
+Die Trace-Aufzeichnung ist nach dem Versuch deaktiviert.
+
+Die zusätzliche Wartezeit bis etwa 90 Sekunden behebt den Fehler in diesem Versuch nicht.
+Dieser Einzelversuch schließt nicht alle Timing- oder Versorgungsabhängigkeiten aus.
+Ein erfolgreicher 233-Start bleibt ungemessen.
+Weitere identische Verzögerungsversuche liefern derzeit keinen neuen isolierten Ansatz.
+
+Der Timer wird deaktiviert und gestoppt; die Prüfung bestätigt `disabled` und `inactive`.
+Die lokale Ladesperre wird in das Ergebnisverzeichnis verschoben und bleibt dort erhalten.
+Die Modprobe-Konfiguration enthält anschließend keine `mt7996e`-Ladesperre mehr.
+Dienstdateien und Script bleiben deaktiviert für die Reproduktion erhalten.
+Der nächste Boot verwendet wieder die reguläre automatische Wi-Fi-Probe mit früher Trace-Aufzeichnung.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **BOOT PASS / TIMING TEST PASS / WIFI FAIL / CAUSE OPEN**.
