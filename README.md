@@ -338,6 +338,7 @@ Nachtragen der eigenen SHA.
 | 103 | `SELF` | Kaltstart ohne externe USB-Geräte reproduziert Wi-Fi-Patchstart-Timeout. Nur USB-Hubs bleiben sichtbar. Firmware- und EEPROM-Hashes stimmen weiterhin | Separates UART-Log, Bring-up-Dokumentation | BOOT PASS / USB ISOLATION NO RECOVERY / WIFI FAIL |
 | 104 | `SELF` | Nach BE14-Neueinsetzen startet ein Boot mit erneut angeschlossenen Modulen die 233-Firmware und meldet mt76-phy0. Ursache bleibt unisoliert | Nachträglich ausgewertetes UART-Log, Bring-up-Dokumentation | BOOT / WIFI FIRMWARE START PASS / CLIENT UNTESTED |
 | 105 | `SELF` | Folgender isolierter Boot nach BE14-Neueinsetzen ohne andere Module verwendet wieder 444-Firmware und scheitert mit -11. Hashprüfungen bestehen | Separates UART-Log, Bring-up-Dokumentation | BOOT PASS / WIFI FAIL / VARIANT CHANGE OBSERVED |
+| 106 | `SELF` | Angeforderter Warmstart bestätigt TF-A-Software-Reset. Wi-Fi-444-Patchstart scheitert weiterhin. Linux anschließend sauber heruntergefahren; Kalt-/Warmvergleich vorbereitet | UART-Mitschnitt, Bring-up-Dokumentation | WARM BOOT PASS / WIFI FAIL / COLD-WARM PAIR PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

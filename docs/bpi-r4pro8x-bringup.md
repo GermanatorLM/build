@@ -2456,3 +2456,29 @@ Der nächste kontrollierte Vergleich muss einen erfolgreichen Start reproduziere
 Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
 
 Status: **BOOT PASS / WIFI FAIL / VARIANT CHANGE OBSERVED / CAUSE OPEN**.
+
+## 77. Warmstart und Shutdown vor geplantem Kalt-/Warmvergleich
+
+Der Nutzer verlangt einen Warmstart, danach Shutdown, anschließend Kaltstart und einen weiteren Warmstart.
+Der erste Warmstart verwendet unveränderte SD und getrennte Erweiterungsmodule.
+Das Log aus Abschnitt 76 erfasst weiterhin die gesamte Sequenz.
+Linux meldet bei 223,08 Sekunden `Restarting system`.
+TF-A bestätigt `Software reset (reboot)`; dieser Versuch ist kein physischer Kaltstart.
+Der Warmboot beginnt im Log bei der TF-A-Meldung in Zeile 1448.
+
+Bei 25,51 Sekunden meldet der ROM-Patch wieder Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Bei 30,56 Sekunden scheitert der Patchstart.
+Bei 35,61 Sekunden endet die Probe nach Semaphore-Timeout mit `-11`.
+Linux erreicht `multi-user.target`; `iw dev` zeigt kein Radio.
+Der erste Login enthält Terminal-Antwortzeichen; die Wiederholung gelingt.
+
+Der anschließend angeforderte Shutdown bestätigt `All filesystems unmounted` bei 91,47 Sekunden.
+TF-A meldet erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Physische Stromtrennung bleibt erforderlich.
+Der neue UART-Recorder wartet auf den geplanten Kaltstart.
+Das neue Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-cold-then-warm-01.log`.
+Nach dem bestätigten Kaltstart folgt der bereits beauftragte Warmstart mit unveränderter Bestückung.
+Dieser zweite Kalt-/Warmvergleich steht noch aus.
+Firmware, EEPROMs und Kernelstand bleiben unverändert.
+
+Status: **WARM BOOT PASS / WIFI FAIL / COLD-WARM PAIR PENDING**.
