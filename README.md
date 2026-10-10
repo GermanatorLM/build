@@ -347,6 +347,7 @@ Nachtragen der eigenen SHA.
 | 112 | `SELF` | Lokaler Diagnose-Initramfs aktiviert gefilterten Registertrace vor udev. Bootdateien gesichert und geprüft. Board heruntergefahren; Kaltstart-Aufzeichnung bereit | Initramfs-Audit, UART, Bring-up-Dokumentation | EARLY TRACE PREPARED / COLD BOOT PENDING |
 | 113 | `SELF` | Erste frühe Trace-Vorbereitung scheitert an fehlendem tr/grep. 444-Wi-Fi scheitert erneut. Lokaler Hook ergänzt Programme; chroot- und Laufzeittests bestehen | UART, Initramfs-Audit, Bring-up-Dokumentation | TRACE FIX PREPARED / COLD BOOT PENDING |
 | 114 | `SELF` | Korrigierte frühe Aufzeichnung funktioniert beim Kaltstart. Erste reguläre Probe liest Variantenregister null und scheitert mit 444. Erfolgreiche 233-Messung fehlt weiterhin | Vollständiges Bootlog, Registertrace, Bring-up-Dokumentation | EARLY TRACE PASS / WIFI FAIL / CAUSE OPEN |
+| 115 | `SELF` | Lokaler Timing-Test verhindert automatische mt7996e-Probe. Timer startet erste explizite Probe nach 90 Sekunden und sichert Registertrace. Board heruntergefahren | Timer-/Scriptprüfung, UART, Bring-up-Dokumentation | DELAYED FIRST PROBE PREPARED / COLD BOOT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

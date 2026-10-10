@@ -2797,3 +2797,45 @@ Der nächste Diagnoseversuch sollte genau einen Timing- oder Initialisierungspar
 Eine feste 233-Auswahl bleibt ein gesondertes Experiment, kein bestätigter allgemeiner Fix.
 
 Status: **BOOT PASS / EARLY TRACE PASS / WIFI FAIL / CAUSE OPEN**.
+
+## 86. Isolierter Timing-Test mit verzögerter erster Probe
+
+Der Nutzer beauftragt den vorgeschlagenen Timing-Test.
+Branch `bpi-r4pro-8x` und sauberer Arbeitsbaum werden geprüft.
+Der Test verändert nur das laufende SD-Image aus Run `37975601363`.
+Firmware, EEPROMs, Kernel, Initramfs und interne Resetfolge bleiben unverändert.
+Die Modulkonfiguration enthält bisher keine ausdrückliche `mt7996e`-Ladeanweisung.
+
+Das lokale Installationsscript heißt `bpi-r4pro8x-install-delayed-wifi.sh`.
+ShellCheck besteht; bestehende Zieldateien würden die Installation verhindern.
+`/etc/modprobe.d/r4pro-delayed-wifi.conf` setzt `blacklist mt7996e` für automatische Alias-Ladevorgänge.
+Die explizite Modulanforderung bleibt zulässig.
+Ein Timer fordert die erste Probe etwa 90 Sekunden nach dem Boot an.
+Die Genauigkeit beträgt eine Sekunde; die tatsächliche Startzeit wird im Kernel-Log erfasst.
+Der Timer wird aktiviert, aber im aktuellen Boot nicht gestartet.
+`systemctl` bestätigt `enabled` und `inactive` vor dem Shutdown.
+Script-Syntaxprüfung und `systemd-analyze verify` bestehen.
+
+Das Probescript prüft die frühe Trace-Instanz und fehlendes Modul `mt7996e`.
+Es prüft außerdem fehlende Treiberbindungen beider Wi-Fi-PCIe-Funktionen.
+Eine unerwartete frühere Probe führt zum Abbruch statt zu einer weiteren Probe.
+Das Script protokolliert `R4PRO_DELAYED_FIRST_PROBE_START` mit tatsächlicher Uptime.
+Die explizite Modulanforderung lädt den unveränderten Treiber einmal.
+`modprobe`-Erfolg allein beweist keinen erfolgreichen PCIe-Geräteprobevorgang.
+Das Script sichert Registertrace, Pufferstatistik, Dmesg und `iw dev` unter `/root/r4pro-delayed-wifi-<Boot-ID>`.
+Nach der Probe deaktiviert das Script die eigene Trace-Aufzeichnung und beide Registerereignisse.
+Der Dienst verwendet ein Zeitlimit von 45 Sekunden.
+
+Der Test verzögert beide Wi-Fi-Funktionen, da derselbe Modulname deren Treiber bereitstellt.
+Er verändert den Zeitpunkt der Treiberinitialisierung, nicht die frühe PCIe-Enumeration.
+Der Test beweist bei Erfolg noch keinen allgemeinen Fix.
+Bei Abbruch müssen frühe Modulanforderungen untersucht werden.
+
+Linux bestätigt vollständig ausgehängte Dateisysteme bei 228,94 Sekunden.
+TF-A meldet erneut `Power-down unsupported`; der Nutzer muss die Versorgung elektrisch trennen.
+Der Recorder erhält eigene Logs mit Präfix `uart-run-37975601363-delayed-first-probe-`.
+Er verbindet sich nach USB-Geräteverlust automatisch erneut.
+Der nächste Versuch benötigt einen vollständigen Kaltstart mit unveränderten Modulen.
+Der Nutzer muss nach dem Einschalten mindestens etwa 105 Sekunden für Probe und Ergebnisaufzeichnung einplanen.
+
+Status: **DELAYED FIRST PROBE PREPARED / COLD BOOT PENDING**.
