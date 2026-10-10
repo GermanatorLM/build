@@ -1,0 +1,100 @@
+From: GermanatorLM <noreply@github.com>
+Subject: [PATCH] wifi: mt76: mt7996: trace early patch DMA progress
+
+Record queue indices and MCU event headers before hardware registration.
+Keep firmware selection, reset timing and command results unchanged.
+Queue snapshots are asynchronous and do not prove firmware execution.
+
+--- a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+@@ -215,6 +215,31 @@
+ 		ht_mcs[nss] = link_sta->ht_cap.mcs.rx_mask[nss] & mask[nss];
+ }
+ 
++static void
++mt7996_patch_queue_diag(struct mt7996_dev *dev, const char *stage,
++			const char *name, struct mt76_queue *q)
++{
++	if (!q || !q->regs || !q->ndesc)
++		return;
++
++	dev_info(dev->mt76.dev,
++		 "patch-diag %s %s cpu=%u dma=%u head=%u tail=%u queued=%d\n",
++		 stage, name, readl(&q->regs->cpu_idx),
++		 readl(&q->regs->dma_idx), READ_ONCE(q->head),
++		 READ_ONCE(q->tail), READ_ONCE(q->queued));
++}
++
++static void mt7996_patch_diag(struct mt7996_dev *dev, const char *stage, int ret)
++{
++	if (dev->recovery.hw_init_done)
++		return;
++
++	dev_info(dev->mt76.dev, "patch-diag %s ret=%d\n", stage, ret);
++	mt7996_patch_queue_diag(dev, stage, "fwdl", dev->mt76.q_mcu[MT_MCUQ_FWDL]);
++	mt7996_patch_queue_diag(dev, stage, "txwm", dev->mt76.q_mcu[MT_MCUQ_WM]);
++	mt7996_patch_queue_diag(dev, stage, "rxwm", &dev->mt76.q_rx[MT_RXQ_MCU]);
++}
++
+ static int
+ mt7996_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 			  struct sk_buff *skb, int seq)
+@@ -228,6 +253,7 @@
+ 	if (!skb) {
+ 		dev_err(mdev->dev, "Message %08x (seq %d) timeout\n",
+ 			cmd, seq);
++		mt7996_patch_diag(dev, "timeout", -ETIMEDOUT);
+ 
+ 		/* mac80211 cannot restart hardware before registration. */
+ 		if (!dev->recovery.hw_init_done)
+@@ -947,6 +973,11 @@
+ {
+ 	struct mt7996_mcu_rxd *rxd = (struct mt7996_mcu_rxd *)skb->data;
+ 
++	if (!dev->recovery.hw_init_done)
++		dev_info_ratelimited(dev->mt76.dev,
++			"patch-diag rx len=%u seq=%u eid=%u ext=%u option=0x%02x\n",
++			skb->len, rxd->seq, rxd->eid, rxd->ext_eid, rxd->option);
++
+ 	if (rxd->option & MCU_UNI_CMD_UNSOLICITED_EVENT) {
+ 		mt7996_mcu_uni_rx_unsolicited_event(dev, skb);
+ 		return;
+@@ -3355,6 +3386,7 @@
+ 	int i, ret, sem;
+ 
+ 	sem = mt76_connac_mcu_patch_sem_ctrl(&dev->mt76, 1);
++	mt7996_patch_diag(dev, "sem-get", sem);
+ 	switch (sem) {
+ 	case PATCH_IS_DL:
+ 		return 0;
+@@ -3404,6 +3436,7 @@
+ 
+ 		ret = mt76_connac_mcu_init_download(&dev->mt76, addr, len,
+ 						    mode);
++		mt7996_patch_diag(dev, "download-init", ret);
+ 		if (ret) {
+ 			dev_err(dev->mt76.dev, "Download request failed\n");
+ 			goto out;
+@@ -3411,18 +3444,22 @@
+ 
+ 		ret = __mt76_mcu_send_firmware(&dev->mt76, MCU_CMD(FW_SCATTER),
+ 					       dl, len, 4096);
++		mt7996_patch_diag(dev, "scatter", ret);
+ 		if (ret) {
+ 			dev_err(dev->mt76.dev, "Failed to send patch\n");
+ 			goto out;
+ 		}
+ 	}
+ 
++	mt7996_patch_diag(dev, "finish-before", 0);
+ 	ret = mt76_connac_mcu_start_patch(&dev->mt76);
++	mt7996_patch_diag(dev, "finish-after", ret);
+ 	if (ret)
+ 		dev_err(dev->mt76.dev, "Failed to start patch\n");
+ 
+ out:
+ 	sem = mt76_connac_mcu_patch_sem_ctrl(&dev->mt76, 0);
++	mt7996_patch_diag(dev, "sem-release", sem);
+ 	switch (sem) {
+ 	case PATCH_REL_SEM_SUCCESS:
+ 		break;

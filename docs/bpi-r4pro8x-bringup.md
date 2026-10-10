@@ -4176,3 +4176,29 @@ Dieser Test bestätigt die Laufzeitkorrektur, nicht einen neuen Image-Kaltstart.
 Wi-Fi bleibt ohne Radio; dieser Fix verändert keine Firmware oder PCIe-Einstellung.
 
 Status: **STATIC PASS / LED RUNTIME PASS / IMAGE BUILD PENDING / COLD BOOT PENDING**.
+
+## 127. Frühe MT7996-DMA-Diagnose
+
+Patch 005 ergänzt die bestehende Diagnose im R4-Pro-lokalen Kernelpatch-Verzeichnis.
+Die Diagnose liest CPU- und DMA-Indizes der Firmwaredownload-, WM-Sende- und WM-Empfangsringe.
+Zusätzlich protokolliert die Diagnose Softwareindizes und Ringbelegung.
+Messpunkte umfassen Semaphoreanforderung, Downloadanforderung, Scattertransfer, Patch-Finish, Semaphorefreigabe und frühe Timeouts.
+Frühe MCU-Ereignisse erhalten rate-limitierte Headerlogs ohne Nutzdaten.
+Nach abgeschlossener Hardwareinitialisierung bleibt die Diagnose inaktiv.
+
+Die Diagnose verändert keine Firmwaredateien, Wartezeiten, Resetfolge, Command-Rückgabewerte oder Recovery-Entscheidungen.
+Ringwerte sind asynchrone Momentaufnahmen; sie beweisen keine erfolgreiche Firmwareausführung.
+Der Patch liest keine Interruptstatusregister und schreibt keine Hardwareregister.
+Die allgemeine Filogic-Family bleibt unverändert.
+Die Patch-Anwendungsprüfung verwendet den festgelegten rc6-Quellstand mit den bisherigen Patches.
+Preflight prüft alle Messpunkte und die MCU-Logbegrenzung.
+Eine lokale Cross-Toolchain steht nicht bereit; der vollständige Build erfolgt separat über GitHub Actions.
+
+ROM-Patch und WM-, WA- sowie DSP-Dateien werden während der Treiberinitialisierung geladen.
+Dieser Pfad ersetzt keinen dauerhaft gespeicherten Chip-ROM-Inhalt.
+Die EEPROM-/eFuse-Daten sind davon getrennt und bleiben unverändert.
+Ein SD-Image-Backup schützt keine dauerhaft veränderten eFuse- oder Kalibrationsdaten.
+Der bisherige Fehler entsteht beim ROM-Patchstart vor der weiteren Firmwareinitialisierung.
+Ein Kalibrationsschreibtest ist deshalb kein begründeter nächster Schritt.
+
+Status: **PATCH APPLY PASS / STATIC PASS / BUILD PENDING / HW PENDING**.

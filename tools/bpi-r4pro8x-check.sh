@@ -58,6 +58,15 @@ if grep -Fq 'READ_ONCE(dev->recovery.hw_init_done)' "$wifi_recovery_patch"; then
 fi
 pass "board-local Wi-Fi preinit timeout recovery guard"
 
+wifi_dma_patch="${kernel_patch_dir}/005-mt7996-patch-dma-diagnostics.patch"
+[[ -f "$wifi_dma_patch" ]] || fail "Wi-Fi patch DMA diagnostics missing"
+for stage in sem-get download-init scatter finish-before finish-after sem-release timeout; do
+	grep -Fq "\"${stage}\"" "$wifi_dma_patch" || fail "Wi-Fi diagnostic stage missing: ${stage}"
+done
+grep -Fq 'readl(&q->regs->dma_idx)' "$wifi_dma_patch" || fail "Wi-Fi DMA index diagnostic missing"
+grep -Fq 'dev_info_ratelimited' "$wifi_dma_patch" || fail "Wi-Fi MCU event diagnostic lacks rate limit"
+pass "board-local Wi-Fi patch DMA diagnostics"
+
 # The upstream rc6 driver uses OF/eFuse, without the old RF-file extension.
 pass "upstream rc6 EEPROM path; legacy RF-file patches remain archived"
 

@@ -23,7 +23,14 @@ It does not force 233 or change reset delays.
 `004` skips MCU timeout recovery before hardware registration completes.
 This prevents the early timeout path from restarting unregistered mac80211 hardware.
 Runtime timeout recovery remains unchanged. Firmware patch loading remains unresolved.
-Compilation and physical validation of `004` remain pending.
+Run `38082815846` compiles `004`; two cold boots confirm its early recovery guard.
+Wi-Fi initialization still fails during ROM patch finish.
+
+`005` records firmware-download, WM transmit and WM receive queue indices during early initialization.
+It records rate-limited MCU event headers and command results.
+Queue snapshots are asynchronous; they do not prove firmware execution.
+It does not change firmware selection, reset timing, command results or recovery behavior.
+Compilation and physical validation of `005` remain pending.
 
 The upstream EEPROM path uses OF data or eFuse.
 The obsolete 6.18 RF-file patches remain in their original directory.
