@@ -384,6 +384,7 @@ Nachtragen der eigenen SHA.
 | 145 | `SELF` | Schutzpatch und Testchronik gepusht. Manueller Actions-Build startet mit latest-Firmware für Commit `aae03a372` als Run `38079324031`. Laufende SD-Ladesperre bleibt unverändert | GitHub Actions, Bring-up-Dokumentation Abschnitt 116 | BUILD STARTED / RESULT PENDING |
 | 146 | `SELF` | Run `38079324031` scheitert beim MT7996-Kompilieren: READ_ONCE unterstützt das Bitfeld hw_init_done nicht. Schutzpatch verwendet jetzt direkten Zugriff wie der bestehende Recovery-Einstieg. Checker verhindert Wiederholung; Patchprüfung, Preflight und Shellcheck bestehen | Schutzpatch, Checker, Bring-up-Dokumentation Abschnitt 117 | FIRST GUARD BUILD FAIL / CORRECTION STATIC PASS |
 | 147 | `SELF` | Korrigierter Schutzpatch `d0329f25e` gepusht. Neuer manueller latest-Build startet als Run `38082815846` auf dem rc6-Branch | GitHub Actions, Bring-up-Dokumentation Abschnitt 118 | REBUILD STARTED / RESULT PENDING |
+| 148 | `SELF` | Run `38082815846` erfolgreich. Korrigierter Schutzpatch angewendet; MT7996-Modul und vollständiges rc6-Trixie-Image gebaut. Latest-Firmware bleibt auf afabaf77 mit 15 Payloads. Buildlogs gesichert; Image-Download gestartet | Actions und Buildlogs, Bring-up-Dokumentation Abschnitt 119 | GUARD BUILD PASS / DOWNLOAD PENDING / HW TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

@@ -3864,3 +3864,29 @@ Das neue Build-Ergebnis und der Schutzpatch-Hardwaretest stehen noch aus.
 Board, SD-Ladesperre und UART-Aufzeichnung bleiben unverändert.
 
 Status: **REBUILD STARTED / RESULT PENDING / FIX HW TEST PENDING**.
+
+## 119. Korrigierter Schutzpatch-Build erfolgreich; Image-Download gestartet
+
+GitHub bestätigt Run `38082815846` mit `conclusion=success` für Commit `d0329f25e6cd762b70fb992e21eb5188fa070d6d`.
+URL: https://github.com/GermanatorLM/build/actions/runs/38082815846
+Das Buildlog bestätigt die Anwendung von `004-mt7996-skip-preinit-timeout-recovery.patch`.
+Das Modul `mt7996e.ko` wird erfolgreich gelinkt, installiert und komprimiert.
+Der Bitfeld-Compilerfehler aus Run `38079324031` tritt nicht erneut auf.
+Die vollständige Image-Erzeugung endet erfolgreich.
+Image: `Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_7.3.0-rc6_minimal.img`.
+
+Der latest-Firmwarestand bleibt `afabaf773c4c2e2c841429933a6a084a5af4d14d`.
+Der Installer bestätigt 15 Payloads.
+Buildlogs liegen unter `/home/lukas/Work/bpi-r4pro8x-images/run-38082815846-rc6-guard-logs`.
+Das nicht abgelaufene Image-Artefakt meldet 1.488.998.685 Bytes einschließlich Begleitdateien.
+Der Download startet nach `/home/lukas/Work/bpi-r4pro8x-images/run-38082815846-rc6-guard-latest`.
+Temporäre Download-Dateien liegen außerhalb von `/tmp` auf der Arbeitsplatte.
+Die Downloadprüfung führt nach Abschluss automatisch `sha256sum -c` aus.
+Downloadabschluss und lokale SHA256-Prüfung sind noch nicht bestätigt.
+
+Das Board und seine SD-Ladesperre bleiben unverändert.
+Es erfolgt kein SD-Schreibvorgang und kein Board-Reset.
+Der erfolgreiche Build bestätigt noch keinen erfolgreichen Schutzpatch-Hardwaretest.
+Der ursprüngliche Wi-Fi-Patchstartfehler bleibt offen.
+
+Status: **GUARD BUILD PASS / DOWNLOAD PENDING / FIX HW TEST PENDING**.
