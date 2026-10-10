@@ -2326,3 +2326,44 @@ Der Vergleich muss zuerst ROM-Patch-Auswahl, Firmwarestart und Radio-Registrieru
 Ein Wi-Fi-Erfolg oder eine isolierte Fehlerursache ist noch nicht bestätigt.
 
 Status: **COMPARISON SD FLASH PASS / COLD BOOT AND WIFI COMPARISON PENDING**.
+
+## 73. Früher erfolgreiches Image reproduziert den Wi-Fi-Fehler
+
+Der Nutzer startet das Vergleichsimage nach bestätigter Stromtrennung.
+Das vollständige Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-ab-comparison-coldboot-01.log`.
+BootROM, TF-A, U-Boot und Linux starten erfolgreich.
+TF-A meldet Cold Boot und 8192 MB DRAM.
+Extlinux verwendet das 8X-DTB, SD-Overlay und Rootfs-UUID `cd06581f-85c5-45fc-83a9-99b65dc6d27f`.
+Linux erreicht `multi-user.target` und vergrößert das SD-Rootfs erfolgreich.
+Die Erstlogin-Einrichtung verwendet erneut die freigegebenen temporären Testkonten.
+Der ältere Kernel bindet die neu aktivierten USB-Netzwerkmodule nicht; die Erstlogin-Einrichtung meldet einen Netzwerk-Timeout.
+
+Bei 24,26 Sekunden meldet der ROM-Patch Build-Time `20260311120419a`.
+Diese Build-Time entspricht dem 444-Payload, nicht dem früher erfolgreich gestarteten 233-Payload.
+Der ältere Treiber enthält keine Register- oder Firmwarepfad-Diagnose aus Patch 003.
+Dieser Versuch liefert deshalb keinen direkten `MT_PAD_GPIO`-Messwert.
+Bei 29,28 Sekunden scheitert der Patchstart nach MCU-Nachricht-7-Timeout.
+Bei 34,33 Sekunden endet die Probe nach Semaphore-Timeout mit `-11`.
+WM-, DSP- und WA-Start sowie Radio-Registrierung bleiben aus.
+`iw dev` zeigt kein Radio; die Hauptfunktion bleibt ohne Treiberbindung.
+Die zweite Funktion bindet weiterhin an `mt7996e_hif`.
+
+`lspci` fehlt im Minimalimage; die lesende Sysfs-Prüfung liefert die PCIe-Daten.
+Beide Funktionen melden MediaTek-IDs `14c3:7990` und `14c3:7991`, Runtime-Status `active` und PCIe 8,0 GT/s mit zwei Lanes.
+Die gefilterte Dmesg-Prüfung zeigt keine PCIe-AER-Fehlerserie.
+Alle 15 installierten Firmwaredateien bestehen die SHA256-Prüfung.
+Beide EEPROM-Hashes stimmen mit den Messungen aus Abschnitt 71 überein.
+Mainboard: `dd0f1d1c0661af162def96bbab7ec2174564faa13245eb866cf26f9c9d1bff01`.
+Wi-Fi-I2C: `cb4794f91bb479938168654598524203ab457fc5115485fb1d255dd20ec0a26c`.
+Portnamen- und MAC-Dienste bleiben aktiv; `systemctl --failed` listet keine fehlgeschlagenen Dienste.
+
+Der Rücktest reproduziert den Fehler ohne die neuen Diagnosepatches, RF-Datei-Korrektur und USB/PTP-Konfiguration.
+Diese Änderungen sind damit keine notwendige Voraussetzung für den beobachteten Fehler.
+Der Test beweist weder einen Hardwaredefekt noch eine reine Hardwareursache.
+Der frühere erfolgreiche 233-Start und 6-GHz-Test bleiben unverändert Teil der Chronik.
+Weitere Bus-Resets, Firmwarewechsel und EEPROM-Schreibzugriffe werden nicht ausgeführt.
+Das Board bleibt eingeschaltet; der UART-Recorder bleibt aktiv.
+Ein nächster kontrollierter Hardwaretest kann externe USB-Verbindungen als mögliche Versorgungs- oder Startbedingungen ausschließen.
+Dieser Test benötigt eine neue Stromtrennung und unveränderte SD sowie BE14-Bestückung.
+
+Status: **BOOT PASS / WIFI COMPARISON FAIL / CAUSE OPEN**.

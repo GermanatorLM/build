@@ -334,6 +334,7 @@ Nachtragen der eigenen SHA.
 | 99 | `SELF` | Neues Diagnoseimage bootet. Variantenregister ist vor und nach internem Reset null. Wi-Fi-444-Firmwarestart scheitert weiterhin mit -11 | UART-Kaltstart, Bring-up-Dokumentation | BOOT PASS / RESET DIAGNOSTIC HW PASS / WIFI FAIL |
 | 100 | `SELF` | Früher erfolgreiches Image 37975601363 für vollständigen Rücktest geprüft. Firmware-Audits stimmen überein. SD-Schreibschutz vorbereitet; Board sauber heruntergefahren | Imagevergleich, UART, Bring-up-Dokumentation | COMPARISON PREPARATION PASS / SD TRANSFER PENDING |
 | 101 | `SELF` | Vergleichsimage 37975601363 auf identifizierte 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser abgeschaltet; UART-Aufzeichnung vorbereitet | SD-Schreiblog, Bring-up-Dokumentation | COMPARISON SD FLASH PASS / COLD BOOT PENDING |
+| 102 | `SELF` | Früher erfolgreiches Image reproduziert beim Kaltstart denselben Wi-Fi-Patchstart-Timeout. Firmware- und EEPROM-Hashes stimmen; beide PCIe-Funktionen bleiben sichtbar | Vollständiges Vergleichs-UART-Log, Bring-up-Dokumentation | BOOT PASS / WIFI COMPARISON FAIL / CAUSE OPEN |
 
 ## Verbindliche Regel für kommende Änderungen
 
