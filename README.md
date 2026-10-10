@@ -367,6 +367,7 @@ Nachtragen der eigenen SHA.
 | 129 | `HW` | OpenWrt-eMMC-Vergleich startet BE14 erfolgreich mit 233-Firmware aus Juni 2025. WM/DSP/WA aktiv; 2,4-/5-/6-GHz-APs und MLO sichtbar. Beide PCIe-Funktionen gebunden; EEPROMs unverändert. Clienttest offen | UART, iw, Firmware- und EEPROM-Hashes, Bring-up-Dokumentation Abschnitt 100 | OPENWRT WIFI INIT PASS / CLIENT UNTESTED |
 | 130 | `SELF` | Actions erhält manuelle Firmwarewahl `pinned/latest`; Standard bleibt pinned. Latest-Installer installiert 15 geprüfte Payloads, derzeit bytegleich zum Pin. Neuere Frank-Kernelbranches geprüft; Kernelmigration noch nicht gewählt | Preflight, Workflowprüfung, Firmwareaudit, Bring-up-Dokumentation Abschnitt 101 | STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING |
 | 131 | `SELF` | Nutzer verwirft Löschung. Neuer Entwicklungsbranch `bpi-r4pro-8x-7.3-rc6` entsteht aus dem aktuellen Stand. Dateien und Historie bleiben erhalten. Ziel ist exaktes 7.3-rc6; Buildkonfiguration noch unverändert | Git-Branch, Bring-up-Dokumentation Abschnitt 102 | NEW BRANCH / RC6 MIGRATION PENDING |
+| 132 | `SELF` | Offizielles rc6 aufgelöst. Franks rc1 enthält 153 Zusatzcommits. Separater Prüfcheckout exportiert Erweiterungen; erster rc6-Objektdownload bei Frank scheitert. Downloadquelle korrigiert | Kernelquellenvergleich, Bring-up-Dokumentation Abschnitt 103 | SOURCE VERIFIED / PORT TEST PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

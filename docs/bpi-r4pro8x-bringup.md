@@ -3386,3 +3386,21 @@ Die rc1-Basis von Franks `7.3-rc` wird nicht als rc6 ausgegeben.
 Die bereits vorbereitete manuelle Latest-Firmwareauswahl bleibt erhalten.
 
 Status: **NEW BRANCH CREATED / EXACT RC6 MIGRATION PENDING**.
+
+## 103. Exakte rc6-Basis und separater Portierungstest
+
+Der offizielle Tag `v7.3-rc6` verweist auf Commit `a90ee4305c4a5df72c11b31dacfdc76e00fcf78a`.
+Franks Branch `7.3-rc` steht auf `32b3bd5458be1657056f9852b0b309f73b65a4d7`.
+Seine Basis ist das offizielle rc1, Commit `cee9395acd8043be0644b25c34bfa86623f2b935`.
+GitHub meldet 153 Zusatzcommits und keine fehlenden rc1-Commits.
+Die Erweiterungen betreffen unter anderem Device Trees, Ethernet, PCS, PHYs, Switch, USB und PCIe.
+
+Der separate Checkout liegt unter `/home/lukas/Work/bpi-r4pro8x-linux-7.3-port`.
+Ein mechanischer Diff exportiert Quelländerungen; Firmwarekopien, Buildskripte und `.orig`/`.rej`-Dateien bleiben ausgeschlossen.
+Der erste rc6-Checkout scheitert beim Nachladen offizieller Objekte über Franks Server.
+Git meldet `upload-pack: not our ref 005735a899203c46717cbc6ffeef95bb5a60185f`.
+Der Prüfcheckout verwendet danach Torvalds' Server für die offiziellen Objekte.
+Die bestehenden 6.18-Quellen bleiben unverändert.
+Ein Patchtest und ein rc6-Imagebuild stehen noch aus.
+
+Status: **SOURCE VERIFIED / PORT TEST PENDING**.
