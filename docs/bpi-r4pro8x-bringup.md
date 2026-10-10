@@ -3247,3 +3247,40 @@ Ein erneuter vollständiger Kaltstart ist für die Auswertung erforderlich.
 Es erfolgen keine weiteren Image-, EEPROM- oder Flashänderungen.
 
 Status: **CAPTURE INCOMPLETE / BOOT AND WIFI UNCONFIRMED / RECORDER READY**.
+
+## 99. Vollständig aufgezeichneter Referenzimage-Kaltstart nach Neuaufspielen
+
+Die wiederverbundene Konsole erreicht zunächst die Root-Ersteinrichtung des frisch geschriebenen Images.
+Die erste Passwortbestätigung scheitert; die erneute Eingabe mit den vom Nutzer vorgegebenen Testdaten gelingt.
+Die optionale Benutzeranlage wird ohne zusätzlichen Benutzer abgebrochen.
+Der angeforderte Shutdown hängt alle Dateisysteme bei 302,763487 Sekunden aus.
+TF-A meldet weiterhin `Power-down unsupported`.
+
+Der Nutzer kündigt anschließend einen erneuten Start an.
+Der Recorder erfasst BootROM, TF-A, U-Boot und Linux vollständig.
+TF-A bestätigt `Cold boot`; Linux erreicht `multi-user.target` und den Login.
+Die Boot-ID lautet `764a8f5e-3b37-4236-86d1-cd2d6c722cb8`.
+Das Log heißt `uart-run-37975601363-reference-reflash-20261010T113150.log` und enthält auch den vorherigen Shutdown.
+Der erste Login scheitert durch Terminal-Antwortzeichen; die Wiederholung gelingt.
+
+Der Treiber meldet 444-Build-Time `20260311120419a` bei 26,350113 Sekunden.
+Der Patchstart scheitert bei 31,442624 Sekunden nach Nachricht-7-Timeout.
+Die Semaphore-Freigabe scheitert nach Nachricht-10-Timeout.
+Die Geräteprobe endet bei 36,489149 Sekunden mit `-11`.
+WM-, DSP- und WA-Start fehlen; `iw dev` bleibt leer.
+Beide Wi-Fi-PCIe-Links melden 8,0 GT/s und zwei Lanes.
+Die Hauptfunktion bleibt ungebunden; die zweite Funktion bindet `mt7996e_hif`.
+Initrd-, uInitrd-, Originalmodul- und beide EEPROM-Hashes entsprechen den vorher bestätigten Werten.
+Die lokalen Modprobe-Sperren und Diagnose-Trace-Instanzen fehlen.
+
+USB-Controller `11190000` meldet erneut instabile Clocks und Probe-Fehler `-110`.
+PCIe-Controller `11280000` meldet ebenfalls `-110`.
+Die geprüfte Dmesg-Ausgabe enthält diesmal keine MxL-MMD- oder PHY-Kernelwarnung.
+`armbian-led-state.service` bleibt der einzige fehlgeschlagene systemd-Dienst.
+Das vollständige Neuaufspielen des früher erfolgreich getesteten Images stellt Wi-Fi in diesem Kaltstart nicht wieder her.
+Die früheren erfolgreichen 233-Starts und der 6-GHz-Test bleiben gültige historische Befunde.
+Ein Hardwaredefekt ist weiterhin nicht bewiesen.
+Der nächste unabhängige Vergleich bleibt ein BE14-Test unter vorhandenem OpenWrt ohne Flash-Schreibzugriffe.
+Das Board bleibt eingeschaltet; weitere Resets und Änderungen erfolgen nicht.
+
+Status: **REFERENCE REFLASH BOOT PASS / WIFI FAIL / CAUSE OPEN**.

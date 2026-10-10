@@ -360,6 +360,7 @@ Nachtragen der eigenen SHA.
 | 125 | `HW` | Kaltstart mit Original-Initramfs reproduziert Patchstartfehler `-11`. Kein früher Trace; Originalhashes bestätigt. Beide Wi-Fi-Links sichtbar. Zusätzliche MxL-MMD-/PHY-Warnung gesichert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 96 | BOOT PASS / ORIGINAL INITRAMFS WIFI FAIL |
 | 126 | `SELF` | Nutzer fordert Rückkehr zum erfolgreichen Teststand aus `f77368177`. Zugehöriges Originalimage aus Run `37975601363` erneut auf SD geschrieben. Diagnosedaten gesichert; vollständiger Imagebereich zurückgelesen und verifiziert. SD sicher getrennt | Flashlog, SHA256, Bring-up-Dokumentation Abschnitt 97 | REFERENCE IMAGE FLASH PASS / BOOT PENDING |
 | 127 | `SELF` | Referenzimage-Start nicht vollständig aufgezeichnet: vorheriger Recorder beendet, Wiederverbindung liefert nur BootROM-Fragment. Danach UART-Geräteverlust. Neuer Recorder verbindet automatisch erneut | UART-Fragmente, Bash/ShellCheck, Bring-up-Dokumentation Abschnitt 98 | CAPTURE INCOMPLETE / BOOT AND WIFI UNCONFIRMED |
+| 128 | `HW` | Kaltstart nach vollständigem Neuaufspielen aufgezeichnet. Referenzimage startet Linux, aber Wi-Fi scheitert erneut mit 444-Payload und `-11`. Kein Radio; Originalmodul und EEPROMs unverändert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 99 | REFLASH BOOT PASS / WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 
