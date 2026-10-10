@@ -4193,6 +4193,8 @@ Die allgemeine Filogic-Family bleibt unverändert.
 Die Patch-Anwendungsprüfung verwendet den festgelegten rc6-Quellstand mit den bisherigen Patches.
 Preflight prüft alle Messpunkte und die MCU-Logbegrenzung.
 Eine lokale Cross-Toolchain steht nicht bereit; der vollständige Build erfolgt separat über GitHub Actions.
+Run `38096780032` startet für Commit `f193bb03b` mit Firmwaremodus `latest`.
+Die Dispatch-Bestätigung meldet `queued`; ein Build-Ergebnis liegt noch nicht vor.
 
 ROM-Patch und WM-, WA- sowie DSP-Dateien werden während der Treiberinitialisierung geladen.
 Dieser Pfad ersetzt keinen dauerhaft gespeicherten Chip-ROM-Inhalt.
