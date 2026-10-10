@@ -2260,3 +2260,45 @@ Weitere identische Stromzyklen oder Bus-Resets ersetzen diesen Vergleich nicht.
 Das Board bleibt eingeschaltet; der UART-Recorder bleibt aktiv.
 
 Status: **BOOT PASS / RESET DIAGNOSTIC HW PASS / WIFI FAIL**.
+
+## 71. Vollständigen Rücktest mit früher erfolgreichem Image vorbereiten
+
+Der Nutzer bestätigt den Vergleich mit dem früher erfolgreichen Treiberstand.
+Branch `bpi-r4pro-8x` und sauberer Arbeitsbaum werden vor der Vorbereitung geprüft.
+PR `#1` bleibt offen; Diagnosebuild `38003437809` bleibt erfolgreich abgeschlossen.
+Das lokale Image aus Run `37975601363` besteht erneut seine vollständige SHA256-Prüfung.
+Das Image umfasst 1476395008 Bytes.
+SHA256: `14bb7d95874d1133945f95b3cecde55306813604a948a0f23987a63fc3301768`.
+
+Beide Images verwenden Kernelkennung `6.18.53-current-filogic`.
+Die Kernelkonfigurationen unterscheiden sich bei RFKILL, USB-Treibern, PPS und PTP.
+Das aktuelle Image deaktiviert `CONFIG_MODVERSIONS`.
+Die gemeinsame Kernelkennung belegt deshalb keine sichere Kompatibilität einzelner Treibermodule.
+Der Rücktest verwendet das vollständige ältere Image statt gemischter Kernelmodule.
+Dieser Vergleich isoliert noch keinen einzelnen Patch oder Konfigurationsunterschied.
+Die beiden Firmware-Auditlisten stimmen für alle 15 Payloads byteweise überein.
+Die aktuellen 15 Firmwaredateien bestehen zusätzlich die Hashprüfung auf dem Board.
+
+Die Erstlogin-Einrichtung verwendet die bereits freigegebenen temporären Testkonten.
+`iw dev` zeigt weiterhin kein Radio.
+Das Mainboard-EEPROM liefert SHA256 `dd0f1d1c0661af162def96bbab7ec2174564faa13245eb866cf26f9c9d1bff01`.
+Das Wi-Fi-I2C-EEPROM liefert weiterhin SHA256 `cb4794f91bb479938168654598524203ab457fc5115485fb1d255dd20ec0a26c`.
+Beide EEPROMs werden nur gelesen.
+Das bestehende UART-Log aus Abschnitt 70 sichert die Prüfungen und den Shutdown.
+Linux bestätigt `All filesystems unmounted`.
+TF-A meldet erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Der Nutzer muss die Versorgung vollständig trennen, bevor die SD entnommen wird.
+
+Das lokale Script `flash-r4pro8x-37975601363-comparison.sh` bereitet den geschützten SD-Rücktest vor.
+Bash-Syntaxprüfung und ShellCheck bestehen.
+Das Script verlangt die bekannte 64-GB-SD, Kartenleserkennung, USB-Pfad und aktuelle Rootfs-UUID.
+Die erwartete UUID lautet `51e89eae-8fc3-4bae-8e74-8705c056448b`.
+Es prüft Imagehash und vollständigen Rücklesehash und schaltet anschließend den Kartenleser ab.
+Der Host sieht aktuell keine SD; das Script wird deshalb noch nicht ausgeführt.
+Der Rücktest überschreibt später das aktuelle SD-Rootfs einschließlich temporärer Erstlogin-Konten.
+Beide Originalimages und bisherigen UART-Logs bleiben lokal erhalten.
+eMMC, NAND, NOR und gemeinsame Filogic-Konfiguration bleiben unverändert.
+Der nächste Schritt benötigt die SD im Host-Kartenleser.
+Danach muss ein vollständiger Kaltstart den ROM-Patch, Firmwarestart und `iw dev` erneut prüfen.
+
+Status: **COMPARISON PREPARATION PASS / SD TRANSFER AND HW COMPARISON PENDING**.

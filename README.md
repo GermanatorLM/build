@@ -332,6 +332,7 @@ Nachtragen der eigenen SHA.
 | 97 | `SELF` | Diagnosebuild 38003437809 besteht Preflight und Imagebau. Download und Imageaudit bestehen. Neue Resetmeldung im gebauten Treiber bestätigt | GitHub Actions, Buildlog, Imageaudit, UART | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
 | 98 | `SELF` | Geprüftes Reset-Diagnoseimage auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / RESET COMPARISON PENDING |
 | 99 | `SELF` | Neues Diagnoseimage bootet. Variantenregister ist vor und nach internem Reset null. Wi-Fi-444-Firmwarestart scheitert weiterhin mit -11 | UART-Kaltstart, Bring-up-Dokumentation | BOOT PASS / RESET DIAGNOSTIC HW PASS / WIFI FAIL |
+| 100 | `SELF` | Früher erfolgreiches Image 37975601363 für vollständigen Rücktest geprüft. Firmware-Audits stimmen überein. SD-Schreibschutz vorbereitet; Board sauber heruntergefahren | Imagevergleich, UART, Bring-up-Dokumentation | COMPARISON PREPARATION PASS / SD TRANSFER PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
