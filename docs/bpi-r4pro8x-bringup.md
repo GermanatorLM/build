@@ -2628,3 +2628,41 @@ Firmware, EEPROMs, Treiberbindung und globale Trace-Einstellungen bleiben unver�
 Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
 
 Status: **SOURCE ANALYSIS PASS / CAUSE OPEN / PROBE AUTHORIZATION PENDING**.
+
+## 82. Freigegebene Registeraufzeichnung im älteren Kernel
+
+Der Nutzer erlaubt die Diagnoseprobe und Schreibzugriffe für das wiederherstellbare Testimage.
+Die Probe läuft auf Run `37975601363`, Boot-ID `68ac8216-61d7-4085-b191-72cde40d87bc`.
+Das UART-Log aus Abschnitt 80 enthält die Aufzeichnung ab Kernelzeit 607,19 Sekunden.
+Die eigene Trace-Instanz heißt `r4pro_variant_investigation`.
+Die Probe bindet die bereits ungebundene Hauptfunktion einmal an `mt7996e`.
+Die Probe verwendet keinen PCIe-Bus-Reset und verändert keine Firmware oder EEPROMs.
+
+Der interne Reset liest `0x138600=0x00010340`, setzt Bit 0 und löscht Bit 0 anschließend.
+Der L1-Remap schreibt vor der Variantenmessung `0x155024=0x70007001`.
+Der Rücklesezugriff bestätigt diesen Wert.
+Der Variantenzugriff liest bei 607,273624 Sekunden `0x1356f0=0x00000000`.
+Diese PCIe-Fensteradresse entspricht `MT_PAD_GPIO` bei `0x700056f0`.
+Der Trace enthält alle 20 aufgezeichneten Ereignisse ohne Überlauf oder verlorene Ereignisse.
+Eine Variantenmessung vor dem internen Reset fehlt in diesem älteren Kernel.
+
+Der Treiber meldet erneut ROM-Patch-Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Nachricht 7 scheitert bei 612,32 Sekunden; Nachricht 10 scheitert bei 617,36 Sekunden.
+Die Probe endet erneut mit `-11`; der Sysfs-Schreibbefehl liefert Status 1.
+`iw dev` zeigt weiterhin kein Radio.
+Die Null-Lesung tritt damit auch ohne die neuen Diagnosepatches auf.
+Der Trace beweist keine gültige 444-Hardwarevariante und erklärt die frühere 233-Auswahl noch nicht.
+
+Die Abschlussprüfung bestätigt deaktivierte Trace-Aufzeichnung und deaktivierte Registerereignisse.
+Die eigene Trace-Instanz bleibt für weitere lesende Auswertung erhalten.
+Beide Wi-Fi-PCIe-Links melden weiterhin 8,0 GT/s und zwei Lanes.
+Die Hauptfunktion bleibt ungebunden; die Sekundärfunktion bleibt an `mt7996e_hif` gebunden.
+Die Dmesg-Prüfung zeigt keine neue PCIe-AER-Fehlerserie.
+Beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Der nächste Vergleich benötigt eine direkte Registermessung bei einem erfolgreichen 233-Start.
+Ein isolierter Timing-Test muss dieselbe Firmware und dieselbe Hardwarekonfiguration beibehalten.
+Eine feste 233-Auswahl wäre ein Experiment, kein bestätigter allgemeiner Fix.
+
+Status: **TRACE PASS / WIFI FAIL / CAUSE OPEN**.
