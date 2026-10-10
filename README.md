@@ -380,6 +380,7 @@ Nachtragen der eigenen SHA.
 | 141 | `SELF` | Lokaler SD-Isolationstest ergänzt nur `module_blacklist=mt7996e` in extlinux. Originalkonfiguration gesichert. Erster Read-only-Remount scheitert am entfernten Mountordner; korrigierte Prüfung besteht nach pkexec. SD sicher getrennt; UART bereit | SD-Konfiguration, Sicherung, Bring-up-Dokumentation Abschnitt 112 | SD CONFIG READBACK PASS / BOOT PENDING |
 | 142 | `HW` | rc6-SD-Kaltstart ohne MT7996 erreicht Login-Einrichtung und `multi-user.target`. Kernel bestätigt Modulsperre. Konsole reagiert nach dem bisherigen Panic-Zeitpunkt. HaLow-RNDIS meldet Sende-Timeouts; Netzwerkverbindung fehlt | UART, Bring-up-Dokumentation Abschnitt 113 | ISOLATED SD START PASS / WIFI DISABLED / HW PASS offen |
 | 143 | `HW` | Temporären Root-Zugang auf Nutzerwunsch eingerichtet; optionale Benutzeranlage abgebrochen. Shell bestätigt nach 180 Sekunden Systemstatus running und keine fehlgeschlagenen Units. EEPROM-MACs und alle zehn Portnamen stimmen | UART, Systemstatus, Bring-up-Dokumentation Abschnitt 114 | ROOT SHELL / ISOLATED BOOT PASS / WIFI DISABLED |
+| 144 | `SELF` | rc6-MCU-Timeout startet Recovery vor mac80211-Registrierung. Restart-Worker greift auf fehlende Workqueue zu. Board-lokaler Schutzpatch unterdrückt frühe Recovery, erhält Laufzeit-Recovery und Timeoutfehler. Patchprüfung, Preflight und Shellcheck bestehen | `004-mt7996-skip-preinit-timeout-recovery.patch`, Checker, Bring-up-Dokumentation Abschnitt 115 | STATIC / PATCH PASS / BUILD AND HW PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

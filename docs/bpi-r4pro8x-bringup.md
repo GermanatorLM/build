@@ -3759,3 +3759,49 @@ Der isolierte Start besteht bis zur Root-Shell, aber nur für diesen einen Kalts
 Ein regulärer rc6-Boot mit aktiviertem Wi-Fi und vollständiger HW-PASS bleiben offen.
 
 Status: **ROOT SHELL / ISOLATED BOOT PASS / EEPROM MAC PASS / WIFI DISABLED / HW PASS OFFEN**.
+
+## 115. Frühe MCU-Recovery erklärt rc6-Panic; Schutzpatch vorbereitet
+
+Die Untersuchung verwendet die exakte rc6-Basis `a90ee4305c4a5df72c11b31dacfdc76e00fcf78a` und den bestehenden board-lokalen Patchsatz.
+Der Prüfcheckout liegt unter `/home/lukas/Work/bpi-r4pro8x-linux-7.3-verify`.
+Die SD-Ladesperre bleibt aktiv; es erfolgt keine neue Wi-Fi-Probe auf dem Board.
+
+`mt7996_init_hardware()` lädt Firmware vor `mt76_register_device()`.
+`mt7996_mcu_parse_response()` startet bei einem Timeout bisher unmittelbar `reset_work`.
+Dieser Pfad prüft `recovery.hw_init_done` nicht.
+Der normale IRQ-Recovery-Einstieg `mt7996_reset()` besitzt bereits einen solchen Schutz.
+`mt7996_mac_full_reset()` versucht zehn Neustarts und ruft anschließend `ieee80211_restart_hw()` auf.
+Dies passt zu den zehn Firmwareversuchen und dem abschließenden Panic-Log.
+
+Mac80211 initialisiert `restart_work` bereits bei der Hardwareallokation.
+Mac80211 erzeugt `local->workqueue` dagegen erst in `ieee80211_register_hw()`.
+Der erste Aufruf in `ieee80211_restart_work()` lautet `flush_workqueue(local->workqueue)`.
+Der Firmwarefehler verhindert zuvor die Registrierung und damit die Workqueue-Erzeugung.
+Der Stacktrace zeigt genau diesen Restart-Worker, `__flush_workqueue` und den Speicherzugriff an Adresse `0x20`.
+Quellcode und Log erklären damit eine frühe Recovery auf unregistrierter Hardware.
+Diese Untersuchung ersetzt keine Disassemblierung des konkreten Panic-Moduls und keinen Fix-Hardwaretest.
+
+Die Upstream-Mailingliste dokumentiert die Einführung der MCU-Timeout-Recovery:
+https://lists.infradead.org/pipermail/linux-mediatek/2025-December/101970.html
+Diese Änderung liegt im rc6-Code vor; die Frank-Portierung fügt sie nicht neu hinzu.
+Der ursprüngliche Firmware-Patchstartfehler bleibt davon getrennt und ungeklärt.
+
+Der neue board-lokale Patch heißt `004-mt7996-skip-preinit-timeout-recovery.patch`.
+Vor Recovery prüft er `READ_ONCE(dev->recovery.hw_init_done)`.
+Vor abgeschlossener Registrierung gibt der Pfad unmittelbar `-ETIMEDOUT` zurück.
+Die bestehende Timeoutmeldung bleibt sichtbar.
+Der frühe Pfad verändert weder Reset-Flags noch Warteschlangen und startet keinen Restart-Worker.
+Nach abgeschlossener Registrierung bleibt der bestehende Recovery-Code unverändert.
+Der Patch ändert keine Firmware, Variantenwahl, Resetzeiten, EEPROM-Auswertung oder normale Filogic-Family.
+Der Patch ist ein Schutz gegen die beobachtete Panic, kein Wi-Fi-Funktionsnachweis.
+
+`git apply --check` besteht auf dem rc6-Prüfcheckout nach den bisherigen Patches.
+Der Schutz wird dort angewendet; `git apply --reverse --check` bestätigt den angewendeten Hunk.
+Der aktualisierte Checker verlangt den Schutzpatch und seinen Registrierungscheck.
+Preflight und Shellcheck bestehen; die bekannte Maintainer-Warnung bleibt erhalten.
+Ein Kernel- oder Modulbuild mit diesem Schutzpatch ist noch nicht ausgeführt.
+Ein Hardwaretest mit diesem Schutzpatch ist noch nicht ausgeführt.
+Das laufende Board und seine SD-Konfiguration bleiben unverändert.
+Der nächste Schritt baut den Patch und prüft einen SD-Kaltstart mit wieder aktiviertem MT7996.
+
+Status: **PANIC PATH IDENTIFIED / STATIC AND PATCH PASS / BUILD AND HW PENDING / WIFI CAUSE OPEN**.

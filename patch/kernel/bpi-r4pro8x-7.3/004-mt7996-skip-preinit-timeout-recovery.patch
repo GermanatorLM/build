@@ -1,0 +1,23 @@
+From: GermanatorLM <noreply@github.com>
+Subject: [PATCH] wifi: mt76: mt7996: skip timeout recovery before registration
+
+Firmware loading precedes mac80211 registration. An MCU timeout can queue
+reset_work before mac80211 creates its workqueue. Full reset then calls
+ieee80211_restart_hw() and the restart worker dereferences that NULL queue.
+
+Return the timeout without scheduling recovery until hardware registration
+completes. Keep runtime recovery unchanged. This does not fix firmware loading.
+
+--- a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+@@ -229,6 +229,10 @@ mt7996_mcu_parse_response(struct mt76_dev *mdev, int cmd,
+ 		dev_err(mdev->dev, "Message %08x (seq %d) timeout\n",
+ 			cmd, seq);
+ 
++		/* mac80211 cannot restart hardware before registration. */
++		if (!READ_ONCE(dev->recovery.hw_init_done))
++			return -ETIMEDOUT;
++
+ 		if (!test_and_set_bit(MT76_MCU_RESET, &dev->mphy.state)) {
+ 			dev->recovery.restart = true;
+ 			wake_up(&dev->mt76.mcu.wait);

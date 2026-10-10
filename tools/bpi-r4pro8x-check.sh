@@ -49,6 +49,12 @@ grep -q 'Wi-Fi reset MT_PAD_GPIO: before=0x%08x after=0x%08x' "$wifi_patch" || f
 grep -q 'ROM patch requested:' "$wifi_patch" || fail "Wi-Fi firmware path diagnostic missing"
 pass "board-local Wi-Fi variant diagnostics"
 
+wifi_recovery_patch="${kernel_patch_dir}/004-mt7996-skip-preinit-timeout-recovery.patch"
+[[ -f "$wifi_recovery_patch" ]] || fail "Wi-Fi preinit recovery guard missing"
+grep -Fq '+		if (!READ_ONCE(dev->recovery.hw_init_done))' "$wifi_recovery_patch" ||
+	fail "Wi-Fi timeout recovery lacks hardware registration guard"
+pass "board-local Wi-Fi preinit timeout recovery guard"
+
 # The upstream rc6 driver uses OF/eFuse, without the old RF-file extension.
 pass "upstream rc6 EEPROM path; legacy RF-file patches remain archived"
 

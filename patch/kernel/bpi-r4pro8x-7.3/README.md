@@ -20,6 +20,11 @@ The shared Device Tree already names `lan1` through `lan5`.
 `003` logs automatic MT7996 variant selection, reset registers and requested ROM firmware.
 It does not force 233 or change reset delays.
 
+`004` skips MCU timeout recovery before hardware registration completes.
+This prevents the early timeout path from restarting unregistered mac80211 hardware.
+Runtime timeout recovery remains unchanged. Firmware patch loading remains unresolved.
+Compilation and physical validation of `004` remain pending.
+
 The upstream EEPROM path uses OF data or eFuse.
 The obsolete 6.18 RF-file patches remain in their original directory.
 Do not apply them to this kernel.
