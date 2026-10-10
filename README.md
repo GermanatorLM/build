@@ -372,6 +372,7 @@ Nachtragen der eigenen SHA.
 | 133 | `SELF` | Exaktes rc6 ersetzt die 6.18-Quelle nur im neuen Branch. Frank-Erweiterungen erhalten rc6-Konfliktkorrekturen. Neue 8X-Port- und Wi-Fi-Diagnosepatches; native EEPROM-Auswertung statt alter RF-Dateierweiterung | Neuer board-lokaler Patchsatz, Versionsschutz, sequenzieller Patchtest, DTB und SD-Overlay, Abschnitt 104 | STATIC / PATCH / DT PASS; BUILD offen |
 | 134 | `SELF` | rc6-Portierung `eb42b5284` auf den neuen Branch gepusht. Manueller Trixie-Minimal-Build mit Firmwaremodus `latest` startet als Run `38051805424` | GitHub Actions, Bring-up-Dokumentation Abschnitt 105 | BUILD STARTED; Ergebnis offen |
 | 135 | `SELF` | Run `38051805424` erfolgreich. Linux 7.3.0-rc6, MT7996-Modul, U-Boot/TF-A und vollständiges Trixie-Minimal-Image gebaut. Latest installiert 15 Payloads. Logs gesichert; Image-Download läuft noch | Actions-Ergebnis, Buildlogs, Bring-up-Dokumentation Abschnitt 106 | BUILD PASS / DOWNLOAD PENDING / HW UNTESTED |
+| 136 | `SELF` | Erster Image-Download scheitert beim temporären ZIP an `disk quota exceeded`. Wiederholung verwendet `TMPDIR` auf der Arbeitsplatte mit 66 GB frei. SD bleibt unverändert | Downloadfehler, Bring-up-Dokumentation Abschnitt 107 | DOWNLOAD RETRY / HASH PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

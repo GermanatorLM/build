@@ -3499,3 +3499,20 @@ Es erfolgt noch kein Schreibzugriff auf die SD-Karte.
 Boot, Ethernet und Wi-Fi sind mit diesem Image noch nicht getestet.
 
 Status: **BUILD PASS / DOWNLOAD PENDING / HW UNTESTED**.
+
+## 107. Downloadabbruch und Wiederholung außerhalb von /tmp
+
+Der erste Image-Download bricht vor der Artefaktextraktion ab.
+GitHub CLI meldet `error writing zip archive: write /tmp/gh-artifact.100342483.zip: disk quota exceeded`.
+Die zuvor gemessenen Downloadfortschritte bestätigen keinen vollständigen Download.
+Das temporäre ZIP ist danach nicht mehr vorhanden; der Imageordner existiert noch nicht.
+Ein SHA256-Vergleich ist deshalb weiterhin nicht möglich.
+
+Die Wiederholung setzt `TMPDIR` auf `/home/lukas/Work/bpi-r4pro8x-download-tmp.xSinWu`.
+Die Arbeitsplatte meldet vor dem Neustart 66 GB frei.
+GitHub CLI lädt dasselbe Artefakt aus Run `38051805424` erneut herunter.
+Das neue ZIP wächst auf der Arbeitsplatte; der Download beginnt von vorne.
+Die genaue Ursache der /tmp-Quota ist nicht weiter untersucht.
+Es erfolgt kein Schreibzugriff auf die SD-Karte.
+
+Status: **DOWNLOAD RETRY / HASH PENDING / SD UNCHANGED**.
