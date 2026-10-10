@@ -2920,3 +2920,38 @@ Der getrennte Modulbau und dessen ABI-Prüfungen stehen aus.
 Das Board bleibt eingeschaltet; sein Originaltreiber und seine Bootdateien bleiben unverändert.
 
 Status: **DIAGNOSTIC PREPARED / BUILD AUTHENTICATION PENDING / RUNTIME TEST PENDING**.
+
+## 89. Erster lokaler Modulbau und korrigierte Buildvorbereitung
+
+Der Nutzer fordert eine neue Authentifizierungsanfrage und die anschließende Fortsetzung an.
+Die Docker-Inventarprüfung und der erste lokale Build erhalten die erforderliche Authentifizierung.
+Ein unprivilegierter Ubuntu-24.04-Container erhält ausschließlich das lokale Diagnoseverzeichnis.
+Der Container erhält weder Hardwaregeräte noch privilegierte Containerrechte.
+Ubuntu-GCC 13.3.0 und die erforderlichen Buildpakete werden installiert.
+
+Der erste Vergleichsbuild übernimmt die Konfiguration des laufenden Images.
+`modules_prepare` scheitert an fehlender Generatorquelle `kernel/time/timeconst.bc`.
+Die selektive Quellenliste enthält außerdem noch nicht `kernel/bounds.c`.
+Beide Dateien werden am bestätigten Kernelcommit nachgeladen.
+Ein erster Ergänzungsbefehl verwendet ein nicht unterstütztes Git-Argument; der korrigierte Befehl gelingt.
+Git meldet zurückbehaltene Dokumentationsdateien im kopierten Analysebaum.
+Diese Dateien bleiben erhalten; das eigentliche Repository bleibt unverändert.
+
+Der Konfigurationsvergleich zeigt außerdem fehlendes `pahole` und dadurch deaktivierte BTF-Optionen.
+Ein Modul mit dieser abweichenden Konfiguration wird nicht gebaut oder geladen.
+Der korrigierte Buildentwurf ergänzt `dwarves` für die ursprüngliche BTF-Konfiguration.
+Er baut zuerst die unveränderte Variante und anschließend die 233-Diagnosevariante.
+Beide Varianten verwenden dieselbe Quelle, Konfiguration und Toolchain.
+Der Diagnosepatch ergänzt ausschließlich die protokollierte, boardgebundene 233-Auswahl.
+Die Kernelquelle exportiert das dafür verwendete Symbol `of_machine_compatible_match`.
+Eine Kallsyms-Prüfung findet keinen gleichnamigen Ksymtab-Eintrag; diese Prüfung bestätigt deshalb den Export nicht eigenständig.
+Der Quellenexport ist direkt geprüft; die spätere Modul-Ladeprüfung bleibt erforderlich.
+
+Die ursprüngliche Anfrage zur Sicherung des beendeten Containers wird beendet.
+Die korrigierte Build-Anfrage wartet auf eine neue lokale `pkexec`-Authentifizierung.
+Der zweite Buildcontainer soll nach seinem Ende für Diagnosezwecke erhalten bleiben.
+Kein Diagnosetreiber wurde auf das Board übertragen oder geladen.
+Die Laufzeitprüfung bestätigt weiterhin das unveränderte Originalmodul mit dem Hash aus Abschnitt 88.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **FIRST MODULE BUILD FAIL / CORRECTED BUILD AUTHENTICATION PENDING / RUNTIME TEST PENDING**.
