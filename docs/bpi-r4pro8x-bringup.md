@@ -2754,3 +2754,46 @@ Jede Verbindung erhält ein eigenes zeitgestempeltes Log mit Präfix `uart-run-3
 Bestehende Logs bleiben erhalten.
 
 Status: **BOOT PASS / WIFI FAIL / TRACE FIX PREPARED / COLD BOOT PENDING**.
+
+## 85. Frühe Registermessung beim bestätigten Kaltstart
+
+Der Nutzer startet das Board mit unveränderter Modulkonfiguration.
+Der Recorder erfasst BootROM, TF-A, U-Boot und Linux ohne Verbindungsabbruch.
+TF-A meldet `Cold boot`; U-Boot bestätigt die Initramfs-Prüfsumme.
+Das Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-early-variant-coldboot-02-20261010T013624.log`.
+Die Boot-ID lautet `a7b3ee66-fdd4-42a9-a475-f3e5fd1998ce`.
+Linux erreicht `multi-user.target`.
+
+Die korrigierte Vorbereitung meldet `R4PRO_EARLY_TRACE_READY` bei 16,307024 Sekunden.
+Diese Meldung liegt vor der ersten regulären Wi-Fi-Probe bei 24,75 Sekunden.
+Die Trace-Instanz enthält 20 Ereignisse ohne Überlauf oder verlorene Ereignisse.
+Der interne Reset setzt und löscht Bit 0 im Register `0x138600`.
+Der vorherige Registerwert lautet `0x00010340`.
+Der L1-Remap schreibt `0x155024=0x70007001` und bestätigt diesen Wert durch Rücklesen.
+Die Variantenmessung liest `0x1356f0=0x00000000` bei 24,843835 Sekunden.
+Diese Fensteradresse entspricht `MT_PAD_GPIO` bei `0x700056f0`.
+Eine Variantenmessung vor dem internen Reset fehlt weiterhin im älteren Kernel.
+
+Der Treiber meldet den 444-Payload mit Build-Time `20260311120419a` bei 24,919018 Sekunden.
+Patchstart scheitert bei 30,002730 Sekunden; die Probe endet bei 35,049301 Sekunden mit `-11`.
+`iw dev` zeigt kein Radio.
+Die Hauptfunktion bleibt ungebunden; die Sekundärfunktion bleibt an `mt7996e_hif` gebunden.
+Beide Wi-Fi-PCIe-Links melden 8,0 GT/s und zwei Lanes.
+Die gefilterte Prüfung zeigt keine PCIe-AER-Fehlerserie.
+Die EEPROM-Hashes bleiben unverändert.
+Quectel, ALFA und STM32 erscheinen erneut an den erwarteten USB-Pfaden.
+
+USB-Controller `11190000.usb` meldet erneut instabile Takte und Probe-Fehler `-110`.
+Ein weiterer PCIe-Controller `11280000.pcie` scheitert ebenfalls mit `-110`.
+Diese Zusatzbefunde betreffen nicht die zwei erfolgreich enumerierten Wi-Fi-PCIe-Endpunkte.
+Eine gemeinsame Takt- oder Versorgungsursache bleibt unbewiesen.
+
+Die Abschlussprüfung bestätigt deaktivierte Trace-Aufzeichnung und deaktivierte Registerereignisse.
+Die Trace-Instanz bleibt erhalten; das Board bleibt eingeschaltet.
+Der Diagnose-Initramfs aktiviert die frühe Aufzeichnung erneut beim nächsten Boot.
+Ein erfolgreicher 233-Start wurde nicht erreicht und nicht direkt gemessen.
+Die Vorbereitung funktioniert jetzt; weitere identische Neustarts ersetzen keinen isolierten Vergleich.
+Der nächste Diagnoseversuch sollte genau einen Timing- oder Initialisierungsparameter verändern.
+Eine feste 233-Auswahl bleibt ein gesondertes Experiment, kein bestätigter allgemeiner Fix.
+
+Status: **BOOT PASS / EARLY TRACE PASS / WIFI FAIL / CAUSE OPEN**.
