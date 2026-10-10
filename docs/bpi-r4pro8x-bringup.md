@@ -4108,3 +4108,46 @@ Es entsteht keine persistente Linkraten-Konfiguration im Image.
 Originalimages, Rohlogs und Diagnoseergebnisse bleiben erhalten.
 
 Status: **GEN1 RETRAIN FAIL / LINK SETTINGS RESTORED / PRIMARY LINK DOWN / POWER CYCLE REQUIRED**.
+
+## 125. Kaltstart stellt PCIe-Links wieder her; Wi-Fi-Fehler bleibt
+
+Der Nutzer meldet den nächsten Start nach dem erforderlichen Versorgungsausfall.
+UART verbindet sich erneut und beginnt ein separates Log mit Dateimodus 0600.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38082815846-rc6-guard-20261010T234704.log`.
+TF-A bestätigt `WDT: Cold boot`, erfolgreichen Speichertest und 8192 MB DRAM.
+U-Boot startet dasselbe SD-Image mit Linux 7.3.0-rc6 und dem 8X-DTB samt SD-Overlay.
+Root-UUID bleibt `1a6cf974-bdc4-4559-b3e2-d784942c206e`; die Dateisystemprüfung meldet `clean`.
+Boot-ID: `d5811d59-7fba-4ce7-b88d-6b4a794984d0`.
+
+Beide Wi-Fi-Endpunkte erscheinen erneut mit IDs `14c3:7990` und `14c3:7991`.
+Die Sysfs-Prüfung bestätigt für beide Links 8.0 GT/s und zwei Lanes.
+Beide Rootports melden Link-Control-2 `0x43` und Linkstatus `0x3023`.
+Der primäre Linkausfall aus Abschnitt 124 ist damit nach diesem Kaltstart behoben.
+Es gibt keine erneute AER-Fehlerfolge und keinen manuellen Link- oder Reset-Schreibzugriff.
+
+Die automatische MT7996-Probe beginnt bei 20.677 Sekunden.
+`MT_PAD_GPIO` bleibt vor und nach Wi-Fi-Reset null; die Treibervariante bleibt 444.
+Der Original-ROM-Patch meldet Build Time `20260311120419a`.
+Bei 25.848 Sekunden scheitert Patch-Finish nach Message-7-Timeout.
+Bei 30.888 Sekunden scheitert die Semaphorefreigabe nach Message-10-Timeout; die Probe endet mit `-11`.
+Der Haupttreiber bleibt ungebunden; die zweite Funktion bindet an `mt7996e_hif`.
+`iw dev` zeigt weiterhin kein Radio.
+Alle 15 Firmwaredateien bestehen erneut die Image-Prüfsummen.
+Portnamen und EEPROM-MACs bleiben unverändert.
+
+Der erste Login scheitert nach vorangestellten Terminal-Antwortzeichen; der zweite Login erreicht die Root-Shell.
+Nach 107.11 Sekunden bleibt die Shell erreichbar; der Kernel-Taint beträgt null.
+Die Dmesg-Prüfung zeigt keine Oops, Recovery-Schleife, Hardware-Restart-Anforderung oder Kernel-Panic.
+Dieser zweite Schutzpatch-Kaltstart bestätigt erneut den frühen Panic-Schutz, nicht funktionierendes Wi-Fi.
+
+Systemd meldet `degraded` wegen genau einer fehlgeschlagenen Unit: `armbian-led-state.service`.
+Das Journal meldet `Invalid state file, syntax error in configuration file`.
+`/etc/armbian-leds.conf` enthält vier leere `device_name=`-Werte für die Aeonsemi-Netdev-LEDs.
+Der Save-Code schreibt leere Werte; der Restore-Code lehnt leere Werte ausdrücklich ab.
+Der erste leere Wert steht in Zeile 16 und erklärt den beobachteten Restore-Abbruch.
+Die LED-Konfiguration und der Dienst bleiben unverändert; der separate Fix steht aus.
+HaLow-RNDIS meldet weiterhin Sende-Timeouts.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+Die Originaldiagnosen und der fehlgeschlagene Gen1-Test bleiben vollständig dokumentiert.
+
+Status: **PCIE RECOVERY PASS / SECOND GUARD COLD BOOT PASS / WIFI INIT FAIL / LED RESTORE FAIL**.

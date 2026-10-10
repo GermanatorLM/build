@@ -391,6 +391,7 @@ Nachtragen der eigenen SHA.
 | 151 | `HW` | Kontrollierte MT7996-Neuladung reproduziert Patchstartfehler ohne Panic. System bleibt nach 334 Sekunden running; Kernel-Taint null. Alle 15 Firmwarehashes stimmen. Kein Wi-Fi-Radio; keine Firmwareänderung und kein Busreset | UART, Firmwareaudit, Bring-up-Dokumentation Abschnitt 122 | RELOAD GUARD PASS / FIRMWARE HASH PASS / WIFI INIT FAIL |
 | 152 | `HW` | MCU-Rückgabetrace bestätigt erfolgreiche Semaphore- und Downloadanforderung. Beide ROM-Patches scheitern erst bei Patch-Finish mit -110. Temporärer 233-ROM-Patch wird vollständig zurückgestellt; alle Firmwarehashes stimmen | UART und Kretprobes, Bring-up-Dokumentation Abschnitt 123 | MCU EARLY RESPONSE PASS / BOTH ROM START FAIL / RESTORE PASS |
 | 153 | `HW` | Schaltplan trennt 12-V-Wi-Fi-Versorgung und steuerbare Slot-Spannungen. Gen1-Retraining verursacht fatalen AER-Linkausfall vor dem Firmwaretest. Originale Link-Einstellungen zurückgestellt; primärer Link bleibt ausgefallen. Weitere Linktests gestoppt | Hersteller-Schaltplan, UART, Bring-up-Dokumentation Abschnitt 124 | GEN1 RETRAIN FAIL / POWER CYCLE REQUIRED |
+| 154 | `HW` | Folgender SD-Kaltstart stellt beide Wi-Fi-Links mit Gen3 und zwei Lanes wieder her. Keine neue AER-Fehlerserie oder Panic nach 107 Sekunden. ROM-Patchstart scheitert weiter. LED-Restore lehnt gespeicherte leere device_name-Werte ab; System degraded | UART und Sysfs, Bring-up-Dokumentation Abschnitt 125 | PCIE RECOVERY PASS / GUARD BOOT PASS / WIFI FAIL / LED RESTORE FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 
