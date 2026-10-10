@@ -3284,3 +3284,55 @@ Der nächste unabhängige Vergleich bleibt ein BE14-Test unter vorhandenem OpenW
 Das Board bleibt eingeschaltet; weitere Resets und Änderungen erfolgen nicht.
 
 Status: **REFERENCE REFLASH BOOT PASS / WIFI FAIL / CAUSE OPEN**.
+
+## 100. OpenWrt-eMMC-Vergleich startet BE14 erfolgreich
+
+Der Nutzer startet nach sauberem Armbian-Shutdown das vorhandene OpenWrt von eMMC.
+Der Recorder verbindet sich nach UART-Geräteverlust erneut; der Mitschnitt beginnt bei BL2-Übergabe an BL31.
+BootROM und früher BL2-Start fehlen in diesem Mitschnitt.
+OpenWrt verwendet TF-A 2.10, U-Boot 2024.10 und Linux 6.6.93 aus Juni 2025.
+Die Boot-ID lautet `a7287b93-3459-4b86-b9b6-8d4e8bd47666`.
+Das Log heißt `uart-run-37975601363-reference-reflash-20261010T114048.log`; das Präfix benennt den Recorder, nicht das gestartete System.
+U-Boot meldet einen fehlenden zusätzlichen FIT-Konfigurationsknoten, startet Linux aber erfolgreich.
+Das vorhandene OpenWrt mountet seine persistenten Overlays selbstständig; der Versuch verändert keine Firmware- oder Flashkonfiguration.
+
+Der ROM-Patch startet bei 36,995922 Sekunden mit Build-Time `20250605130343a`.
+WM startet bei 37,100623 Sekunden mit Build-Time `20250605130338`.
+DSP startet bei 37,144978 Sekunden mit Build-Time `20250605125645`.
+WA startet bei 37,166386 Sekunden mit Build-Time `20250605130248`.
+Der Treiber registriert `mt76-phy0` bei 38,025599 Sekunden.
+Die Firmwareausgabe nennt Version `4.4.25.06`, normalen WM-Modus und iFEM.
+Die ROM-Patch-Build-Time entspricht der installierten Datei `mt7996_rom_patch_233.bin`.
+Die nicht spezialisierte Patchdatei enthält dagegen Build-Time `20250605125803a`.
+Patchstart- und Semaphore-Timeout fehlen in der geprüften Dmesg-Ausgabe.
+
+`iw dev` zeigt `phy0.0-ap0`, `phy0.2-ap0` und das MLO-Interface `ap-mld-1`.
+Die MLO-Links verwenden 2412 MHz mit 40 MHz, 5180 MHz mit 160 MHz und 6135 MHz mit 320 MHz.
+Die AP-Konfiguration stammt aus dem vorhandenen OpenWrt; der Versuch verändert sie nicht.
+Die Stationstabellen der beiden Einzel-APs bleiben leer.
+Dieser Versuch bestätigt Firmwarestart und Interface-Erkennung, aber keinen Clientverkehr oder Dauerbetrieb.
+Beide Wi-Fi-PCIe-Links melden 8,0 GT/s und zwei Lanes.
+Die Hauptfunktion bindet `mt7996e`; die zweite Funktion bindet `mt7996e_hif`.
+OpenWrt aktiviert WED; Armbians geprüfter Originaltreiber verwendet standardmäßig kein WED.
+USB-Controller `11190000` initialisiert hier ohne den beobachteten Armbian-Clock-Timeout.
+
+Die Firmwaredateien liegen unter `/lib/firmware/mediatek/mt7996/`.
+SHA256 `mt7996_rom_patch_233.bin`: `14ed39216fffe0a5b34386e4deb5f6278f1edf54da21a850fcfd10aafe65d24f`.
+SHA256 `mt7996_wm_233.bin`: `3885b32692fa7cfdfe19956605dabc03512e0e8f0da59b04826ea2205485a2e0`.
+SHA256 `mt7996_wa_233.bin`: `a1ec4af9e3069964bf91058b11fae1c4e53208175addc1af72b5d52b11081613`.
+SHA256 `mt7996_dsp.bin`: `dabc8450e03e503e7756f1050ddb22ef354726a3e53deb77d5754aa2ac6b80dc`.
+Beide I2C-EEPROM-Hashes entsprechen weiterhin den Armbian-Messungen.
+Die Treiberdiagnose meldet `efuse mode`; der aktive Datensatz umfasst 7680 Bytes.
+Datensatz-SHA256: `1436309d9fb2ee3a40bee9f847ccec55fc5a7eb374fbbbef53237b44dc2ba382`.
+Dieser Datensatz unterscheidet sich vom früheren Armbian-Datensatz aus Abschnitt 55.
+Die unterschiedlichen Treiberaufbereitungen erlauben daraus keine Aussage über veränderte physische eFuse-Inhalte.
+
+Das BE14 arbeitet in diesem OpenWrt-Boot; ein durchgängiger Hardwareausfall liegt somit nicht vor.
+Intermittierende Versorgungs- oder Kontaktprobleme bleiben dadurch nicht ausgeschlossen.
+Firmware, Kernel, Treiber, WED und Bootkette unterscheiden sich gleichzeitig vom Armbian-Vergleich.
+Der Versuch isoliert deshalb noch keine einzelne Ursache.
+Ein nächster isolierter Vergleich kann den gesicherten Juni-2025-Firmwaresatz auf dem SD-Testimage prüfen.
+Dieser Vergleich benötigt Dateisicherung und einen passenden 233-Ladepfad; er ist noch nicht ausgeführt.
+Das OpenWrt bleibt eingeschaltet; weitere Resets und Firmwareänderungen erfolgen nicht.
+
+Status: **OPENWRT WIFI INIT PASS / CLIENT UNTESTED / ARMBIAN CAUSE OPEN**.
