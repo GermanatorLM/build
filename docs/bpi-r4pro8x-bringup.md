@@ -2996,3 +2996,45 @@ Beide vollständigen Board-Hashes und Vermagic-Prüfungen stimmen mit den Hostda
 Das installierte Originalmodul wird nicht überschrieben.
 
 Status: **DIAGNOSTIC MODULE BUILD PASS / MODULE TRANSFER PASS / RUNTIME TEST PENDING**.
+
+## 91. Laufzeitvergleich mit unverändertem und erzwungenem 233-Treiber
+
+Beide Tests laufen im bisherigen Boot mit ID `1d2844be-e60c-46a3-a0f9-f6c091811307`.
+Das UART-Log aus Abschnitt 87 enthält beide Tests und die Übertragung.
+Das lokale Probescript heißt `run-module-test.sh`; ShellCheck besteht.
+Das Script prüft Boardkennung, Vermagic, Modulhash und fehlendes Radio.
+Es sichert das Originalmodul zusätzlich unter `/root/r4pro-force233-diag`.
+Es entlädt ausschließlich `mt7996e`; die Original-Abhängigkeitsmodule bleiben geladen.
+Es verwendet keinen PCIe-Bus-Reset und keine erzwungene Modulentladung.
+
+Der Vergleichstest startet bei 32034,78 Sekunden.
+Das Vergleichsmodul lädt ohne Versions- oder Symbolfehler.
+Der Kernel markiert das externe Diagnosemodul mit Out-of-tree-Taint.
+Diese Markierung bleibt bis zum Neustart bestehen.
+Der Trace liest `MT_PAD_GPIO=0` und erfasst 20 Ereignisse.
+Der Treiber wählt 444-Build-Time `20260311120419a` und scheitert erneut mit `-11`.
+Die Geräteprobe endet bei 32045,049130 Sekunden.
+
+Der 233-Test startet bei 32069,81 Sekunden nach Entladen des Vergleichsmoduls.
+Das Diagnosemodul lädt ebenfalls ohne Versions- oder Symbolfehler.
+Die Diagnosemeldung bestätigt `PAD_GPIO=0x00000000; forcing 233`.
+Der Treiber meldet 233-Build-Time `20260311120705a`.
+Patchstart und Semaphore-Freigabe scheitern trotzdem mit denselben MCU-Timeouts.
+Die Geräteprobe endet bei 32080,089289 Sekunden mit `-11`.
+WM-, DSP- und WA-Initialisierung werden nicht erreicht; `iw dev` bleibt leer.
+Der Diagnose-Trace enthält 20 Ereignisse ohne Überlauf oder verlorene Ereignisse.
+
+Beide `insmod`-Befehle liefern Status null; dieser Status bestätigt nur die Modulinitialisierung.
+Die PCIe-Geräteproben scheitern unabhängig davon.
+Trace, Statistik, Dmesg und Radiostatus liegen getrennt unter `result-baseline` und `result-forced` im Diagnoseverzeichnis.
+Beide PCIe-Links melden weiterhin 8,0 GT/s und zwei Lanes.
+Beide EEPROM-Hashes und das installierte Originalmodul bleiben unverändert.
+Die eigene Trace-Aufzeichnung wird nach jedem Test deaktiviert.
+Das Diagnosemodul wird nach der abschließenden Prüfung wieder entladen.
+
+Die erzwungene Firmwarevariante allein behebt den vorhandenen Fehlerzustand in diesem Laufzeitvergleich nicht.
+Dieser Versuch beweist nicht, dass die erste 233-Probe nach einem Kaltstart ebenfalls scheitert.
+Vor beiden Tests gab es bereits fehlgeschlagene Geräteproben im selben Boot.
+Ein frischer Kaltstart muss diesen möglichen Einfluss gesondert prüfen.
+
+Status: **MODULE LOAD PASS / BOTH WIFI FAIL / COLD FIRST233 TEST REQUIRED**.

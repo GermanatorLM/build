@@ -352,6 +352,7 @@ Nachtragen der eigenen SHA.
 | 117 | `SELF` | Separater 233-Diagnosetreiber vorbereitet. Exakte Kernelquelle und Image-Konfiguration bestätigt; Originalmodul extrahiert. Board besitzt keine Builddateien. Lokaler Bau wartet auf pkexec | Quellen-/Modulprüfung, Diagnosepatch, Bring-up-Dokumentation | DIAGNOSTIC PREPARED / BUILD AUTHENTICATION PENDING |
 | 118 | `SELF` | Authentifizierung startet ersten lokalen Modulbau. Build scheitert an fehlenden Generatorquellen; pahole fehlt ebenfalls. Quellen und Buildentwurf korrigiert, erneute Authentifizierung ausstehend | Buildausgabe, Konfigurationsvergleich, Bring-up-Dokumentation | FIRST MODULE BUILD FAIL / CORRECTED BUILD PENDING |
 | 119 | `SELF` | Lokaler Vergleichs- und 233-Modulbau gelingt nach ergänzten BTF-, Scheduler- und vDSO-Quellen. Vergleichscode entspricht Original. Modulstruktur und Konfiguration geprüft | ELF-/Konfigurationsprüfung, Buildausgaben, Bring-up-Dokumentation | DIAGNOSTIC MODULE BUILD PASS |
+| 120 | `SELF` | Vergleichstreiber reproduziert 444-Fehler. Erzwungener 233-Payload scheitert ebenfalls bei erneuter Laufzeitprobe. Beide Module laden korrekt; Originaldatei und EEPROMs unverändert | UART, zwei Registertraces, Bring-up-Dokumentation | MODULE LOAD PASS / BOTH WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 
