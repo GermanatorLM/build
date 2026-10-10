@@ -4002,3 +4002,109 @@ Der Nachweis umfasst einen Kaltstart und eine Treiber-Neuladung, keinen Langzeit
 Der nächste gezielte Versuch muss den ROM-Patchstart untersuchen; ein Wi-Fi-Scan ist ohne Radio nicht möglich.
 
 Status: **RELOAD GUARD PASS / FIRMWARE HASH PASS / WIFI INIT FAIL / HW PASS OFFEN**.
+
+## 123. MCU-Rückgabetrace und isolierter ROM-Patchvergleich
+
+Der Nutzer erlaubt ausdrücklich Schreibtests auf dem wiederherstellbaren Boardimage.
+Branch `bpi-r4pro-8x-7.3-rc6` und sauberer Arbeitsbaum werden geprüft.
+Das bestehende UART-Log aus Abschnitt 121 erfasst die Untersuchung.
+Das Board speichert getrennte Traces unter `/root/r4pro-rc6-deep-01`.
+Eine eigene Trace-Instanz verwendet 4096 KiB pro CPU.
+Neun Kprobe-/Kretprobe-Ereignisse erfassen MCU-Antworten, Semaphore, Downloadanforderung, Scatter-Senden und Patch-Finish.
+Das Ereignis `mt76:dev_irq` erfasst die zugehörigen Interrupts.
+Die Trace-Definitionen verändern keine Treiberlogik.
+
+Die Originalprobe beginnt bei 528.03 Sekunden.
+Der Original-ROM-Patch besitzt SHA256 `b0e5d7794d5101268a6d4bcba31bef8d8b908104ec4d7bec439b95d5fb888f3f`.
+Der Trace erfasst folgende Rückgaben:
+
+| Stufe | Rückgabe | Beobachtung |
+| --- | --- | --- |
+| Semaphore anfordern | `2` | `PATCH_NOT_DL_SEM_SUCCESS`; MCU-RX-Ereignis vorhanden |
+| Download anfordern | `0` | Adresse `0x900000`, Länge 37056, Modus `0x80000009`; MCU-RX-Ereignis vorhanden |
+| Scatter senden | `0` | Befehl `0xee`, Länge 37056; TX-Interrupts vorhanden |
+| Patch-Finish | `-110` | Befehl `0x07`; keine weitere MCU-RX-Antwort im Trace |
+| Semaphore freigeben | `-110` | Befehl `0x10`; ebenfalls keine MCU-RX-Antwort |
+
+Die Probe endet bei 538.249 Sekunden mit `-11`.
+Die fehlgeschlagene Semaphorefreigabe überschreibt den ursprünglichen Timeout-Rückgabewert im untersuchten Treiberpfad.
+Das erklärt den abschließenden Fehlercode, nicht die Ursache des Patchstartfehlers.
+Die frühen MCU-Antworten widerlegen einen vollständig ausgefallenen Kommunikationsweg während dieser Probe.
+Der erfolgreiche Scatter-Rückgabewert beweist weder korrekte MCU-Speicherdaten noch erfolgreiche Patchausführung.
+Der Originaltrace enthält 32 Ereignisse ohne Überlauf, verworfene Ereignisse oder verpasste Kretprobes.
+
+Der nächste Vergleich ersetzt ausschließlich die unsuffigierte ROM-Datei durch den vorhandenen 233-ROM-Patch.
+Das Original bleibt separat gesichert; ein EXIT-Trap stellt das Original automatisch wieder her.
+WM-, WA-, DSP-Dateien, Treibervariante und Kalibrationsdateien bleiben unverändert.
+Der Test ist ein isolierter Patchstartvergleich, keine vollständige 233-Treiberkonfiguration.
+Der 233-ROM-Patch besitzt SHA256 `14220455d9975e0ee901f4c905bf0eb2aeaf767c6f5443169a551af44c22e72b`.
+Die Probe beginnt bei 595.09 Sekunden und bestätigt Build Time `20260311120705a`.
+Die Treibervariante bleibt ausdrücklich 444; `MT_PAD_GPIO` bleibt null.
+Alle fünf Stufen liefern dieselben Rückgaben wie beim Original-ROM-Patch.
+Die Probe endet bei 605.289 Sekunden erneut mit `-11`; kein Radio erscheint.
+Dieser Trace enthält ebenfalls 32 Ereignisse ohne Überlauf oder verworfene Ereignisse.
+Der Vergleich läuft nach früheren fehlgeschlagenen Proben; er ersetzt keinen frischen Kaltstartvergleich.
+
+Die Originaldatei wird byteidentisch zurückgestellt.
+Alle 15 Firmwaredateien bestehen anschließend erneut die Image-Prüfsummen.
+Beide ROM-Dateien umfassen 37216 Bytes und enthalten genau einen gültig begrenzten Downloadbereich.
+Bereichsoffset: `0xa0`; Bereichslänge: `0x90c0`; Zieladresse: `0x900000`; Schlüsselinfo: `0x01000000`.
+Diese Strukturprüfung bestätigt Dateigrenzen, nicht kryptografische oder hardwarebezogene Kompatibilität.
+Alle neun Diagnoseprobes werden entfernt; die eigene Trace-Instanz bleibt deaktiviert.
+Es erfolgt kein EEPROM- oder Flash-Schreibzugriff und kein PCIe-Busreset.
+
+Status: **MCU EARLY RESPONSE PASS / BOTH ROM START FAIL / FIRMWARE RESTORE PASS**.
+
+## 124. Versorgungsschaltplan und fehlgeschlagener Gen1-Linktest
+
+Der Hersteller-Schaltplan wird heruntergeladen und visuell geprüft.
+Quelle: https://drive.google.com/file/d/1u_o2giOYb0oZ2j2-cl8OjmO-AI4aX2x-/view
+Lokale Datei: `/home/lukas/Work/bpi-r4pro8x-schematic-download`.
+PDF-Titel: `bpi-r4pro-v10-sch-20250806-redu`; 18 PDF-Seiten.
+PDF-Seiten 5 und 15 zeigen Slot-Versorgung und PCA9555-Zuordnung.
+Die Zuordnung beschreibt diesen V1.0-Schaltplan; die tatsächlich bestückte Revision wird nicht eigenständig bestätigt.
+
+`mPCIe_A_PDN` und `mPCIe_B_PDN` führen zu separaten Slot-Spannungsreglern.
+Der PCA9555 stellt diese Signale als Leitungen 8 und 9 bereit.
+Die Wi-Fi-12-V-Versorgung verwendet dagegen SW4 und Q20/Q21.
+Ein Umschalten der beiden PDN-Leitungen garantiert deshalb keinen vollständigen BE14-Versorgungsausfall.
+Die Vset-Leitungen verändern die Slot-Spannung und eignen sich nicht als allgemeiner Reset.
+Die lesende Prüfung verwendet `gpioget --as-is` und erhält die Eingangskonfiguration.
+Leitung 7 meldet inaktiv; Leitungen 8 und 9 melden aktiv.
+Es erfolgt kein GPIO-, Spannungswahl- oder I2C-Register-Schreibtest.
+
+Ein separater Test soll PCIe-Signalrate als Einfluss auf den Patchdownload prüfen.
+Das lokale Hilfsscript heißt `/home/lukas/Work/bpi-r4pro8x-pcie-rate-test.py`.
+Host- und Boardscript besitzen SHA256 `f0aef855f497afa46c20e627d50226bd6a434e3f800c4d50d0bc967a49900c57`.
+Die Syntaxprüfung besteht auf Host und Board.
+Das Script prüft Boardkennung, Rootport-IDs, PCIe-Capability und entladenes MT7996-Modul.
+Es sichert beide ursprünglichen Link-Control-2-Werte `0x43` vor dem ersten Schreibzugriff.
+Es ändert nur Zielrate und Retrain-Bit, nicht PCIe-Resetmethoden oder Spannungen.
+
+Bei 796.314 Sekunden fällt der primäre Link bereits beim ersten Retraining aus.
+Der Kernel meldet fatalen AER-Fehler `SDES`, also Surprise Down.
+Die automatische AER-Recovery versucht einen Rootport-Linkreset und scheitert mit `-25`.
+Ein Firmwaretest bei Gen1 findet deshalb nicht statt.
+Der zweite Rootport erhält keinen Gen1-Schreibzugriff.
+Das Script bricht ab; der EXIT-Trap versucht die Rückstellung.
+Die primäre Verbindung erreicht trotz Rückstellung nicht wieder Gen3.
+Die Abschlussprüfung bestätigt beide Link-Control-2-Werte erneut als `0x43`.
+Der primäre Linkstatus bleibt `0x1801`; Link Active fehlt und die Lanezahl beträgt null.
+Der zweite Linkstatus bleibt `0x3023`, entsprechend Gen3 mit zwei Lanes und aktivem Link.
+Das MT7996-Modul bleibt nach der fehlgeschlagenen Wiederherstellung entladen.
+
+Nach 822.86 Sekunden bleibt Linux `running`; null Units sind fehlgeschlagen und der Kernel-Taint beträgt null.
+Alle Firmwarehashes stimmen weiterhin; die Diagnoseprobes sind entfernt.
+Der Linkraten-Test verursacht einen zusätzlichen Laufzeitfehler und erklärt den ursprünglichen Patchstartfehler nicht.
+Weitere Laufzeit-Linktests und Busreset-Versuche werden gestoppt.
+Eine vollständige Stromtrennung muss den primären PCIe-Link wiederherstellen.
+Linux erhält nach Synchronisierung einen sauberen Shutdown-Befehl.
+Bei 881.422 Sekunden bestätigt Linux `All filesystems unmounted`; die SD-Rootpartition ist read-only.
+Bei 881.545 Sekunden folgt `Power down`.
+TF-A meldet danach den bekannten Fehler `Power-down unsupported` und Panic bei `0x43004898`.
+Dies ist keine Linux-Laufzeit-Panic; die physische Versorgung bleibt bis zur Stromtrennung vorhanden.
+Die UART-Aufzeichnung bleibt für Shutdown und anschließenden Kaltstart aktiv.
+Es entsteht keine persistente Linkraten-Konfiguration im Image.
+Originalimages, Rohlogs und Diagnoseergebnisse bleiben erhalten.
+
+Status: **GEN1 RETRAIN FAIL / LINK SETTINGS RESTORED / PRIMARY LINK DOWN / POWER CYCLE REQUIRED**.
