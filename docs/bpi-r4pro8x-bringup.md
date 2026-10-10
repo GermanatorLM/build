@@ -3142,3 +3142,25 @@ Das Boarddatum im Verzeichnisnamen weicht von der Hostzeit ab.
 Der Versuch deaktiviert anschließend Trace und Ereignisse und entlädt das Originalmodul.
 
 Status: **MCU TRACE PASS / ORIGINAL WIFI FAIL / CAUSE OPEN**.
+
+## 95. Original-Initramfs für den nächsten Kaltstart wiederhergestellt
+
+Der nächste Vergleich entfernt den Einfluss der frühen Trace-Vorbereitung.
+Alle drei Dateien in `/root/r4pro-early-trace-backup/SHA256SUMS` bestehen die Hashprüfung.
+Die aktuelle Extlinux-Konfiguration entspricht bereits der ursprünglichen Sicherung.
+Die Diagnose-Initramfs-Dateien und beide Diagnose-Hooks bleiben im Ergebnisverzeichnis aus Abschnitt 94 gesichert.
+Die ursprünglichen Dateien ersetzen Initrd und uInitrd; byteweise Vergleiche mit den Sicherungen bestehen.
+Initrd-SHA256: `0246fa6e0bdc53cc7309b457c80b31d3cc7af9c94b8e28f43f1e0b3a58111baf`.
+uInitrd-SHA256: `199d837901abf86fd87a90e9890e7702a6e0781cd013fe98d7954d113737f46b`.
+Die Diagnose-Hooks verlassen ihre aktiven Initramfs-Verzeichnisse und bleiben wiederherstellbar erhalten.
+Beide Wi-Fi-Testtimer melden `disabled`; die Modprobe-Sperren fehlen.
+Kernel, DTB, Firmware und EEPROMs bleiben unverändert.
+Dieser Schritt spielt kein neues Rohimage auf und verspricht keinen Wi-Fi-Erfolg.
+
+Linux bestätigt vollständig ausgehängte Dateisysteme bei 427,510735 Sekunden.
+TF-A meldet weiterhin `Power-down unsupported`.
+Der Nutzer muss die Stromversorgung vollständig trennen und USB-Rückspeisung ausschließen.
+Der nächste Kaltstart soll mit unveränderter Bestückung und SD erfolgen.
+Der bestehende UART-Recorder bleibt für den Vergleich aktiv.
+
+Status: **ORIGINAL INITRAMFS RESTORED / COLD START PENDING**.
