@@ -3450,3 +3450,22 @@ GitHub Actions übernimmt den vollständigen Build mit seinem eigenen Toolchain-
 Ein vollständiger Kernelbuild und Hardwaretests stehen noch aus.
 
 Status: **STATIC / PATCH / DT PASS / BUILD PENDING / HW UNTESTED**.
+
+## 105. Erster rc6-Imagebuild gestartet
+
+Commit `eb42b5284e7cdb8c7201a09c60183f26b34b735a` enthält die rc6-Portierung.
+Der Commit ist auf `origin/bpi-r4pro-8x-7.3-rc6` gepusht.
+Der alte Branch bleibt unverändert.
+Der manuelle Actions-Aufruf wählt `firmware_mode=latest`.
+Der Firmwareinstaller löst die Quelle während dieses Builds erneut auf und auditiert die tatsächlichen Payloads.
+Ein unveränderter Firmware-HEAD kann weiterhin bytegleiche Payloads liefern.
+
+Run: `38051805424`.
+URL: https://github.com/GermanatorLM/build/actions/runs/38051805424
+GitHub bestätigt `workflow_dispatch`, den richtigen Branch und den richtigen Build-Commit.
+Der Actions-Preflight besteht erfolgreich.
+Der Imagejob läuft mit `latest`; die Runner-Vorbereitung beginnt.
+Der Run ist gestartet; ein vollständiges Ergebnis liegt noch nicht vor.
+Es erfolgt keine SD-Schreiboperation und kein Board-Reset.
+
+Status: **BUILD STARTED / RESULT PENDING / HW UNTESTED**.

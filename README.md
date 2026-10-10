@@ -370,6 +370,7 @@ Nachtragen der eigenen SHA.
 | 131 | `SELF` | Nutzer verwirft Löschung. Neuer Entwicklungsbranch `bpi-r4pro-8x-7.3-rc6` entsteht aus dem aktuellen Stand. Dateien und Historie bleiben erhalten. Ziel ist exaktes 7.3-rc6; Buildkonfiguration noch unverändert | Git-Branch, Bring-up-Dokumentation Abschnitt 102 | NEW BRANCH / RC6 MIGRATION PENDING |
 | 132 | `SELF` | Offizielles rc6 aufgelöst. Franks rc1 enthält 153 Zusatzcommits. Separater Prüfcheckout exportiert Erweiterungen; erster rc6-Objektdownload bei Frank scheitert. Downloadquelle korrigiert | Kernelquellenvergleich, Bring-up-Dokumentation Abschnitt 103 | SOURCE VERIFIED / PORT TEST PENDING |
 | 133 | `SELF` | Exaktes rc6 ersetzt die 6.18-Quelle nur im neuen Branch. Frank-Erweiterungen erhalten rc6-Konfliktkorrekturen. Neue 8X-Port- und Wi-Fi-Diagnosepatches; native EEPROM-Auswertung statt alter RF-Dateierweiterung | Neuer board-lokaler Patchsatz, Versionsschutz, sequenzieller Patchtest, DTB und SD-Overlay, Abschnitt 104 | STATIC / PATCH / DT PASS; BUILD offen |
+| 134 | `SELF` | rc6-Portierung `eb42b5284` auf den neuen Branch gepusht. Manueller Trixie-Minimal-Build mit Firmwaremodus `latest` startet als Run `38051805424` | GitHub Actions, Bring-up-Dokumentation Abschnitt 105 | BUILD STARTED; Ergebnis offen |
 
 ## Verbindliche Regel für kommende Änderungen
 
