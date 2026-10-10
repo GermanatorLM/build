@@ -388,6 +388,7 @@ Nachtragen der eigenen SHA.
 | 148 | `SELF` | Run `38082815846` erfolgreich. Korrigierter Schutzpatch angewendet; MT7996-Modul und vollständiges rc6-Trixie-Image gebaut. Latest-Firmware bleibt auf afabaf77 mit 15 Payloads. Buildlogs gesichert; Image-Download gestartet | Actions und Buildlogs, Bring-up-Dokumentation Abschnitt 119 | GUARD BUILD PASS / DOWNLOAD PENDING / HW TEST PENDING |
 | 149 | `SELF` | Erster Downloadprozess endet vor Abschluss. Neuer Download gelingt; Image-SHA256 stimmt. Nach pkexec-Freigabe auf die eindeutig identifizierte 64-GB-SD geschrieben. Vollständiger Image-Rücklesevergleich besteht | Imagehash, SD-Schreiben und Rücklesen, Bring-up-Dokumentation Abschnitt 120 | DOWNLOAD / SD WRITE / READBACK PASS |
 | 150 | `HW` | Erster Schutzpatch-Kaltstart ohne Modulsperre erreicht Root-Shell und running nach 89 Sekunden. Wi-Fi-Probe endet mit -11 statt Recovery-Schleife und Panic. Kein Wi-Fi-Radio. Portnamen und EEPROM-MACs stimmen; HaLow-Sende-Timeouts bleiben | UART und Systemstatus, Bring-up-Dokumentation Abschnitt 121 | FIRST GUARD BOOT PASS / WIFI INIT FAIL / HW PASS offen |
+| 151 | `HW` | Kontrollierte MT7996-Neuladung reproduziert Patchstartfehler ohne Panic. System bleibt nach 334 Sekunden running; Kernel-Taint null. Alle 15 Firmwarehashes stimmen. Kein Wi-Fi-Radio; keine Firmwareänderung und kein Busreset | UART, Firmwareaudit, Bring-up-Dokumentation Abschnitt 122 | RELOAD GUARD PASS / FIRMWARE HASH PASS / WIFI INIT FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 

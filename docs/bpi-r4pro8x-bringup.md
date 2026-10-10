@@ -3964,3 +3964,41 @@ Dieser Nachweis gilt für einen Kaltstart; Wiederholungs-, Warmstart- und Langze
 Der nächste Wi-Fi-Schritt untersucht den ursprünglichen Patchstartfehler ohne die bisherige Panic-Schleife.
 
 Status: **FIRST GUARD BOOT PASS / EARLY PANIC GUARD PASS / WIFI INIT FAIL / HW PASS OFFEN**.
+
+## 122. Kontrollierte MT7996-Neuladung und Firmwareaudit
+
+Der Nutzer verlangt weitere Tests im laufenden Schutzpatch-Kaltstart.
+Das UART-Log aus Abschnitt 121 zeichnet alle Testausgaben weiter auf.
+Die Ausgangsprüfung bestätigt nach 228.83 Sekunden `running` und null fehlgeschlagene Units.
+Beide PCIe-Funktionen bleiben sichtbar: `0000:01:00.0` mit `14c3:7990` und `0001:01:00.0` mit `14c3:7991`.
+Der Haupttreiber ist nach der fehlgeschlagenen Probe nicht gebunden; der HIF-Treiber bleibt gebunden.
+Beide PCIe-Funktionen melden `power/control=on` und `runtime_status=active`.
+`lspci` und `rfkill` fehlen im Minimalimage; sysfs und `iw` liefern die verfügbaren Nachweise.
+
+Eine normale Modulentladung beginnt bei 251.12 Sekunden und endet mit Exitcode 0.
+Die anschließende Modulladung meldet ebenfalls Exitcode 0, obwohl die Geräteprobe fehlschlägt.
+Die Probe meldet erneut Variante 444 und `MT_PAD_GPIO=0` vor und nach dem Wi-Fi-Reset.
+Sie verwendet unverändert `mediatek/mt7996/mt7996_rom_patch.bin`, Build Time `20260311120419a`.
+Message 7 läuft bei 256.489 Sekunden ab; `Failed to start patch` folgt.
+Message 10 läuft bei 261.529 Sekunden ab; die Semaphorefreigabe scheitert ebenfalls.
+Die Geräteprobe endet erneut mit `-11`.
+`iw dev`, `iw phy` und `/sys/class/ieee80211` zeigen kein Radio.
+Die verzögerte Neuladung behebt den Patchstartfehler nicht.
+
+Das Firmwareaudit bestätigt Modus `latest` und Commit `afabaf773c4c2e2c841429933a6a084a5af4d14d`.
+`sha256sum -c` bestätigt alle 15 installierten Payloads mit Exitcode 0.
+Dieser Vergleich bestätigt die Übereinstimmung mit dem Imageaudit, nicht die Hardwarekompatibilität.
+Nach 333.64 Sekunden bleibt das System `running`; null Units sind fehlgeschlagen.
+Der Kernel-Taint beträgt null.
+Die Prüfung erfolgt über 82 Sekunden nach Beginn der erneuten Probe.
+Das Log enthält keine Recovery-Schleife, keinen Hardware-Restart, keine Oops und keine Kernel-Panic.
+Die AER-Ausgabe enthält nur die ursprünglichen Aktivierungsmeldungen, keine neue Fehlerfolge.
+Portnamen und EEPROM-MACs bleiben unverändert.
+
+Der Test verändert keine Firmwaredateien und verwendet weder PCIe-Busreset noch erzwungene Modulentladung.
+Es erfolgt kein Neustart und kein manueller Flash- oder EEPROM-Schreibzugriff.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+Der Nachweis umfasst einen Kaltstart und eine Treiber-Neuladung, keinen Langzeit- oder Warmstarttest.
+Der nächste gezielte Versuch muss den ROM-Patchstart untersuchen; ein Wi-Fi-Scan ist ohne Radio nicht möglich.
+
+Status: **RELOAD GUARD PASS / FIRMWARE HASH PASS / WIFI INIT FAIL / HW PASS OFFEN**.
