@@ -2882,3 +2882,41 @@ Der nächste Boot verwendet wieder die reguläre automatische Wi-Fi-Probe mit fr
 Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
 
 Status: **BOOT PASS / TIMING TEST PASS / WIFI FAIL / CAUSE OPEN**.
+
+## 88. Vorbereitung des getrennten 233-Diagnosetreibers
+
+Der Nutzer beauftragt den vorgeschlagenen 233-Diagnosetest.
+Die Boardprüfung findet weder Compiler noch Kernel-Builddateien unter `/usr/src`.
+Das laufende Image stammt weiterhin aus Run `37975601363`.
+Das Actions-Log bestätigt Kernelcommit `e69eb61a1523c5e993803c05a42c55c7576b07d3`.
+Die archivierte Image-Konfiguration dient als Buildgrundlage.
+Module aus neueren Images werden wegen abweichender Konfiguration nicht übernommen.
+
+Das lokale Arbeitsverzeichnis heißt `bpi-r4pro8x-force233.5mRsJV`.
+Das unveränderte Originalmodul wird aus dem archivierten Root-Dateisystem extrahiert.
+Das komprimierte Originalmodul trägt SHA256 `242b8725e07ca2719f71c37bf40b0659a793db16eb5957cdfb8e011eaf7bff56`.
+Sein Vermagic lautet `6.18.53-current-filogic SMP mod_unload aarch64`.
+Die ELF-Modulstruktur umfasst `0x4c0` Bytes.
+Die Konfiguration deaktiviert Modulversionen und aktiviert Modul-BTF.
+Diese Prüfungen ersetzen noch keine ABI-Prüfung eines neu gebauten Moduls.
+
+Ein separater Diagnosepatch erzwingt 233 nur für Boardkennung `bananapi,bpi-r4-pro-8x` und MT7996.
+Der Patch erhält den Registerzugriff und protokolliert dessen unveränderten Wert.
+Der Patch verändert keine Firmwaredateien und keine EEPROMs.
+Der Anwendungstest mit `patch --dry-run` besteht.
+Der Patch liegt außerhalb des aktiven Repository-Patchverzeichnisses.
+Er wird weder als allgemeiner Fix aktiviert noch auf dem Board installiert.
+
+Der Host besitzt keinen AArch64-GCC und keinen direkten Docker-Zugriff.
+Eine `pkexec`-Anfrage zur Prüfung vorhandener Docker-Images wartet auf lokale Authentifizierung.
+Ein separater Buildentwurf verwendet Ubuntu-GCC 13 und die Image-Konfiguration.
+ShellCheck besteht für den Buildentwurf.
+Ein vollständiger Archivdownload wird zugunsten eines selektiven Quellenabrufs gestoppt.
+Das unvollständige Downloadartefakt bleibt erhalten.
+Der selektive Abruf lädt nur Build-relevante Dateien am bestätigten Commit nach.
+
+Der Modultest wurde noch nicht ausgeführt.
+Der getrennte Modulbau und dessen ABI-Prüfungen stehen aus.
+Das Board bleibt eingeschaltet; sein Originaltreiber und seine Bootdateien bleiben unverändert.
+
+Status: **DIAGNOSTIC PREPARED / BUILD AUTHENTICATION PENDING / RUNTIME TEST PENDING**.

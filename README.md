@@ -349,6 +349,7 @@ Nachtragen der eigenen SHA.
 | 114 | `SELF` | Korrigierte frühe Aufzeichnung funktioniert beim Kaltstart. Erste reguläre Probe liest Variantenregister null und scheitert mit 444. Erfolgreiche 233-Messung fehlt weiterhin | Vollständiges Bootlog, Registertrace, Bring-up-Dokumentation | EARLY TRACE PASS / WIFI FAIL / CAUSE OPEN |
 | 115 | `SELF` | Lokaler Timing-Test verhindert automatische mt7996e-Probe. Timer startet erste explizite Probe nach 90 Sekunden und sichert Registertrace. Board heruntergefahren | Timer-/Scriptprüfung, UART, Bring-up-Dokumentation | DELAYED FIRST PROBE PREPARED / COLD BOOT PENDING |
 | 116 | `SELF` | Verzögerte erste Probe startet bei 90,9 Sekunden. Variantenregister bleibt null; 444-Probe scheitert erneut. Trace gesichert, Timer deaktiviert, Ladesperre archiviert | Vollständiges Bootlog, Registertrace, Bring-up-Dokumentation | TIMING TEST PASS / WIFI FAIL / CAUSE OPEN |
+| 117 | `SELF` | Separater 233-Diagnosetreiber vorbereitet. Exakte Kernelquelle und Image-Konfiguration bestätigt; Originalmodul extrahiert. Board besitzt keine Builddateien. Lokaler Bau wartet auf pkexec | Quellen-/Modulprüfung, Diagnosepatch, Bring-up-Dokumentation | DIAGNOSTIC PREPARED / BUILD AUTHENTICATION PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
