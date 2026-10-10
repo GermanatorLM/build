@@ -2215,3 +2215,22 @@ Das lokale Audit liegt unter `bpi-r4pro8x-images/run-38003437809/audit.SYCQuL`.
 Die Hardwaremessung benötigt weiterhin das neue Image auf SD.
 
 Status: **BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING**.
+
+## 69. Reset-Diagnoseimage auf SD geschrieben
+
+Der Nutzer bestätigt das Überschreiben der eingelegten SD mit dem neuen Diagnoseimage.
+Gerätekennung, USB-Pfad, Modell und Größe identifizieren erneut ausschließlich `/dev/sdb`.
+Die SD umfasst 63864569856 Bytes und meldet `Generic_STORAGE_DEVICE-0:0`.
+Die direkte UUID-Schutzprüfung bestätigt das bisherige Rootfs `86d96695-2d54-463e-8ace-d14d22e7226c`.
+Ein unprivilegierter Cachewert zeigt weiterhin die ältere UUID; der Schreibschutz verwendet deshalb `blkid -p`.
+
+Das Image aus Run `38003437809` überschreibt das bisherige SD-Image nach Administratorfreigabe.
+Der Schreibvorgang umfasst 1480589312 Bytes und dauert rund 49 Sekunden.
+Die vollständige Rückleseprüfung stimmt mit der Image-Prüfsumme überein.
+SHA256: `88c43d9d1d7a750f76de830f54e36474317f9564df1d79346cf38ca6dbd1b46a`.
+`udisksctl power-off` schaltet den Kartenleser sicher ab; `/dev/sdb` verschwindet anschließend aus der Geräteliste.
+Das lokale Schreiblog heißt `bpi-r4pro8x-flash-38003437809.log`.
+Andere Host-Laufwerke, eMMC, NAND und NOR bleiben unverändert.
+Der nächste Hardwaretest erfasst das Variantenregister vor und nach dem internen Wi-Fi-Reset beim vollständigen Kaltstart.
+
+Status: **SD FLASH PASS / RESET COMPARISON PENDING**.

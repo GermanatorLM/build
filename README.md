@@ -330,6 +330,7 @@ Nachtragen der eigenen SHA.
 | 95 | `SELF` | Kaltstart stellt Wi-Fi-PCIe-Erkennung nach Bus-Reset wieder her. Keine erneute AER-Fehlerserie im Bootlog. Wi-Fi-Probe scheitert unverändert | UART-Wiederherstellungsboot, Bring-up-Dokumentation | BOOT PASS / PCIE RECOVERY PASS / WIFI FAIL |
 | 96 | `SELF` | Board-lokale Diagnose liest MT_PAD_GPIO vor und nach internem Wi-Fi-Reset. Resetfolge und Variantenauswahl bleiben erhalten. Patch- und C-Tests bestehen | Wi-Fi-Patch, Preflight, Bring-up-Dokumentation | STATIC PASS / BUILD AND RESET COMPARISON PENDING |
 | 97 | `SELF` | Diagnosebuild 38003437809 besteht Preflight und Imagebau. Download und Imageaudit bestehen. Neue Resetmeldung im gebauten Treiber bestätigt | GitHub Actions, Buildlog, Imageaudit, UART | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
+| 98 | `SELF` | Geprüftes Reset-Diagnoseimage auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / RESET COMPARISON PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
