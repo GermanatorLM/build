@@ -4151,3 +4151,28 @@ Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
 Die Originaldiagnosen und der fehlgeschlagene Gen1-Test bleiben vollständig dokumentiert.
 
 Status: **PCIE RECOVERY PASS / SECOND GUARD COLD BOOT PASS / WIFI INIT FAIL / LED RESTORE FAIL**.
+
+## 126. R4-Pro-lokaler LED-Restore-Override
+
+Der neue Wrapper überspringt leere `device_name=`-Werte ausschließlich innerhalb gespeicherter Netdev-LED-Abschnitte.
+Der Wrapper übergibt eine temporäre Kopie an den unveränderten Armbian-Restore-Helfer.
+Die gespeicherte Konfiguration bleibt unverändert; andere Syntaxfehler bleiben Fehler.
+Der Board-Hook installiert den Wrapper und einen lokalen systemd-Override.
+Die allgemeine Filogic-Family und die Armbian-Helfer bleiben unverändert.
+
+Fixturetests bestätigen leere Netdev-Namen, gültige Namen, fehlende Konfiguration und die Ablehnung anderer Syntaxfehler.
+Die Tests prüfen unveränderte Eingabedaten und entfernte temporäre Dateien.
+Preflight, Bash-Syntaxprüfung und gezielter Shellcheck bestehen.
+Ein erster Shellcheck-Aufruf ohne Bash-Sprachwahl beanstandet die CSC-Metadaten; der gezielte Script-Aufruf besteht.
+
+Der Laufzeittest sichert `/etc/armbian-leds.conf` unter `/root/r4pro-led-fix-backup/`.
+Die Übertragung besteht SHA256-Prüfungen vor der Installation.
+`systemctl start armbian-led-state.service` besteht; der Dienst meldet `active`.
+Systemd meldet `running` und null fehlgeschlagene Units.
+`cmp` bestätigt die unveränderte gespeicherte Konfiguration.
+Die Prüfsummen beider allgemeinen Armbian-Helfer bleiben unverändert.
+UART zeichnet im Log aus Abschnitt 125 weiter auf.
+Dieser Test bestätigt die Laufzeitkorrektur, nicht einen neuen Image-Kaltstart.
+Wi-Fi bleibt ohne Radio; dieser Fix verändert keine Firmware oder PCIe-Einstellung.
+
+Status: **STATIC PASS / LED RUNTIME PASS / IMAGE BUILD PENDING / COLD BOOT PENDING**.

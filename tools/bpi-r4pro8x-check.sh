@@ -66,6 +66,16 @@ bash -n "${family}"
 bash -n "${firmware_installer}"
 pass "Bash syntax for board, family and firmware installer"
 
+led_package="packages/bpi-r4pro8x-led"
+[[ -f "${led_package}/restore.sh" && -f "${led_package}/restore.conf" ]] || fail "LED restore override missing"
+grep -q 'bpi-r4pro8x-led' "${board}" || fail "LED restore override is not installed"
+bash -n "${led_package}/restore.sh"
+bash tools/bpi-r4pro8x-led-test.sh
+if command -v shellcheck >/dev/null; then
+	shellcheck "${led_package}/restore.sh" tools/bpi-r4pro8x-led-test.sh
+fi
+pass "board-local LED restore override and regression tests"
+
 for mac_script in common.sh import-openwrt.sh apply.sh names.sh provision.sh; do
 	[[ -f "${mac_package}/${mac_script}" ]] || fail "MAC script missing: ${mac_script}"
 	sh -n "${mac_package}/${mac_script}"
@@ -165,6 +175,10 @@ pass "board-local PTP clock support and linuxptp tools"
 
 if [[ -n "${image_root}" ]]; then
 	[[ -d "${image_root}" ]] || fail "image root not found: ${image_root}"
+	cmp -s "${led_package}/restore.sh" "${image_root}/usr/lib/bpi-r4pro8x-led/restore.sh" || fail "LED wrapper mismatched"
+	cmp -s "${led_package}/restore.conf" "${image_root}/etc/systemd/system/armbian-led-state.service.d/r4pro-restore.conf" ||
+		fail "LED service override mismatched"
+	pass "board-local LED restore installed in image"
 	for mac_script in common.sh import-openwrt.sh apply.sh names.sh provision.sh; do
 		cmp -s "${mac_package}/${mac_script}" "${image_root}/usr/lib/bpi-r4pro8x-mac/${mac_script}" ||
 			fail "MAC script missing or mismatched in image: ${mac_script}"

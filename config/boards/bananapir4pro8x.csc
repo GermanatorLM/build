@@ -29,6 +29,14 @@ function post_family_tweaks__bpi_r4pro_8x() {
 
 	display_alert "${BOARD}" "Applying BPI-R4 Pro 8X image tweaks" "info"
 
+	# Preserve generic LED helpers; filter unassigned netdev names locally.
+	local led_package="${SRC}/packages/bpi-r4pro8x-led"
+	install -d "${SDCARD}/usr/lib/bpi-r4pro8x-led" \
+		"${SDCARD}/etc/systemd/system/armbian-led-state.service.d"
+	install -m 0644 "${led_package}/restore.sh" "${SDCARD}/usr/lib/bpi-r4pro8x-led/restore.sh"
+	install -m 0644 "${led_package}/restore.conf" \
+		"${SDCARD}/etc/systemd/system/armbian-led-state.service.d/r4pro-restore.conf"
+
 	# Provision an empty board EEPROM once, before network startup.
 	local mac_package="${SRC}/packages/bpi-r4pro8x-mac"
 	install -d "${SDCARD}/usr/lib/bpi-r4pro8x-mac" \
