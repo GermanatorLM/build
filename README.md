@@ -342,6 +342,7 @@ Nachtragen der eigenen SHA.
 | 107 | `SELF` | Angefordertes Kalt-/Warmvergleichspaar abgeschlossen. Beide Starts wählen 444-Payload und scheitern mit -11. Firmware- und EEPROM-Prüfungen bestehen | Durchgehendes UART-Log, Bring-up-Dokumentation | COLD AND WARM BOOT PASS / WIFI FAIL / CAUSE OPEN |
 | 108 | `SELF` | Erstes Vergleichspaar mit wieder eingesetzten Modulen reproduziert Wi-Fi-444-Timeout in Kalt- und Warmstart. Linux heruntergefahren; zweites Paar vorbereitet | Separates UART-Log, Bring-up-Dokumentation | PAIR 1 BOOT PASS / WIFI FAIL / PAIR 2 PENDING |
 | 109 | `SELF` | Zweites Paar abgeschlossen. Alle vier Starts mit eingesetzten Modulen wählen 444-Payload und scheitern mit -11. Hashprüfungen bestehen | Beide Vergleichslogs, Bring-up-Dokumentation | FOUR BOOTS PASS / FOUR WIFI FAILURES / CAUSE OPEN |
+| 110 | `SELF` | Lesende Analyse bestätigt registerbasierte Variantenauswahl vor Kalibration. Remap ist gesperrt. Gefilterte Diagnoseprobe vorbereitet, aber Sicherheitsprüfung verhindert Ausführung | Treiberquelle, PCIe-/UART-Vergleich, Bring-up-Dokumentation | SOURCE ANALYSIS PASS / PROBE AUTHORIZATION PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

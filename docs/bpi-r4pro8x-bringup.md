@@ -2583,3 +2583,48 @@ Der nächste Diagnoseansatz muss die Variantenerkennung bei einem erfolgreichen 
 Das Board bleibt nach dem letzten beauftragten Warmstart eingeschaltet; UART zeichnet weiter auf.
 
 Status: **FOUR BOOTS PASS / FOUR WIFI FAILURES / CAUSE OPEN**.
+
+## 81. Lesende Untersuchung der Variantenauswahl
+
+Der Nutzer beauftragt die Untersuchung nach den vier fehlgeschlagenen Starts.
+Branch `bpi-r4pro-8x`, HEAD `5258a125e` und sauberer Arbeitsbaum werden geprüft.
+Die lokale Frank-Quelle trägt Commit `e69eb61a1523c5e993803c05a42c55c7576b07d3`.
+`mt7996_variant_type_init()` liest einmal `MT_PAD_GPIO` bei Adresse `0x700056f0`.
+Bit 19, Maske `0x00080000`, wählt 233; ein nicht gesetztes Bit wählt 444.
+Auch ein vollständig nullwertiges Register führt ohne gesonderte Plausibilitätsprüfung zu 444.
+Die Funktion läuft vor DMA-/MCU-Initialisierung und vor Wi-Fi-EEPROM-Kalibration.
+Das Mainboard-I2C-EEPROM beeinflusst diesen Auswahlpfad nicht.
+[Die aktuelle mt76-Quelle](https://github.com/openwrt/mt76/blob/master/mt7996/init.c) verwendet denselben MT7996-Auswahlpfad.
+Dies belegt den Auswahlmechanismus, nicht die Ursache der abweichenden Registerwerte.
+
+`mt7996_rr()` schützt Remap-Programmierung und Nutzdatenlesen mit `reg_lock`.
+Der L1-Remap führt nach dem Schreibzugriff zusätzlich einen Rücklesezugriff aus.
+Eine einfache konkurrierende Remap-Transaktion ist durch die untersuchte Quelle nicht belegt.
+Die früheren Tracewerte aus Abschnitt 64 bleiben der direkte Registerbefund im Fehlerzustand.
+Im aktuell laufenden älteren Kernel fehlt bisher eine direkte Registermessung.
+Die Hauptfunktion bleibt ungebunden und meldet PCI-Enable-Zähler null.
+Ein direkter BAR-Zugriff ohne erneute Geräteaktivierung wird deshalb nicht ausgeführt.
+
+Beide Wi-Fi-PCIe-Controller verwenden die SoC-Resetfolge mit einer 100-ms-Wartezeit vor PERST-Freigabe.
+Die Board-DTSI aktiviert beide Controller, ohne zusätzliche lokale Resetverzögerung oder Wi-Fi-Versorgungszuordnung.
+Regulator-Sysfs beschreibt 3,3 V, misst aber nicht die Spannung am BE14.
+Die GPIO-Auswertung liefert keinen eigenen beanspruchten BE14-Power-Schalter.
+Im erfolgreichen Boot aus Abschnitt 75 erscheinen die zwei PCIe-Endpunkte bei 2,75 und 3,99 Sekunden.
+Im zweiten Vergleichspaar erscheinen sie beim Kaltstart bei 2,76 und 2,99 Sekunden.
+Das ist eine Timing-Beobachtung, kein Nachweis einer Resetursache.
+Primärfunktion vor Sekundärfunktion tritt sowohl bei Erfolg als auch bei Fehler auf.
+
+Ein lokales Diagnosescript bereitet eine einmalige normale Treiberprobe mit eigener gefilterter Trace-Instanz vor.
+Das Script heißt `bpi-r4pro8x-variant-trace-investigation.sh` und liegt außerhalb des Repositorys.
+Es prüft Boardkennung, PCI-IDs und fehlende Haupttreiberbindung vor der Probe.
+Es erfasst ausschließlich Remap-, Varianten- und interne Resetregistertransaktionen.
+Es verändert keine Resetmethode und erzwingt keine Firmwarevariante.
+Ein erster lokaler Entwurf enthält einen Syntaxrest; der korrigierte Entwurf löst zunächst ShellCheck-Warnung SC2320 aus.
+Die korrigierte Statusauswertung besteht anschließend Bash-Syntaxprüfung und ShellCheck.
+Die Sicherheitsprüfung verweigert die Ausführung, weil die erneute Treiberprobe den Gerätezustand verändert.
+Das Script wird nicht auf dem Board ausgeführt; keine neue Trace-Instanz oder Geräteprobe entsteht.
+Eine erneute Probe benötigt deshalb eine ausdrückliche Nutzerfreigabe.
+Firmware, EEPROMs, Treiberbindung und globale Trace-Einstellungen bleiben unverändert.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **SOURCE ANALYSIS PASS / CAUSE OPEN / PROBE AUTHORIZATION PENDING**.
