@@ -378,6 +378,7 @@ Nachtragen der eigenen SHA.
 | 139 | `SELF` | Nutzer bestätigt falschen Bootmodus und verlangt Logentfernung. OpenWrt erreicht `Power down`; TF-A meldet anschließend PANIC. Nur das eMMC-Fehlstartlog wandert in den Papierkorb. Neue UART-Aufzeichnung startet | Shutdown, gezielte Logentfernung, Bring-up-Dokumentation Abschnitt 110 | LINUX HALTED / FRESH UART READY |
 | 140 | `SELF` | SD-Kaltstart erreicht TF-A 2.14, U-Boot 2025.04 und Linux 7.3.0-rc6. SD-Rootfilesystem wird eingebunden. MT7996-Patchstart scheitert; Hardware-Restart löst nach 76 Sekunden eine Kernel-Panic aus. Automatischer Neustart folgt | UART-Log, Bring-up-Dokumentation Abschnitt 111 | RC6 SD BOOT FAIL / WIFI INIT FAIL / HW PASS offen |
 | 141 | `SELF` | Lokaler SD-Isolationstest ergänzt nur `module_blacklist=mt7996e` in extlinux. Originalkonfiguration gesichert. Erster Read-only-Remount scheitert am entfernten Mountordner; korrigierte Prüfung besteht nach pkexec. SD sicher getrennt; UART bereit | SD-Konfiguration, Sicherung, Bring-up-Dokumentation Abschnitt 112 | SD CONFIG READBACK PASS / BOOT PENDING |
+| 142 | `HW` | rc6-SD-Kaltstart ohne MT7996 erreicht Login-Einrichtung und `multi-user.target`. Kernel bestätigt Modulsperre. Konsole reagiert nach dem bisherigen Panic-Zeitpunkt. HaLow-RNDIS meldet Sende-Timeouts; Netzwerkverbindung fehlt | UART, Bring-up-Dokumentation Abschnitt 113 | ISOLATED SD START PASS / WIFI DISABLED / HW PASS offen |
 
 ## Verbindliche Regel für kommende Änderungen
 

@@ -3673,3 +3673,46 @@ Der nächste Kaltstart prüft Kernelzeile, Modulsperre, Login und Systemstart oh
 Ein Boardstart mit dieser Ladesperre ist noch nicht ausgeführt.
 
 Status: **SD CONFIG READBACK PASS / UART READY / BOOT PENDING**.
+
+## 113. rc6-Kaltstart ohne MT7996 erreicht erste Login-Einrichtung
+
+Der Nutzer startet das Board mit der vorbereiteten SD-Karte.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-no-wifi-20261010T190012.log`.
+TF-A 2.14 meldet `WDT: Cold boot` und 8192 MB DRAM.
+U-Boot 2025.04 lädt das rc6-SD-Image.
+U-Boot und Linux bestätigen `module_blacklist=mt7996e` in der Kernelzeile.
+Bei 22.100 Sekunden meldet Linux `Module mt7996e is blacklisted`.
+Das Log enthält keinen MT7996-Firmware-Patchstart.
+Das Rootfilesystem auf `mmcblk0p5` wird eingebunden.
+Der automatische Resize erweitert es von 359168 auf 15429632 Blöcke.
+Portbenennung und MAC-Dienst enden erfolgreich.
+Die konkreten EEPROM- und Interface-MAC-Werte sind damit noch nicht separat geprüft.
+Das System startet SSH, erreicht `multi-user.target` und zeigt den automatischen Root-Login.
+Die Konsole wartet zunächst auf Enter für die erste Login-Einrichtung.
+
+Die Aufzeichnung enthält bis zum Ende dieser Prüfung weder Oops noch Kernel-Panic oder automatischen Neustart.
+Die Konsole antwortet weiterhin nach dem bisherigen Panic-Zeitpunkt von etwa 76 Sekunden.
+Enter startet die erste Login-Einrichtung.
+Nach erfolgloser Netzwerksuche erscheint `Create root password`.
+Es wird kein neues Passwort gesetzt und kein Benutzer angelegt.
+Eine interaktive Shell sowie Langzeitstabilität sind noch nicht bestätigt.
+Die Aufzeichnung bleibt aktiv; das Board bleibt eingeschaltet.
+
+HaLow-RNDIS erscheint als `eth2` mit Adresse `00:c0:ca:b9:02:d3`.
+Bei 35.038, 40.088, 45.098 und 50.108 Sekunden meldet dieses Interface `NETDEV WATCHDOG` mit Sende-Timeouts.
+Das Gerät wird zuvor einmal getrennt und erneut erkannt.
+Diese Fehler lösen im beobachteten Zeitraum keine Kernel-Panic aus.
+Die erste Login-Einrichtung meldet `Network connection timeout`.
+Modem-QMI, USB-Seriell und ACM werden erkannt; Datenverkehr wird nicht getestet.
+Beide Aeonsemi-PHYs melden Firmware 1.9.1; beide USB-Controller initialisieren.
+Die PCIe-Controller `11280000` und `11290000` melden weiterhin Link-Down und Probe-Fehler `-110`.
+MaxLinear meldet `SerDes PCS unsupported on old firmware` für Firmware 1.0.70.
+Die automatische SPI-NAND-UBI-Anbindung bleibt sichtbar.
+
+Der Vergleich grenzt die beobachtete Panic auf den aktivierten MT7996-Initialisierungs- und Restartpfad ein.
+Er erklärt noch nicht den ursprünglichen Firmware-Patchstartfehler.
+Die Modulsperre bleibt ausschließlich auf dieser lokalen Test-SD aktiv.
+Ein regulärer rc6-BOOT-PASS mit aktiviertem Wi-Fi und ein vollständiger HW-PASS bleiben offen.
+Die bisherigen Fehlversuche bleiben dokumentiert.
+
+Status: **ISOLATED SD START PASS / WIFI DISABLED / FIRST LOGIN SETUP PENDING / HW PASS OFFEN**.
