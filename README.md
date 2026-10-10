@@ -354,6 +354,7 @@ Nachtragen der eigenen SHA.
 | 119 | `SELF` | Lokaler Vergleichs- und 233-Modulbau gelingt nach ergänzten BTF-, Scheduler- und vDSO-Quellen. Vergleichscode entspricht Original. Modulstruktur und Konfiguration geprüft | ELF-/Konfigurationsprüfung, Buildausgaben, Bring-up-Dokumentation | DIAGNOSTIC MODULE BUILD PASS |
 | 120 | `SELF` | Vergleichstreiber reproduziert 444-Fehler. Erzwungener 233-Payload scheitert ebenfalls bei erneuter Laufzeitprobe. Beide Module laden korrekt; Originaldatei und EEPROMs unverändert | UART, zwei Registertraces, Bring-up-Dokumentation | MODULE LOAD PASS / BOTH WIFI FAIL |
 | 121 | `SELF` | Erster 233-Kaltstart vorbereitet. Automatische Originalprobe gesperrt; gesonderter Timer lädt Diagnosemodul nach 90 Sekunden. Originaldatei bleibt erhalten. Board sauber heruntergefahren | Timer-/Scriptprüfung, UART, Bring-up-Dokumentation | FIRST233 COLD BOOT PREPARED |
+| 122 | `HW` | Erste 233-Probe nach Kaltstart scheitert ebenfalls beim Patchstart mit `-11`. Keine frühere Wi-Fi-Probe. Trace verlustfrei; EEPROMs und Originalmodul unverändert. Diagnose-Timer deaktiviert, Testmodul entladen | UART, Registertrace, Hashvergleich, Bring-up-Dokumentation Abschnitt 93 | FIRST233 COLD BOOT WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 

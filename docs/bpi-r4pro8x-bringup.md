@@ -3073,3 +3073,41 @@ Der erste 233-Kaltstart ist noch nicht ausgeführt.
 Der lokale Diagnosemodus bleibt bis zur Testauswertung und anschließenden Bereinigung für weitere Boots aktiv.
 
 Status: **FIRST233 COLD BOOT PREPARED / HARDWARE START PENDING**.
+
+## 93. Erste 233-Probe nach Kaltstart scheitert
+
+TF-A bestätigt `Cold boot`; die Boot-ID lautet `77c761d8-9351-4286-bc7b-daabd6d54d0f`.
+Die frühe Trace-Aufzeichnung startet bei 16,727003 Sekunden.
+Das UART-Log enthält keine frühere `mt7996e`-Probe.
+Der Timer startet die erste Probe bei 90,168974 Sekunden.
+Die Diagnose bestätigt `PAD_GPIO=0x00000000; forcing 233` bei 90,303544 Sekunden.
+Der Treiber meldet 233-Build-Time `20260311120705a` bei 90,371176 Sekunden.
+Der Patchstart scheitert bei 95,442679 Sekunden nach MCU-Timeout für Nachricht 7.
+Die Semaphore-Freigabe scheitert nach MCU-Timeout für Nachricht 10.
+Die Geräteprobe endet bei 100,489281 Sekunden mit `-11`.
+WM-, DSP- und WA-Initialisierung fehlen; `iw dev` bleibt leer.
+
+Der Trace enthält 20 Ereignisse ohne Überlauf oder Verluste.
+Der Trace bestätigt Resetfolge `0x10340 -> 0x10341 -> 0x10340` und PAD-Lesewert null.
+Beide Wi-Fi-PCIe-Links melden 8,0 GT/s und zwei Lanes.
+Die primäre Funktion bleibt ungebunden; die sekundäre Funktion bindet `mt7996e_hif`.
+Der Dienst meldet Erfolg, weil `insmod` Status null liefert.
+Dieser Status bestätigt keine erfolgreiche Geräteprobe.
+Beide EEPROM-Hashes und der Hash des installierten Originalmoduls bleiben unverändert.
+
+Die Ergebnisse liegen unter `/root/r4pro-force233-diag/first233-77c761d8-9351-4286-bc7b-daabd6d54d0f`.
+Das lokale UART-Log heißt `uart-run-37975601363-first233-coldboot-20261010T104027.log`.
+Der Test deaktiviert anschließend Timer, Trace und Registerereignisse.
+Die Autoload-Sperre liegt wiederherstellbar im Ergebnisverzeichnis; das Diagnosemodul ist entladen.
+Der nächste Boot lädt wieder das unveränderte Originalmodul.
+Die frühe Initramfs-Trace-Vorbereitung bleibt erhalten.
+
+Die erzwungene Variante allein behebt diesen Kaltstartfehler nicht.
+Ein früherer fehlgeschlagener Wi-Fi-Probe ist für diesen beobachteten Fehler nicht erforderlich.
+Der Versuch schließt einen zusätzlichen Variantenfehler nicht aus.
+USB-Controller `11190000` meldet erneut instabile Clocks und Probe-Fehler `-110`.
+PCIe-Controller `11280000` meldet ebenfalls `-110`; die Wi-Fi-Links liegen an anderen Controllern.
+Eine gemeinsame Ursache ist nicht bewiesen.
+Der nächste Diagnosefokus liegt auf dem MCU-Patchstart und dem Hardwarezustand vor der Firmwareinitialisierung.
+
+Status: **FIRST233 COLD BOOT WIFI FAIL / ORIGINAL AUTOLOAD RESTORED**.
