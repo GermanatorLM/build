@@ -362,6 +362,7 @@ Nachtragen der eigenen SHA.
 | 127 | `SELF` | Referenzimage-Start nicht vollständig aufgezeichnet: vorheriger Recorder beendet, Wiederverbindung liefert nur BootROM-Fragment. Danach UART-Geräteverlust. Neuer Recorder verbindet automatisch erneut | UART-Fragmente, Bash/ShellCheck, Bring-up-Dokumentation Abschnitt 98 | CAPTURE INCOMPLETE / BOOT AND WIFI UNCONFIRMED |
 | 128 | `HW` | Kaltstart nach vollständigem Neuaufspielen aufgezeichnet. Referenzimage startet Linux, aber Wi-Fi scheitert erneut mit 444-Payload und `-11`. Kein Radio; Originalmodul und EEPROMs unverändert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 99 | REFLASH BOOT PASS / WIFI FAIL |
 | 129 | `HW` | OpenWrt-eMMC-Vergleich startet BE14 erfolgreich mit 233-Firmware aus Juni 2025. WM/DSP/WA aktiv; 2,4-/5-/6-GHz-APs und MLO sichtbar. Beide PCIe-Funktionen gebunden; EEPROMs unverändert. Clienttest offen | UART, iw, Firmware- und EEPROM-Hashes, Bring-up-Dokumentation Abschnitt 100 | OPENWRT WIFI INIT PASS / CLIENT UNTESTED |
+| 130 | `SELF` | Actions erhält manuelle Firmwarewahl `pinned/latest`; Standard bleibt pinned. Latest-Installer installiert 15 geprüfte Payloads, derzeit bytegleich zum Pin. Neuere Frank-Kernelbranches geprüft; Kernelmigration noch nicht gewählt | Preflight, Workflowprüfung, Firmwareaudit, Bring-up-Dokumentation Abschnitt 101 | STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
@@ -427,6 +428,10 @@ verwendet damit im GitHub-Runner bewusst Armbians nativen/sudo-Pfad. Standardmä
 `BPI_R4PRO8X_FIRMWARE_MODE=pinned`. Logs werden auch bei Fehlern als
 GitHub-Actions-Artefakt gesichert; ein erfolgreich erzeugtes Image wird separat
 als kurzlebiges CI-Artefakt abgelegt.
+
+Manuelle Starts akzeptieren `firmware_mode=pinned` oder `firmware_mode=latest`.
+Pull-Request-Builds behalten `pinned`; Artefaktnamen und Buildzusammenfassung enthalten den tatsächlich gewählten Modus.
+`latest` verwendet den beim Build aufgelösten linux-firmware-Commit und auditiert alle Payload-Hashes im Image.
 
 ## Letzter erfolgreicher Build
 

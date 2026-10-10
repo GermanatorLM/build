@@ -16,6 +16,15 @@ on:
       - "docs/bpi-r4pro8x-bringup.md"
       - ".github/workflows/bpi-r4pro8x-build.yml"
   workflow_dispatch:
+    inputs:
+      firmware_mode:
+        description: Firmware selection for this image
+        required: true
+        default: pinned
+        type: choice
+        options:
+          - pinned
+          - latest
 
 permissions:
   contents: read
@@ -35,10 +44,17 @@ jobs:
           fetch-depth: 2
 
       - name: Run R4 Pro preflight
-        run: bash tools/bpi-r4pro8x-check.sh
+        env:
+          BPI_R4PRO8X_FIRMWARE_MODE: ${{ inputs.firmware_mode || 'pinned' }}
+        run: |
+          case "${BPI_R4PRO8X_FIRMWARE_MODE}" in
+            pinned|latest) ;;
+            *) echo "Unsupported firmware mode" >&2; exit 1 ;;
+          esac
+          bash tools/bpi-r4pro8x-check.sh
 
   build-pinned:
-    name: R4 Pro Trixie minimal image (pinned firmware)
+    name: R4 Pro Trixie minimal image (${{ inputs.firmware_mode || 'pinned' }} firmware)
     needs: preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 180
@@ -57,20 +73,27 @@ jobs:
 
       - name: Build image via Armbian native/sudo path
         env:
-          BPI_R4PRO8X_FIRMWARE_MODE: pinned
+          BPI_R4PRO8X_FIRMWARE_MODE: ${{ inputs.firmware_mode || 'pinned' }}
           PREFER_DOCKER: "no"
         run: |
           set -o pipefail
-          ./compile.sh build             BOARD=bananapir4pro8x             BRANCH=current             RELEASE=trixie             BUILD_MINIMAL=yes             BUILD_DESKTOP=no             KERNEL_CONFIGURE=no             PREFER_DOCKER=no             BPI_R4PRO8X_FIRMWARE_MODE=pinned             2>&1 | tee bpi-r4pro8x-build.log
+          ./compile.sh build \
+            BOARD=bananapir4pro8x BRANCH=current RELEASE=trixie \
+            BUILD_MINIMAL=yes BUILD_DESKTOP=no KERNEL_CONFIGURE=no \
+            PREFER_DOCKER=no \
+            BPI_R4PRO8X_FIRMWARE_MODE="${BPI_R4PRO8X_FIRMWARE_MODE}" \
+            2>&1 | tee bpi-r4pro8x-build.log
 
       - name: Collect result summary
         if: always()
+        env:
+          BPI_R4PRO8X_FIRMWARE_MODE: ${{ inputs.firmware_mode || 'pinned' }}
         run: |
           {
             echo "## BPI-R4 Pro 8X build"
             echo
             echo "- commit: \`${GITHUB_SHA}\`"
-            echo "- firmware mode: \`pinned\`"
+            echo "- firmware mode: \`${BPI_R4PRO8X_FIRMWARE_MODE}\`"
             echo
             echo "### Output images"
             find output/images -maxdepth 1 -type f -printf '%f\n' 2>/dev/null || true
@@ -94,7 +117,7 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: bpi-r4pro8x-trixie-pinned-${{ github.sha }}
+          name: bpi-r4pro8x-trixie-${{ inputs.firmware_mode || 'pinned' }}-${{ github.sha }}
           if-no-files-found: error
           retention-days: 3
           compression-level: 0

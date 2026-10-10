@@ -3336,3 +3336,33 @@ Dieser Vergleich benötigt Dateisicherung und einen passenden 233-Ladepfad; er i
 Das OpenWrt bleibt eingeschaltet; weitere Resets und Firmwareänderungen erfolgen nicht.
 
 Status: **OPENWRT WIFI INIT PASS / CLIENT UNTESTED / ARMBIAN CAUSE OPEN**.
+
+## 101. Latest-Build vorbereitet; neueres Kernelziel noch offen
+
+Der Nutzer verlangt einen neuen Build mit dem Ziel aktueller Firmware und Kernel.
+Der alte OpenWrt-Firmwaresatz wird nicht als Produktionsbasis übernommen.
+Der Actions-Workflow erhält die manuelle Auswahl `firmware_mode=pinned/latest`.
+Der Standard und Pull-Request-Builds bleiben `pinned`.
+Preflight prüft die gewählte Firmwareoption vor dem Build.
+Compile-Aufruf, Zusammenfassung und Image-Artefaktname übernehmen denselben Modus.
+Die Workflow-Strukturprüfung bestätigt Standard und Weitergabe von `latest`.
+Der vollständige statische Preflight besteht; die bekannte Maintainer-Warnung bleibt bestehen.
+
+Der isolierte Latest-Installertest löst linux-firmware-HEAD auf `afabaf773c4c2e2c841429933a6a084a5af4d14d` auf.
+Der Installer lädt und installiert alle 15 Payloads erfolgreich.
+Alle 15 Git-Blob-Hashes entsprechen derzeit dem bestehenden Pin.
+Die 233-ROM-Patch-Build-Time bleibt `20260311120705a`.
+Ein neuer Firmware-Repository-HEAD bedeutet hier keine neueren ausgewählten Payloads.
+Testergebnisse liegen lokal unter `/home/lukas/Work/bpi-r4pro8x-latest-probe.r9FjqD`.
+
+Franks bestehende Branch `6.18-main` steht weiterhin auf `e69eb61a1523c5e993803c05a42c55c7576b07d3`.
+Die Branchliste enthält inzwischen auch `7.2-main` und `7.3-rc`.
+Die geprüfte `7.2-main`-Makefile meldet Linux 7.2.0.
+Die Branch enthält das Device-Tree-Target `mt7988a-bananapi-bpi-r4-pro-8x.dts`.
+Diese Prüfung bestätigt keine vollständige Port- oder Patchkompatibilität.
+Der Nutzer erhält eine Auswahl zwischen 7.2-Migration, bestehendem 6.18-Port und experimentellem 7.3-rc.
+Kernelquelle, Kernelpatches und normale Filogic-Family bleiben bis zur Auswahl unverändert.
+GitHub-PR 1 bleibt offen; letzter erfolgreicher Workflowrun ist `38003437809`.
+Ein neuer Actions-Build ist noch nicht gestartet; die Kernelzielauswahl bleibt offen.
+
+Status: **STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING**.
