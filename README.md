@@ -382,6 +382,7 @@ Nachtragen der eigenen SHA.
 | 143 | `HW` | Temporären Root-Zugang auf Nutzerwunsch eingerichtet; optionale Benutzeranlage abgebrochen. Shell bestätigt nach 180 Sekunden Systemstatus running und keine fehlgeschlagenen Units. EEPROM-MACs und alle zehn Portnamen stimmen | UART, Systemstatus, Bring-up-Dokumentation Abschnitt 114 | ROOT SHELL / ISOLATED BOOT PASS / WIFI DISABLED |
 | 144 | `SELF` | rc6-MCU-Timeout startet Recovery vor mac80211-Registrierung. Restart-Worker greift auf fehlende Workqueue zu. Board-lokaler Schutzpatch unterdrückt frühe Recovery, erhält Laufzeit-Recovery und Timeoutfehler. Patchprüfung, Preflight und Shellcheck bestehen | `004-mt7996-skip-preinit-timeout-recovery.patch`, Checker, Bring-up-Dokumentation Abschnitt 115 | STATIC / PATCH PASS / BUILD AND HW PENDING |
 | 145 | `SELF` | Schutzpatch und Testchronik gepusht. Manueller Actions-Build startet mit latest-Firmware für Commit `aae03a372` als Run `38079324031`. Laufende SD-Ladesperre bleibt unverändert | GitHub Actions, Bring-up-Dokumentation Abschnitt 116 | BUILD STARTED / RESULT PENDING |
+| 146 | `SELF` | Run `38079324031` scheitert beim MT7996-Kompilieren: READ_ONCE unterstützt das Bitfeld hw_init_done nicht. Schutzpatch verwendet jetzt direkten Zugriff wie der bestehende Recovery-Einstieg. Checker verhindert Wiederholung; Patchprüfung, Preflight und Shellcheck bestehen | Schutzpatch, Checker, Bring-up-Dokumentation Abschnitt 117 | FIRST GUARD BUILD FAIL / CORRECTION STATIC PASS |
 
 ## Verbindliche Regel für kommende Änderungen
 

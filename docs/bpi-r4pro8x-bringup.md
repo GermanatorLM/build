@@ -3825,3 +3825,29 @@ Das laufende Board, die eingelegte SD und die UART-Aufzeichnung bleiben unverän
 Es erfolgt kein neuer Download, SD-Schreibvorgang oder Board-Reset.
 
 Status: **BUILD STARTED / RESULT PENDING / FIX HW TEST PENDING**.
+
+## 117. Schutzpatch-Build scheitert am Bitfeldzugriff; Zugriff korrigiert
+
+Run `38079324031` endet mit `failure` für Commit `aae03a3721aeded8b18f715f4ed05e9ca6fb5a96`.
+Der Actions-Preflight besteht; der Imagejob scheitert beim Kernel-Kompilieren.
+Der Compiler meldet in `mt7996/mcu.c:233` ungültigen `READ_ONCE`-Zugriff auf `hw_init_done`.
+Die Meldungen nennen `sizeof applied to a bit-field`, `typeof applied to a bit-field` und fehlende Bitfeldadresse.
+`compile-wrapper.sh:28` meldet anschließend nur den weitergereichten Exitcode 2.
+Es entsteht kein neues Image; der fehlgeschlagene Versuch bleibt dokumentiert.
+
+Der rc6-Header definiert `hw_init_done` als `bool hw_init_done:1`.
+Der ursprüngliche Schutzpatch verwendet fälschlich `READ_ONCE` auf diesem Bitfeld.
+Der korrigierte Schutz verwendet `if (!dev->recovery.hw_init_done)`.
+Dies entspricht dem bereits vorhandenen Zugriff in `mt7996_reset()`.
+Die Bedingung und der frühe Timeout-Rückgabewert bleiben unverändert.
+Der Checker verlangt den direkten Zugriff und verwirft den fehlerhaften `READ_ONCE`-Zugriff.
+
+Der Patch besteht `git apply --check` nach den bisherigen rc6-Patches.
+Der korrigierte Hunk wird im isolierten Prüfcheckout angewendet; `git apply --reverse --check` besteht.
+Preflight, Shellcheck und `git diff --check` bestehen.
+Die bekannte Maintainer-Warnung bleibt sichtbar.
+Ein erfolgreicher vollständiger Build der Korrektur ist noch nicht bestätigt.
+Der Nutzer erlaubt die Korrektur und einen neuen Build.
+Das laufende Board, seine SD-Ladesperre und die UART-Aufzeichnung bleiben unverändert.
+
+Status: **FIRST GUARD BUILD FAIL / CORRECTION STATIC AND PATCH PASS / REBUILD PENDING**.

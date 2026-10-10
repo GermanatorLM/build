@@ -51,8 +51,11 @@ pass "board-local Wi-Fi variant diagnostics"
 
 wifi_recovery_patch="${kernel_patch_dir}/004-mt7996-skip-preinit-timeout-recovery.patch"
 [[ -f "$wifi_recovery_patch" ]] || fail "Wi-Fi preinit recovery guard missing"
-grep -Fq '+		if (!READ_ONCE(dev->recovery.hw_init_done))' "$wifi_recovery_patch" ||
+grep -Fq '+		if (!dev->recovery.hw_init_done)' "$wifi_recovery_patch" ||
 	fail "Wi-Fi timeout recovery lacks hardware registration guard"
+if grep -Fq 'READ_ONCE(dev->recovery.hw_init_done)' "$wifi_recovery_patch"; then
+	fail "READ_ONCE cannot read the hardware registration bit-field"
+fi
 pass "board-local Wi-Fi preinit timeout recovery guard"
 
 # The upstream rc6 driver uses OF/eFuse, without the old RF-file extension.

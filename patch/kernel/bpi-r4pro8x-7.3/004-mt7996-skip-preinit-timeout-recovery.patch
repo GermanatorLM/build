@@ -15,7 +15,7 @@ completes. Keep runtime recovery unchanged. This does not fix firmware loading.
  			cmd, seq);
  
 +		/* mac80211 cannot restart hardware before registration. */
-+		if (!READ_ONCE(dev->recovery.hw_init_done))
++		if (!dev->recovery.hw_init_done)
 +			return -ETIMEDOUT;
 +
  		if (!test_and_set_bit(MT76_MCU_RESET, &dev->mphy.state)) {
