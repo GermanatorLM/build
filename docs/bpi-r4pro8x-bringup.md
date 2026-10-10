@@ -2404,3 +2404,29 @@ Der nächste Hardwarevergleich kann den Sitz und die Anschlüsse des BE14 prüfe
 Solche Arbeiten benötigen zuvor einen sauberen Shutdown und vollständige Stromtrennung.
 
 Status: **BOOT PASS / USB ISOLATION NO RECOVERY / WIFI FAIL / CAUSE OPEN**.
+
+## 75. Erfolgreicher Firmwarestart nach BE14-Neueinsetzen mit angeschlossenen Modulen
+
+Der Nutzer prüft den BE14-Sitz nach sauberem Shutdown und setzt das Modul erneut ein.
+Der Nutzer verbindet auch die anderen Module wieder und startet das Board.
+Das Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-be14-reseat-coldboot-01.log`.
+Die Auswertung erfolgt erst nach dem folgenden isolierten Test aus Abschnitt 76.
+Dieser Boot wird nicht als isolierter BE14-Test gewertet.
+
+Das unveränderte Vergleichsimage verwendet Rootfs-UUID `cd06581f-85c5-45fc-83a9-99b65dc6d27f`.
+Bei 25,92 Sekunden meldet der ROM-Patch Build-Time `20260311120705a`, entsprechend dem 233-Payload.
+WM-, DSP- und WA-Firmware starten anschließend erfolgreich.
+Die optionale RF-Datei fehlt weiterhin; der Treiber verwendet EEPROM-Defaults.
+Bei 26,80 Sekunden meldet der Treiber `registering led 'mt76-phy0'`.
+Der Firmware-Patchstart-Timeout bleibt in diesem Boot aus.
+Eine Prüfung mit `iw dev` oder ein Clienttest erfolgt vor dem angeforderten Shutdown nicht.
+USB-Endpunkte erscheinen an `2-1.1`, `1-1.4` und `1-1.2`.
+Linux erreicht `multi-user.target`.
+
+Der Nutzer verlangt anschließend den Shutdown für den isolierten Test ohne die anderen Module.
+Linux bestätigt `All filesystems unmounted`; TF-A meldet weiterhin `Power-down unsupported`.
+Dieser Erfolg widerlegt eine durchgehend fehlschlagende Wi-Fi-Firmwareinitialisierung nach dem Neueinsetzen.
+Er beweist weder einen Kontaktfehler noch einen erforderlichen Einfluss der anderen Module.
+Das unveränderte Image scheitert zuvor auch mit angeschlossenen Modulen.
+
+Status: **BOOT PASS / WIFI FIRMWARE START PASS / CLIENT UNTESTED / CAUSE OPEN**.
