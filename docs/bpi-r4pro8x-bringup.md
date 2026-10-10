@@ -3226,3 +3226,24 @@ Das Neuaufspielen bestätigt keinen aktuellen Wi-Fi-Erfolg; der nächste Kaltsta
 Das Flashlog liegt im selben lokalen Sicherungsverzeichnis.
 
 Status: **REFERENCE IMAGE FLASH PASS / COLD BOOT PENDING**.
+
+## 98. Referenzimage-Start ohne vollständigen UART-Mitschnitt
+
+Der Nutzer meldet den Start nach dem Neuaufspielen.
+Die bisherige Recorder-Sitzung existiert nicht mehr; auch die Prozessprüfung findet keinen aktiven Recorder.
+Die erste Wiederverbindung erfasst nur 128 Bytes BootROM-Anfang.
+Diese Verbindung endet durch geschlossenen Standardeingabekanal.
+Die zweite Verbindung nutzt einen offenen PTY-Eingabekanal, empfängt jedoch keine weiteren Boarddaten.
+Die zweite Verbindung endet anschließend mit UART-Ein-/Ausgabefehler.
+TF-A, U-Boot, Linux und Wi-Fi sind in diesem Versuch nicht aufgezeichnet.
+Der unvollständige Mitschnitt beweist keinen BootROM-Hänger und keinen neuen Wi-Fi-Fehler.
+
+Das neue lokale Script heißt `bpi-r4pro8x-uart-reference-recorder.sh`.
+Bash-Syntaxprüfung und ShellCheck bestehen.
+Der Recorder verbindet den stabilen HOLTEK-Gerätepfad mit 115200 Baud erneut nach Geräteverlust.
+Jede Verbindung erhält ein eigenes Log mit Präfix `uart-run-37975601363-reference-reflash-`.
+Die alten Mitschnitte bleiben erhalten.
+Ein erneuter vollständiger Kaltstart ist für die Auswertung erforderlich.
+Es erfolgen keine weiteren Image-, EEPROM- oder Flashänderungen.
+
+Status: **CAPTURE INCOMPLETE / BOOT AND WIFI UNCONFIRMED / RECORDER READY**.
