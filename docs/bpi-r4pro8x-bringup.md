@@ -2302,3 +2302,27 @@ Der nächste Schritt benötigt die SD im Host-Kartenleser.
 Danach muss ein vollständiger Kaltstart den ROM-Patch, Firmwarestart und `iw dev` erneut prüfen.
 
 Status: **COMPARISON PREPARATION PASS / SD TRANSFER AND HW COMPARISON PENDING**.
+
+## 72. Vergleichsimage auf SD geschrieben
+
+Der Nutzer bestätigt die eingelegte SD und das stromlose Board.
+Branch `bpi-r4pro-8x` und sauberer Arbeitsbaum werden erneut geprüft.
+Der Host erkennt die bekannte 64-GB-SD als `/dev/sdb`.
+Gerätekennung, USB-Pfad, Größe und direkte Rootfs-UUID bestehen die Schutzprüfung.
+Das Vergleichsscript schreibt ausschließlich diese SD nach Administratorfreigabe.
+Der Schreibvorgang umfasst 1476395008 Bytes und dauert rund 49 Sekunden.
+Die vollständige Rückleseprüfung stimmt mit dem Originalimage überein.
+SHA256: `14bb7d95874d1133945f95b3cecde55306813604a948a0f23987a63fc3301768`.
+`udisksctl power-off` schaltet den Kartenleser sicher ab.
+Das lokale Schreiblog heißt `bpi-r4pro8x-flash-37975601363-comparison.57Vbxz.log`.
+Das bisherige SD-Rootfs einschließlich temporärer Erstlogin-Konten wird ersetzt.
+Beide Originalimages und bisherigen UART-Logs bleiben erhalten.
+eMMC, NAND, NOR und EEPROMs bleiben unverändert.
+
+Der bisherige UART-Recorder wird gezielt beendet.
+Der neue Recorder wartet bereits auf den vollständigen Vergleichs-Kaltstart.
+Das neue Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-ab-comparison-coldboot-01.log`.
+Der Vergleich muss zuerst ROM-Patch-Auswahl, Firmwarestart und Radio-Registrierung prüfen.
+Ein Wi-Fi-Erfolg oder eine isolierte Fehlerursache ist noch nicht bestätigt.
+
+Status: **COMPARISON SD FLASH PASS / COLD BOOT AND WIFI COMPARISON PENDING**.
