@@ -3038,3 +3038,38 @@ Vor beiden Tests gab es bereits fehlgeschlagene Geräteproben im selben Boot.
 Ein frischer Kaltstart muss diesen möglichen Einfluss gesondert prüfen.
 
 Status: **MODULE LOAD PASS / BOTH WIFI FAIL / COLD FIRST233 TEST REQUIRED**.
+
+## 92. Vorbereitung der ersten 233-Probe nach Kaltstart
+
+Der nächste Vergleich soll 233 ohne vorausgegangenen Firmwarefehlversuch starten.
+Das lokale Script heißt `install-first233-test.sh`; ShellCheck besteht.
+Eine neue lokale Modprobe-Konfiguration sperrt die automatische Alias-Anforderung von `mt7996e`.
+Ein gesonderter Timer fordert die erste Diagnoseprobe nach etwa 90 Sekunden an.
+Diese Verzögerung entspricht dem ersten 444-Vergleich aus Abschnitt 87.
+Kernel, Initramfs, Firmware, EEPROMs und Originalmoduldatei bleiben unverändert.
+Nur Lademethode und Diagnosevariante unterscheiden sich vom vorherigen verzögerten Kaltstart.
+
+Das Testscript prüft Boardkennung, Diagnosehash und fehlendes Modul `mt7996e`.
+Es prüft ungebundene Wi-Fi-PCIe-Funktionen und aktive frühe Trace-Aufzeichnung.
+Eine unerwartete frühere Probe führt zum Abbruch.
+Das Script lädt zunächst die Original-Abhängigkeit `mt76_connac_lib`.
+Es lädt anschließend die getrennte Datei `/root/r4pro-force233-diag/forced.ko`.
+Es erfasst Start- und Abschlussmarkierungen im Kernel-Log.
+Registertrace, Pufferstatistik, Dmesg und `iw dev` werden pro Boot-ID gesichert.
+Das Ergebnisverzeichnis heißt `/root/r4pro-force233-diag/first233-<Boot-ID>`.
+Die eigene Trace-Aufzeichnung und beide Registerereignisse werden nach der Probe deaktiviert.
+
+Script-Syntaxprüfung und systemd-Unit-Prüfung bestehen.
+Der neue Timer meldet vor dem Shutdown `enabled` und `inactive`.
+Das experimentelle Modul ist zuvor erfolgreich entladen.
+Linux bestätigt vollständig ausgehängte Dateisysteme bei 32193,224069 Sekunden.
+TF-A meldet erneut `Power-down unsupported`; die elektrische Stromtrennung bleibt erforderlich.
+Der Recorder erhält eigene Logs mit Präfix `uart-run-37975601363-first233-coldboot-`.
+Der Recorder verbindet sich nach USB-Geräteverlust automatisch erneut.
+
+Der Nutzer muss das Board vollständig stromlos machen und mit unveränderten Modulen starten.
+Die Auswertung muss vorangegangene Originalproben ausschließen und die Diagnosemarkierung bestätigen.
+Der erste 233-Kaltstart ist noch nicht ausgeführt.
+Der lokale Diagnosemodus bleibt bis zur Testauswertung und anschließenden Bereinigung für weitere Boots aktiv.
+
+Status: **FIRST233 COLD BOOT PREPARED / HARDWARE START PENDING**.
