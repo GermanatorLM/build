@@ -3632,3 +3632,44 @@ Das Rohlog bleibt lokal und wird nicht eingecheckt.
 Die bisherige Chronik bleibt erhalten.
 
 Status: **RC6 SD BOOT FAIL / WIFI INIT FAIL / HW PASS OFFEN**.
+
+## 112. SD-Isolationstest ohne MT7996 vorbereitet
+
+Der Nutzer erlaubt den nächsten Test und legt die SD-Karte in den Host ein.
+Branch: `bpi-r4pro-8x-7.3-rc6`; Ausgangscommit: `e352332463a0bea8892a11eea0492b04394efaa6`.
+GitHub bestätigt Run `38051805424` weiterhin als erfolgreich; der neue Branch besitzt keinen offenen Pull Request.
+Die Geräteprüfung erkennt `/dev/sdb`, 63.864.569.856 Bytes, Wechselmedium und Serienkennung `Generic_STORAGE_DEVICE-0:0`.
+Die Geräteinstanz lautet `/dev/disk/by-diskseq/27`.
+Die Rootpartition bestätigt UUID `ccdb495d-e5e0-4d5f-a79d-2516cfc587d2` und den erwarteten rc6-Buildcommit.
+Die Kernelkonfiguration bestätigt `CONFIG_MT7996E=m`.
+
+Nur die extlinux-Kernelzeile erhält `module_blacklist=mt7996e`.
+Die Sperre wirkt beim Kernel-Modulladen und benötigt keine Initramfs-Neuerzeugung.
+Referenz: https://www.kernel.org/doc/html/latest/admin-guide/kernel-parameters.html
+Der Test isoliert den Wi-Fi-Treiber; er behebt keinen Wi-Fi-Fehler.
+Kernel, Firmware, DTB, Bootloader und das heruntergeladene Originalimage bleiben unverändert.
+Die Buildkonfiguration aktiviert Wi-Fi weiterhin unverändert.
+Der bisherige automatische UBI-Attach bleibt unverändert und benötigt später einen separaten Test.
+Es erfolgt kein manueller Schreibzugriff auf eMMC, NAND, NOR oder EEPROM.
+
+Sicherung: `/home/lukas/Work/bpi-r4pro8x-rc6-no-wifi-backup.RqGuQv`.
+Originaldatei: `extlinux.conf.original`; Testdatei: `extlinux.conf.test`.
+Original-SHA256: `5e1772c9bd729da6dfdcb73edbc3470feaf6f4c0857817c113c57688ba35d77f`.
+Test-SHA256: `66c5208c40132182b36e72b127d8588f35c6e64c1304473b710635ce209a0098`.
+Der Nutzer bestätigt den ersten pkexec-Aufruf.
+Die Datei wird installiert, verglichen und synchronisiert; die Partition wird ausgehängt.
+Der erste Read-only-Remount scheitert, weil der Desktop den ursprünglichen Mountordner entfernt.
+Die korrigierte Rückleseprüfung verwendet einen eigenen temporären Mountordner mit `ro,noload`.
+Der Nutzer bestätigt die neue pkexec-Anfrage.
+Der Read-only-Dateivergleich besteht und bestätigt den Test-SHA256.
+Die Partition wird erneut ausgehängt.
+`udisksctl power-off` trennt die SD erfolgreich; `/dev/sdb` verschwindet aus der Geräteübersicht.
+
+Der statische Preflight besteht mit der bekannten Maintainer-Warnung.
+Eine getrennte UART-Aufzeichnung startet mit 115200 Baud und automatischer Wiederverbindung.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-no-wifi-20261010T190012.log`.
+Die bisherigen Panic-Logs bleiben erhalten.
+Der nächste Kaltstart prüft Kernelzeile, Modulsperre, Login und Systemstart ohne Panic.
+Ein Boardstart mit dieser Ladesperre ist noch nicht ausgeführt.
+
+Status: **SD CONFIG READBACK PASS / UART READY / BOOT PENDING**.

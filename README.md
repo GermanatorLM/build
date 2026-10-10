@@ -15,7 +15,7 @@ Der Referenzbranch `bpi-r4pro-8x`, sämtliche Dateien und die vollständige Chro
 
 > **Referenzstatus:** Der bisherige 6.18-Port erreicht `BOOT PASS`; `HW PASS` bleibt offen.
 > Wi-Fi startet unter OpenWrt, scheitert aber im zuletzt geprüften Armbian-Referenzimage.
-> 7.3-rc6 erreicht `BUILD PASS` in Run `38051805424`; Boot und Hardware bleiben ungetestet.
+> 7.3-rc6 erreicht `BUILD PASS` in Run `38051805424`; der SD-Start scheitert im Wi-Fi-Restart mit Kernel-Panic.
 
 ## Zielbild
 
@@ -53,14 +53,14 @@ die Regression eingeführt hat.
 | SoC | MediaTek MT7988A | implementiert |
 | RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
 | Distribution | Debian Trixie | vorgesehen |
-| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | BUILD PASS; Hardwaretest offen |
+| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | BUILD PASS; SD-Start mit Wi-Fi-Panic |
 | Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
 | Bootformat | extlinux | integriert |
 | Firmware | `pinned` / `latest` / `ref`, 15 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
-| Hardwaretest | UART/SD | BOOT PASS (zweifach reproduziert) |
+| Hardwaretest | UART/SD | 6.18: BOOT PASS; rc6: BOOT FAIL mit Wi-Fi |
 | Hardwaretest | Netzwerk/PCIe/Wi-Fi | HW PASS noch offen |
 
 ## Schnellstart
@@ -377,6 +377,7 @@ Nachtragen der eigenen SHA.
 | 138 | `SELF` | Erster aufgezeichneter Start verwendet OpenWrt aus eMMC: TF-A 2.10, U-Boot 2024.10 und Linux 6.6.93. Das rc6-SD-Image wird nicht gestartet | UART-Kaltstart, Bring-up-Dokumentation Abschnitt 109 | EMMC BOOT / RC6 UNTESTED |
 | 139 | `SELF` | Nutzer bestätigt falschen Bootmodus und verlangt Logentfernung. OpenWrt erreicht `Power down`; TF-A meldet anschließend PANIC. Nur das eMMC-Fehlstartlog wandert in den Papierkorb. Neue UART-Aufzeichnung startet | Shutdown, gezielte Logentfernung, Bring-up-Dokumentation Abschnitt 110 | LINUX HALTED / FRESH UART READY |
 | 140 | `SELF` | SD-Kaltstart erreicht TF-A 2.14, U-Boot 2025.04 und Linux 7.3.0-rc6. SD-Rootfilesystem wird eingebunden. MT7996-Patchstart scheitert; Hardware-Restart löst nach 76 Sekunden eine Kernel-Panic aus. Automatischer Neustart folgt | UART-Log, Bring-up-Dokumentation Abschnitt 111 | RC6 SD BOOT FAIL / WIFI INIT FAIL / HW PASS offen |
+| 141 | `SELF` | Lokaler SD-Isolationstest ergänzt nur `module_blacklist=mt7996e` in extlinux. Originalkonfiguration gesichert. Erster Read-only-Remount scheitert am entfernten Mountordner; korrigierte Prüfung besteht nach pkexec. SD sicher getrennt; UART bereit | SD-Konfiguration, Sicherung, Bring-up-Dokumentation Abschnitt 112 | SD CONFIG READBACK PASS / BOOT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
