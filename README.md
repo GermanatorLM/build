@@ -15,7 +15,7 @@ Der Referenzbranch `bpi-r4pro-8x`, sämtliche Dateien und die vollständige Chro
 
 > **Referenzstatus:** Der bisherige 6.18-Port erreicht `BOOT PASS`; `HW PASS` bleibt offen.
 > Wi-Fi startet unter OpenWrt, scheitert aber im zuletzt geprüften Armbian-Referenzimage.
-> Für 7.3-rc6 liegen noch keine Build- oder Hardwareergebnisse vor.
+> 7.3-rc6 erreicht `BUILD PASS` in Run `38051805424`; Boot und Hardware bleiben ungetestet.
 
 ## Zielbild
 
@@ -53,7 +53,7 @@ die Regression eingeführt hat.
 | SoC | MediaTek MT7988A | implementiert |
 | RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
 | Distribution | Debian Trixie | vorgesehen |
-| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | PATCH / DT PASS; BUILD offen |
+| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | BUILD PASS; Hardwaretest offen |
 | Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
@@ -371,6 +371,7 @@ Nachtragen der eigenen SHA.
 | 132 | `SELF` | Offizielles rc6 aufgelöst. Franks rc1 enthält 153 Zusatzcommits. Separater Prüfcheckout exportiert Erweiterungen; erster rc6-Objektdownload bei Frank scheitert. Downloadquelle korrigiert | Kernelquellenvergleich, Bring-up-Dokumentation Abschnitt 103 | SOURCE VERIFIED / PORT TEST PENDING |
 | 133 | `SELF` | Exaktes rc6 ersetzt die 6.18-Quelle nur im neuen Branch. Frank-Erweiterungen erhalten rc6-Konfliktkorrekturen. Neue 8X-Port- und Wi-Fi-Diagnosepatches; native EEPROM-Auswertung statt alter RF-Dateierweiterung | Neuer board-lokaler Patchsatz, Versionsschutz, sequenzieller Patchtest, DTB und SD-Overlay, Abschnitt 104 | STATIC / PATCH / DT PASS; BUILD offen |
 | 134 | `SELF` | rc6-Portierung `eb42b5284` auf den neuen Branch gepusht. Manueller Trixie-Minimal-Build mit Firmwaremodus `latest` startet als Run `38051805424` | GitHub Actions, Bring-up-Dokumentation Abschnitt 105 | BUILD STARTED; Ergebnis offen |
+| 135 | `SELF` | Run `38051805424` erfolgreich. Linux 7.3.0-rc6, MT7996-Modul, U-Boot/TF-A und vollständiges Trixie-Minimal-Image gebaut. Latest installiert 15 Payloads. Logs gesichert; Image-Download läuft noch | Actions-Ergebnis, Buildlogs, Bring-up-Dokumentation Abschnitt 106 | BUILD PASS / DOWNLOAD PENDING / HW UNTESTED |
 
 ## Verbindliche Regel für kommende Änderungen
 

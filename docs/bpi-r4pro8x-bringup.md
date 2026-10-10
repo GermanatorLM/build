@@ -3469,3 +3469,33 @@ Der Run ist gestartet; ein vollständiges Ergebnis liegt noch nicht vor.
 Es erfolgt keine SD-Schreiboperation und kein Board-Reset.
 
 Status: **BUILD STARTED / RESULT PENDING / HW UNTESTED**.
+
+## 106. Erster rc6-Imagebuild erfolgreich
+
+GitHub bestätigt Run `38051805424` mit `conclusion=success`.
+Preflight und Imagejob bestehen für Build-Commit `eb42b5284e7cdb8c7201a09c60183f26b34b735a`.
+Die Logs bestätigen U-Boot 2025.04 und erfolgreiche TF-A/FIP-Erzeugung.
+Kernel und DTB-Pakete verwenden `7.3.0-rc6-current-filogic`.
+Die Treiber AS21xxx, MxL862xx und MediaTek Ethernet kompilieren erfolgreich.
+Das Modul `mt7996e.ko` wird gebaut, installiert und komprimiert.
+Der Firmwareinstaller installiert 15 Payloads im Modus `latest`.
+Der aufgelöste Firmware-Commit bleibt `afabaf773c4c2e2c841429933a6a084a5af4d14d`.
+
+Image: `Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_7.3.0-rc6_minimal.img`.
+GitHub meldet das nicht abgelaufene Image-Artefakt mit 1.488.998.685 Bytes.
+Die Buildlogs liegen lokal unter `/home/lukas/Work/bpi-r4pro8x-images/run-38051805424-rc6-logs`.
+Der Image-Download nach `/home/lukas/Work/bpi-r4pro8x-images/run-38051805424-rc6-latest` läuft noch.
+Ein lokaler SHA256-Vergleich steht bis zum Downloadabschluss aus.
+
+Die Logs enthalten weiterhin Warnungen; der Build ist nicht warnungsfrei.
+Diese betreffen unter anderem Foresee-U-Boot-Code, andere Board-Overlays und Kernel-FORTIFY-Testfälle.
+Initramfs meldet fehlende `mediatek/mt7981_wo.bin`; das Zielboard verwendet MT7988.
+Die MT7988-WED-Dateien werden laut Log separat kopiert.
+Keine dieser Meldungen bricht den Build ab.
+Die Warnungen ersetzen keine Hardwareprüfung.
+
+Die 64-GB-SD-Karte ist als `/dev/sdb` mit eingehängtem `armbi_root` sichtbar.
+Es erfolgt noch kein Schreibzugriff auf die SD-Karte.
+Boot, Ethernet und Wi-Fi sind mit diesem Image noch nicht getestet.
+
+Status: **BUILD PASS / DOWNLOAD PENDING / HW UNTESTED**.
