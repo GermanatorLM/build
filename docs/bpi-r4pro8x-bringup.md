@@ -2709,3 +2709,48 @@ Der Nutzer muss das Board vollständig stromlos machen und anschließend starten
 Nach dem Boot müssen Trace-Bereitschaft, Registerwerte und Firmwareauswahl gemeinsam geprüft werden.
 
 Status: **EARLY TRACE PREPARED / COLD BOOT PENDING**.
+
+## 84. Fehlende Initramfs-Programme und lokaler Diagnosefix
+
+Der Nutzer meldet den Start.
+Der UART-Adapter verschwindet während der Stromtrennung; der Recorder endet mit einem Ein-/Ausgabefehler.
+Der Adapter erscheint anschließend als `ttyACM1` unter demselben stabilen Gerätepfad.
+Die neue Aufzeichnung beginnt erst während des Linux-Starts.
+Das Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-early-variant-coldboot-01-reconnected.log`.
+Ein vollständiges BootROM-/TF-A-Log fehlt für diesen Versuch.
+Die Boot-ID lautet `7640ed9d-33d7-484b-8cb3-9b97c7e04808`.
+
+Das init-top-Script scheitert vor der Trace-Einrichtung an fehlenden Programmen `tr` und `grep`.
+Die Boardprüfung verlässt deshalb das Script; die frühe Trace-Instanz entsteht nicht.
+Die vorherige Prüfung bestätigt die Scriptreihenfolge, aber nicht alle benötigten Initramfs-Programme.
+Der Versuch liefert keine frühe Variantenmessung.
+Linux erreicht trotzdem `multi-user.target`.
+Wi-Fi meldet wieder 444-Build-Time `20260311120419a` bei 25,97 Sekunden.
+Patchstart und Semaphore-Freigabe scheitern; die Probe endet bei 36,09 Sekunden mit `-11`.
+`iw dev` zeigt kein Radio.
+USB-Controller `11190000.usb` meldet instabile Takte und Probe-Fehler `-110`.
+Dieser Zusatzbefund erklärt den Wi-Fi-Fehler bisher nicht.
+
+Das lokale Fixscript heißt `bpi-r4pro8x-fix-early-trace.sh`.
+Der Hook nimmt `tr`, `grep`, `mkdir`, `mount` und `modprobe` samt Bibliotheken ausdrücklich auf.
+Die ursprüngliche Hook-Version bleibt unter `/root/r4pro-early-trace-backup/trace-hook-before-exec-fix` erhalten.
+Der neue Initramfs enthält alle fünf ausführbaren Programme.
+Ein chroot-Test im extrahierten Initramfs bestätigt die Boardprüfung mit NUL-getrennter Kennung.
+Ein zusätzlicher chroot-Test bestätigt ausführbares `modprobe`, kmod-Version 34.2.
+Die ORDER-Datei bestätigt weiterhin die Trace-Vorbereitung vor udev.
+Die Script-Ausführung im laufenden Linux meldet `R4PRO_EARLY_TRACE_READY` bei 134,16 Sekunden.
+Die Filterprüfung bestätigt die drei gewünschten Registeradressen.
+Dieser Laufzeittest ersetzt keine frühe Bootmessung.
+Die Testaufzeichnung und beide Ereignisse werden anschließend deaktiviert.
+Beide EEPROM-Hashes bleiben unverändert.
+
+Der korrigierte Initramfs trägt SHA256 `1768f8a2c5fbe254b747a25a826daac1a9403c4d4884c1cf48d7e39f8edab141`.
+Die U-Boot-Version trägt SHA256 `6d3e2e1dabcdf0d5e3fe625525f4f392150424b06df913260807a1ebd1dc1394`.
+Der nächste Kaltstart muss die frühe Bereitschaftsmeldung und den Registertrace bestätigen.
+Linux bestätigt vollständig ausgehängte Dateisysteme bei 137,64 Sekunden.
+TF-A meldet erneut `Power-down unsupported`; eine elektrische Stromtrennung bleibt erforderlich.
+Der neue Recorder verbindet sich nach einem USB-Geräteverlust automatisch erneut.
+Jede Verbindung erhält ein eigenes zeitgestempeltes Log mit Präfix `uart-run-37975601363-early-variant-coldboot-02-`.
+Bestehende Logs bleiben erhalten.
+
+Status: **BOOT PASS / WIFI FAIL / TRACE FIX PREPARED / COLD BOOT PENDING**.

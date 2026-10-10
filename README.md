@@ -345,6 +345,7 @@ Nachtragen der eigenen SHA.
 | 110 | `SELF` | Lesende Analyse bestätigt registerbasierte Variantenauswahl vor Kalibration. Remap ist gesperrt. Gefilterte Diagnoseprobe vorbereitet, aber Sicherheitsprüfung verhindert Ausführung | Treiberquelle, PCIe-/UART-Vergleich, Bring-up-Dokumentation | SOURCE ANALYSIS PASS / PROBE AUTHORIZATION PENDING |
 | 111 | `SELF` | Nutzer erlaubt Diagnoseprobe. Älterer Kernel liest Variantenregister null nach internem Reset. 444-Patchstart scheitert erneut. PCIe-Links und EEPROM-Hashes bleiben stabil | Gefilterter Registertrace, UART, Bring-up-Dokumentation | TRACE PASS / WIFI FAIL / CAUSE OPEN |
 | 112 | `SELF` | Lokaler Diagnose-Initramfs aktiviert gefilterten Registertrace vor udev. Bootdateien gesichert und geprüft. Board heruntergefahren; Kaltstart-Aufzeichnung bereit | Initramfs-Audit, UART, Bring-up-Dokumentation | EARLY TRACE PREPARED / COLD BOOT PENDING |
+| 113 | `SELF` | Erste frühe Trace-Vorbereitung scheitert an fehlendem tr/grep. 444-Wi-Fi scheitert erneut. Lokaler Hook ergänzt Programme; chroot- und Laufzeittests bestehen | UART, Initramfs-Audit, Bring-up-Dokumentation | TRACE FIX PREPARED / COLD BOOT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 
