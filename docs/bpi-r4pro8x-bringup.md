@@ -2544,3 +2544,42 @@ Der zweite Recorder wartet bereits unter `bpi-r4pro8x-uart/uart-run-37975601363-
 SD, Module, Firmware und EEPROMs bleiben für das zweite Paar unverändert.
 
 Status: **PAIR 1 BOOT PASS / WIFI FAIL / PAIR 2 PENDING**.
+
+## 80. Zweites Vergleichspaar und Auswertung aller vier Starts
+
+Der Nutzer startet das zweite Paar nach dem angeforderten Shutdown und der Aufforderung zur Stromtrennung.
+Das vollständige Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-modules-cold-warm-pair2.log`.
+TF-A meldet zuerst `Cold boot`; beim beauftragten Warmstart meldet TF-A `Software reset (reboot)`.
+Linux startet den Warmboot bei 90,46 Sekunden mit `Restarting system`.
+Beide Starts erreichen `multi-user.target`; beide Laufzeitprüfungen mit `iw dev` zeigen kein Radio.
+Die Kaltstart-Boot-ID lautet `610be714-57b7-4727-aa74-2f1b0b4e715a`.
+Die Warmstart-Boot-ID lautet `68ac8216-61d7-4085-b191-72cde40d87bc`.
+Die ersten Loginversuche enthalten Terminal-Antwortzeichen; die Wiederholungen gelingen mit denselben Testdaten.
+
+Alle vier Starts aus beiden Paaren melden ROM-Patch-Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Die Tabelle nennt Kernelzeiten in Sekunden innerhalb des jeweiligen Boots.
+
+| Versuch | ROM-Patch-Meldung | Patchstart scheitert | Probe endet mit `-11` |
+| --- | ---: | ---: | ---: |
+| Paar 1, kalt | 25,85 | 30,88 | 35,93 |
+| Paar 1, warm | 25,58 | 30,64 | 35,69 |
+| Paar 2, kalt | 25,64 | 30,72 | 35,77 |
+| Paar 2, warm | 25,55 | 30,64 | 35,69 |
+
+Alle Versuche zeigen MCU-Nachricht-7-Timeout und anschließend Nachricht-10-Timeout beim Freigeben des Patch-Semaphores.
+Keiner startet WM-, DSP- und WA-Firmware oder registriert ein Radio.
+Die abschließende USB-Prüfung bestätigt erneut Quectel, ALFA und STM32 an denselben Pfaden wie Paar 1.
+Alle 15 Firmware-Prüfsummen bestehen; beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+Die gefilterte Dmesg-Prüfung zeigt im letzten Warmboot keine PCIe-AER-Fehlerserie.
+SD, BE14, Erweiterungsmodule, Firmware und EEPROMs bleiben während des Vergleichs unverändert.
+
+Der Vergleich zeigt keinen Erfolg durch Warmstart oder erneuten Kaltstart mit eingesetzten Modulen.
+Die Anwesenheit der Module und die Startart erklären den früheren erfolgreichen 233-Start bisher nicht reproduzierbar.
+Vier Versuche beweisen keinen Hardwaredefekt und schließen Timing- oder Versorgungsabhängigkeiten nicht aus.
+Der 233/444-Wechsel bleibt der relevante Unterschied zwischen erfolgreichen und fehlgeschlagenen Firmwarestarts.
+Eine direkte Strap-Messung fehlt im älteren Vergleichskernel.
+Weitere identische Neustarts liefern derzeit keinen neuen isolierten Befund.
+Der nächste Diagnoseansatz muss die Variantenerkennung bei einem erfolgreichen Start erfassen.
+Das Board bleibt nach dem letzten beauftragten Warmstart eingeschaltet; UART zeichnet weiter auf.
+
+Status: **FOUR BOOTS PASS / FOUR WIFI FAILURES / CAUSE OPEN**.
