@@ -2430,3 +2430,29 @@ Er beweist weder einen Kontaktfehler noch einen erforderlichen Einfluss der ande
 Das unveränderte Image scheitert zuvor auch mit angeschlossenen Modulen.
 
 Status: **BOOT PASS / WIFI FIRMWARE START PASS / CLIENT UNTESTED / CAUSE OPEN**.
+
+## 76. Isolierter Boot nach BE14-Neueinsetzen ohne andere Module
+
+Der Nutzer bestätigt die erneut getrennten Module und startet dasselbe SD-Image.
+Das vollständige Log heißt `bpi-r4pro8x-uart/uart-run-37975601363-be14-reseat-without-usb-coldboot-01.log`.
+BootROM, TF-A, U-Boot und Linux starten; Linux erreicht `multi-user.target` und Login.
+Der erste Login enthält Terminal-Antwortzeichen; die Wiederholung mit denselben Testdaten gelingt.
+
+Bei 24,22 Sekunden meldet der ROM-Patch wieder Build-Time `20260311120419a`, entsprechend dem 444-Payload.
+Bei 29,28 Sekunden scheitert der Patchstart nach MCU-Nachricht-7-Timeout.
+Bei 34,33 Sekunden endet die Probe nach Semaphore-Timeout mit `-11`.
+`iw dev` zeigt kein Radio.
+Beide Wi-Fi-PCIe-Funktionen bleiben mit 8,0 GT/s, zwei Lanes und Runtime-Status `active` sichtbar.
+USB-Sysfs zeigt nur Root-Hubs und Hubs `2109:2822` sowie `2109:0822`.
+Alle 15 Firmware-Prüfsummen bestehen; beide EEPROM-Hashes stimmen weiterhin mit Abschnitt 73 überein.
+
+Der erfolgreiche Boot aus Abschnitt 75 und dieser Fehlerboot verwenden dasselbe Image, aber unterschiedliche ROM-Payloads.
+Das erneute Einsetzen allein stellt keinen reproduzierbaren Erfolg her.
+Die zwei Versuche belegen noch keinen ursächlichen Einfluss der anderen Module.
+Stromversorgung, Timing und automatische Variantenerkennung bleiben mögliche Untersuchungsrichtungen, nicht bestätigte Ursachen.
+Ein erzwungener Variantenwechsel erfolgt nicht.
+Weitere Resets und EEPROM-Schreibzugriffe erfolgen nicht.
+Der nächste kontrollierte Vergleich muss einen erfolgreichen Start reproduzieren und die Variantenerkennung dabei erfassen.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **BOOT PASS / WIFI FAIL / VARIANT CHANGE OBSERVED / CAUSE OPEN**.
