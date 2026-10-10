@@ -6,13 +6,16 @@ den **Banana Pi BPI-R4 Pro 8X (MT7988A, 8 GiB DDR4)**.
 Der aktuelle Entwicklungsbranch ist:
 
 ```text
-bpi-r4pro-8x
+bpi-r4pro-8x-7.3-rc6
 ```
 
-> **Bring-up-Status:** `BOOT PASS` erreicht. Ethernet-Core und beide
-> Aeonsemi-10G-PHYs sind auf der Zielhardware bestätigt. `HW PASS` ist noch
-> offen; der nächste isolierte Fix ergänzt die von der MT7996-444-Variante
-> angeforderte unsuffigierte Wi-Fi-Firmware.
+Der neue Branch zielt auf Linux **7.3-rc6** und aktuelle Firmware.
+Die Kernelumstellung ist noch nicht implementiert; die Buildkonfiguration verwendet weiterhin die bisherige 6.18-Basis.
+Der Referenzbranch `bpi-r4pro-8x`, sämtliche Dateien und die vollständige Chronik bleiben erhalten.
+
+> **Referenzstatus:** Der bisherige 6.18-Port erreicht `BOOT PASS`; `HW PASS` bleibt offen.
+> Wi-Fi startet unter OpenWrt, scheitert aber im zuletzt geprüften Armbian-Referenzimage.
+> Für 7.3-rc6 liegen noch keine Build- oder Hardwareergebnisse vor.
 
 ## Zielbild
 
@@ -363,6 +366,7 @@ Nachtragen der eigenen SHA.
 | 128 | `HW` | Kaltstart nach vollständigem Neuaufspielen aufgezeichnet. Referenzimage startet Linux, aber Wi-Fi scheitert erneut mit 444-Payload und `-11`. Kein Radio; Originalmodul und EEPROMs unverändert | UART, Sysfs, SHA256, Bring-up-Dokumentation Abschnitt 99 | REFLASH BOOT PASS / WIFI FAIL |
 | 129 | `HW` | OpenWrt-eMMC-Vergleich startet BE14 erfolgreich mit 233-Firmware aus Juni 2025. WM/DSP/WA aktiv; 2,4-/5-/6-GHz-APs und MLO sichtbar. Beide PCIe-Funktionen gebunden; EEPROMs unverändert. Clienttest offen | UART, iw, Firmware- und EEPROM-Hashes, Bring-up-Dokumentation Abschnitt 100 | OPENWRT WIFI INIT PASS / CLIENT UNTESTED |
 | 130 | `SELF` | Actions erhält manuelle Firmwarewahl `pinned/latest`; Standard bleibt pinned. Latest-Installer installiert 15 geprüfte Payloads, derzeit bytegleich zum Pin. Neuere Frank-Kernelbranches geprüft; Kernelmigration noch nicht gewählt | Preflight, Workflowprüfung, Firmwareaudit, Bring-up-Dokumentation Abschnitt 101 | STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING |
+| 131 | `SELF` | Nutzer verwirft Löschung. Neuer Entwicklungsbranch `bpi-r4pro-8x-7.3-rc6` entsteht aus dem aktuellen Stand. Dateien und Historie bleiben erhalten. Ziel ist exaktes 7.3-rc6; Buildkonfiguration noch unverändert | Git-Branch, Bring-up-Dokumentation Abschnitt 102 | NEW BRANCH / RC6 MIGRATION PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

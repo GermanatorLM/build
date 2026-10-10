@@ -3366,3 +3366,23 @@ GitHub-PR 1 bleibt offen; letzter erfolgreicher Workflowrun ist `38003437809`.
 Ein neuer Actions-Build ist noch nicht gestartet; die Kernelzielauswahl bleibt offen.
 
 Status: **STATIC / LATEST INSTALL PASS / KERNEL TARGET PENDING**.
+
+## 102. Neuer Entwicklungsbranch ohne Löschung
+
+Der Nutzer widerruft die Löschung und verlangt den Neustart auf einem neuen Branch.
+Das Kernelziel lautet ausdrücklich Linux `7.3-rc6`.
+Der neue Branch heißt `bpi-r4pro-8x-7.3-rc6`.
+Die Basis ist Commit `f4acdd594da9c1adb7164cf19f0c5f5cc39fd851` des bisherigen Entwicklungsbranches.
+Der Arbeitsbaum ist vor der Branchanlage sauber.
+Dateien, Commit-Historie, README-Chronik, Images, Backups und UART-Logs bleiben erhalten.
+Der alte Branch `bpi-r4pro-8x` bleibt unverändert.
+Der neue Branch erhält kein zurückgesetztes oder unabhängiges Git-Verzeichnis.
+
+Dieser Schritt ändert noch keine Kernelquelle, Kernelpatches oder Boardkonfiguration.
+Die aktive Buildkonfiguration verwendet weiterhin Franks `6.18-main`.
+Ein Image mit `7.3-rc6` ist noch nicht gebaut oder gestartet.
+Der nächste Schritt prüft eine exakte rc6-Quelle und die benötigten R4-Pro-Erweiterungen.
+Die rc1-Basis von Franks `7.3-rc` wird nicht als rc6 ausgegeben.
+Die bereits vorbereitete manuelle Latest-Firmwareauswahl bleibt erhalten.
+
+Status: **NEW BRANCH CREATED / EXACT RC6 MIGRATION PENDING**.
