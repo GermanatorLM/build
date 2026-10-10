@@ -3565,3 +3565,22 @@ Es erfolgen keine Änderungen an Bootloader, eMMC, NAND, NOR oder EEPROM.
 Die UART-Aufzeichnung bleibt aktiv.
 
 Status: **EMMC BOOT / RC6 UNTESTED / SD BOOT SELECTION REQUIRED**.
+
+## 110. Falschen Start heruntergefahren und Log auf Nutzerwunsch entfernt
+
+Der Nutzer bestätigt die falsche Bootmoduswahl und erlaubt das Herunterfahren.
+OpenWrt führt `poweroff` aus.
+Das Log bestätigt UBIFS-Unmount und bei 118.592776 Sekunden `reboot: Power down`.
+TF-A meldet danach `PANIC at PC : 0x00000000430047ec`.
+Linux ist angehalten; vollständige elektrische Abschaltung ist damit nicht bestätigt.
+Der nächste Kaltstart benötigt physische Stromtrennung und SD-Boot-Auswahl.
+
+Der Nutzer verlangt zusätzlich die Entfernung des Logs dieses falschen Starts.
+Nur `uart-run-38051805424-rc6-20261010T184922.log` wird mit `gio trash` in den Papierkorb verschoben.
+Dieses Log ist deshalb nicht mehr am Pfad aus Abschnitt 109 vorhanden.
+Der Papierkorb ermöglicht eine Wiederherstellung.
+Ältere Logs und die dokumentierte Fehlstart-Chronik bleiben erhalten.
+Der alte Recorder wird beendet; eine neue Aufzeichnung beginnt mit 115200 Baud.
+Neues Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-20261010T185200.log`.
+
+Status: **LINUX HALTED / FRESH UART READY / RC6 BOOT PENDING**.

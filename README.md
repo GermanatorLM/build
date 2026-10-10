@@ -375,6 +375,7 @@ Nachtragen der eigenen SHA.
 | 136 | `SELF` | Erster Image-Download scheitert beim temporären ZIP an `disk quota exceeded`. Wiederholung verwendet `TMPDIR` auf der Arbeitsplatte mit 66 GB frei. SD bleibt unverändert | Downloadfehler, Bring-up-Dokumentation Abschnitt 107 | DOWNLOAD RETRY / HASH PENDING |
 | 137 | `SELF` | Zweiter Download abgeschlossen; SHA256 stimmt. rc6-Image nach pkexec-Freigabe auf die identifizierte 64-GB-SD geschrieben. Vollständiger Datenvergleich besteht; Karte sicher getrennt | Imagehash, SD-Schreiben, Readback, Bring-up-Dokumentation Abschnitt 108 | DOWNLOAD / SD WRITE / READBACK PASS; BOOT offen |
 | 138 | `SELF` | Erster aufgezeichneter Start verwendet OpenWrt aus eMMC: TF-A 2.10, U-Boot 2024.10 und Linux 6.6.93. Das rc6-SD-Image wird nicht gestartet | UART-Kaltstart, Bring-up-Dokumentation Abschnitt 109 | EMMC BOOT / RC6 UNTESTED |
+| 139 | `SELF` | Nutzer bestätigt falschen Bootmodus und verlangt Logentfernung. OpenWrt erreicht `Power down`; TF-A meldet anschließend PANIC. Nur das eMMC-Fehlstartlog wandert in den Papierkorb. Neue UART-Aufzeichnung startet | Shutdown, gezielte Logentfernung, Bring-up-Dokumentation Abschnitt 110 | LINUX HALTED / FRESH UART READY |
 
 ## Verbindliche Regel für kommende Änderungen
 
