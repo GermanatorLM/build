@@ -385,6 +385,7 @@ Nachtragen der eigenen SHA.
 | 146 | `SELF` | Run `38079324031` scheitert beim MT7996-Kompilieren: READ_ONCE unterstützt das Bitfeld hw_init_done nicht. Schutzpatch verwendet jetzt direkten Zugriff wie der bestehende Recovery-Einstieg. Checker verhindert Wiederholung; Patchprüfung, Preflight und Shellcheck bestehen | Schutzpatch, Checker, Bring-up-Dokumentation Abschnitt 117 | FIRST GUARD BUILD FAIL / CORRECTION STATIC PASS |
 | 147 | `SELF` | Korrigierter Schutzpatch `d0329f25e` gepusht. Neuer manueller latest-Build startet als Run `38082815846` auf dem rc6-Branch | GitHub Actions, Bring-up-Dokumentation Abschnitt 118 | REBUILD STARTED / RESULT PENDING |
 | 148 | `SELF` | Run `38082815846` erfolgreich. Korrigierter Schutzpatch angewendet; MT7996-Modul und vollständiges rc6-Trixie-Image gebaut. Latest-Firmware bleibt auf afabaf77 mit 15 Payloads. Buildlogs gesichert; Image-Download gestartet | Actions und Buildlogs, Bring-up-Dokumentation Abschnitt 119 | GUARD BUILD PASS / DOWNLOAD PENDING / HW TEST PENDING |
+| 149 | `SELF` | Erster Downloadprozess endet vor Abschluss. Neuer Download gelingt; Image-SHA256 stimmt. Nach pkexec-Freigabe auf die eindeutig identifizierte 64-GB-SD geschrieben. Vollständiger Image-Rücklesevergleich besteht | Imagehash, SD-Schreiben und Rücklesen, Bring-up-Dokumentation Abschnitt 120 | DOWNLOAD / SD WRITE / READBACK PASS |
 
 ## Verbindliche Regel für kommende Änderungen
 

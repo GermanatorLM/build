@@ -3890,3 +3890,33 @@ Der erfolgreiche Build bestätigt noch keinen erfolgreichen Schutzpatch-Hardware
 Der ursprüngliche Wi-Fi-Patchstartfehler bleibt offen.
 
 Status: **GUARD BUILD PASS / DOWNLOAD PENDING / FIX HW TEST PENDING**.
+
+## 120. Schutzpatch-Image heruntergeladen; SD-Schreiben vorbereitet
+
+Der erste Downloadprozess endet vor Abschluss; seine ZIP-Teildatei bleibt bei etwa 50 MB erhalten.
+Die Ursache des Prozessendes ist nicht bestätigt.
+Ein neuer Download beginnt mit einem separaten temporären Verzeichnis auf der Arbeitsplatte.
+Der neue Download endet erfolgreich am 11. Oktober 2026.
+`sha256sum -c` bestätigt das Image aus Run `38082815846`.
+Imagegröße: 1.488.977.920 Bytes.
+SHA256: `6479ad942880ce01885702a0836b478c17c86a5cc441caef4a8bb006386034af`.
+
+Der Nutzer verlangt ausdrücklich das Schreiben auf die SD-Karte.
+Die Zielprüfung bestätigt `/dev/sdb`, 63.864.569.856 Bytes, Wechselmedium und Serienkennung `Generic_STORAGE_DEVICE-0:0`.
+Der USB-Pfad entspricht dem bisherigen Kartenleser.
+Die identifizierte Geräteinstanz lautet `/dev/disk/by-diskseq/30`.
+Der vorbereitete Ablauf prüft erneut Geräteinstanz, Größe, Serienkennung, USB-Pfad und Imagehash.
+Der Ablauf hängt die Rootpartition aus und verweigert das Schreiben bei verbleibenden Mounts.
+Nach dem Schreiben mit `conv=fsync` vergleicht der Ablauf alle Imagebytes mit der SD-Karte.
+Der Nutzer bestätigt den pkexec-Aufruf.
+Das Schreiben aller 1.488.977.920 Bytes endet erfolgreich nach 48.4511 Sekunden einschließlich Synchronisierung.
+Die Partitionen bleiben während des Rücklesens ausgehängt.
+Der vollständige `cmp`-Vergleich aller Imagebytes endet mit Exitcode 0.
+Die Ausgabe bestätigt `WRITE PASS / FULL IMAGE READBACK PASS`.
+`udisksctl power-off` trennt Geräteinstanz 30 erfolgreich; `/dev/sdb` verschwindet aus der Geräteübersicht.
+Originalimages, SD-Konfigurationssicherungen und UART-Logs bleiben erhalten.
+Das neue Originalimage enthält keine lokale MT7996-Ladesperre.
+Der nächste Kaltstart prüft deshalb den Schutzpatch bei automatischer Wi-Fi-Probe.
+Ein neuer Root-Zugang benötigt nach dem Neuaufspielen erneut die erste Login-Einrichtung.
+
+Status: **DOWNLOAD / SHA256 / SD WRITE / FULL READBACK PASS / FIX HW TEST PENDING**.
