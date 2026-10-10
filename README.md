@@ -331,6 +331,7 @@ Nachtragen der eigenen SHA.
 | 96 | `SELF` | Board-lokale Diagnose liest MT_PAD_GPIO vor und nach internem Wi-Fi-Reset. Resetfolge und Variantenauswahl bleiben erhalten. Patch- und C-Tests bestehen | Wi-Fi-Patch, Preflight, Bring-up-Dokumentation | STATIC PASS / BUILD AND RESET COMPARISON PENDING |
 | 97 | `SELF` | Diagnosebuild 38003437809 besteht Preflight und Imagebau. Download und Imageaudit bestehen. Neue Resetmeldung im gebauten Treiber bestätigt | GitHub Actions, Buildlog, Imageaudit, UART | BUILD PASS / IMAGE AUDIT PASS / HW TEST PENDING |
 | 98 | `SELF` | Geprüftes Reset-Diagnoseimage auf 64-GB-SD geschrieben. Vollständiger Rücklese-Hash stimmt. Kartenleser sicher abgeschaltet | SD-Schreiblog, SHA256, Bring-up-Dokumentation | SD FLASH PASS / RESET COMPARISON PENDING |
+| 99 | `SELF` | Neues Diagnoseimage bootet. Variantenregister ist vor und nach internem Reset null. Wi-Fi-444-Firmwarestart scheitert weiterhin mit -11 | UART-Kaltstart, Bring-up-Dokumentation | BOOT PASS / RESET DIAGNOSTIC HW PASS / WIFI FAIL |
 
 ## Verbindliche Regel für kommende Änderungen
 

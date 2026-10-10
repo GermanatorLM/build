@@ -2234,3 +2234,29 @@ Andere Host-Laufwerke, eMMC, NAND und NOR bleiben unverändert.
 Der nächste Hardwaretest erfasst das Variantenregister vor und nach dem internen Wi-Fi-Reset beim vollständigen Kaltstart.
 
 Status: **SD FLASH PASS / RESET COMPARISON PENDING**.
+
+## 70. Hardwaremessung vor und nach internem Wi-Fi-Reset
+
+Der Nutzer startet das neue Diagnoseimage aus Run `38003437809`.
+Das vollständige UART-Log heißt `bpi-r4pro8x-uart/uart-run-38003437809-reset-comparison-coldboot-01.log`.
+BootROM, TF-A, U-Boot und Linux starten erfolgreich auf der physischen 8X-Hardware.
+Das SD-Rootfs verwendet UUID `51e89eae-8fc3-4bae-8e74-8705c056448b`.
+Linux erreicht `multi-user.target`, vergrößert das Rootfs und wartet auf die Erstlogin-Einrichtung.
+
+Bei 27,60 Sekunden meldet der neue Diagnosepatch `before=0x00000000 after=0x00000000` für `MT_PAD_GPIO`.
+Die automatische Erkennung wählt anschließend weiterhin Variante 444.
+Der unsuffigierte ROM-Patch meldet Build-Time `20260311120419a`.
+Bei 32,80 Sekunden scheitert der Patchstart mit MCU-Timeout.
+Bei 37,85 Sekunden endet die Probe nach dem Semaphore-Timeout mit `-11`.
+Die früheste fehlschlagende Wi-Fi-Stufe bleibt der Linux-Firmwarestart.
+
+Die Nullmessung liegt bereits vor dem internen Wi-Fi-Reset vor.
+Dieser Versuch unterstützt daher nicht die Hypothese, dass dieser Reset erst das Variantenbit löscht.
+Die Messung beweist weder korrekte Strap-Erkennung noch eine echte 444-Bestückung.
+Der Patch liefert die beabsichtigte Hardwarediagnose, aber keinen Wi-Fi-Fix.
+Firmwaredateien, EEPROM-Daten und Variantenauswahl bleiben unverändert.
+Der nächste Vergleich soll den früher erfolgreichen Treiberstand auf derselben Hardware untersuchen.
+Weitere identische Stromzyklen oder Bus-Resets ersetzen diesen Vergleich nicht.
+Das Board bleibt eingeschaltet; der UART-Recorder bleibt aktiv.
+
+Status: **BOOT PASS / RESET DIAGNOSTIC HW PASS / WIFI FAIL**.
