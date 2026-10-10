@@ -3716,3 +3716,46 @@ Ein regulärer rc6-BOOT-PASS mit aktiviertem Wi-Fi und ein vollständiger HW-PAS
 Die bisherigen Fehlversuche bleiben dokumentiert.
 
 Status: **ISOLATED SD START PASS / WIFI DISABLED / FIRST LOGIN SETUP PENDING / HW PASS OFFEN**.
+
+## 114. Root-Shell und EEPROM-MACs im isolierten rc6-Start bestätigt
+
+Der Nutzer erlaubt ein temporäres Root-Passwort.
+Die erste Login-Einrichtung setzt dieses Passwort erfolgreich.
+Die optionale Benutzeranlage wird mit Ctrl-C abgebrochen; es wird kein zusätzlicher Benutzer angelegt.
+Die Konsole erreicht `root@bananapir4pro8x:~#`.
+Das Raw-UART-Log bleibt lokal und erhält Dateimodus 0600, weil es Zugangsdaten enthalten kann.
+
+`uname -r` bestätigt `7.3.0-rc6-current-filogic`.
+`/proc/uptime` meldet 180.76 Sekunden.
+`systemctl is-system-running` meldet `running`; `systemctl --failed` listet null Units.
+Portbenennung und MAC-Dienst melden jeweils `Result=success` und `ExecMainStatus=0`.
+Die Kernelzeile bestätigt die Modulsperre; `lsmod` enthält kein `mt7996e`.
+MT76-Hilfsmodule und mac80211 bleiben geladen, ohne die beobachtete Panic auszulösen.
+
+Der MAC-Dienst bestätigt `SOURCE=eeprom` und Gerät `3-0057`.
+Die Basis lautet `da:68:a5:94:9a:ee`.
+`ip -br link` bestätigt alle zehn geplanten Namen und Adressen:
+
+| Interface | MAC-Adresse |
+|---|---|
+| eth0 | da:68:a5:94:9a:ee |
+| eth1 | da:68:a5:94:9a:ef |
+| wan | da:68:a5:94:9a:f0 |
+| lan1 | da:68:a5:94:9a:f1 |
+| lan2 | da:68:a5:94:9a:f2 |
+| lan3 | da:68:a5:94:9a:f3 |
+| lan4 | da:68:a5:94:9a:f4 |
+| lan5 | da:68:a5:94:9a:f5 |
+| lan6 | da:68:a5:94:9a:f6 |
+| fpc | da:68:a5:94:9a:f7 |
+
+Die beiden internen Ethernet-Anbindungen melden LOWER_UP.
+Externe LAN- und WAN-Links haben keinen Carrier; Datenverkehr wird nicht getestet.
+HaLow erscheint zusätzlich als `eth2`; das QMI-Modem erscheint als `wwan0`.
+Die bisherigen RNDIS-Sende-Timeouts bleiben ein separates offenes Problem.
+Es erfolgt keine erneute Wi-Fi-Probe, kein Reset und kein manueller Flash- oder EEPROM-Schreibzugriff.
+Das Board bleibt eingeschaltet; die UART-Aufzeichnung bleibt aktiv.
+Der isolierte Start besteht bis zur Root-Shell, aber nur für diesen einen Kaltstart ohne MT7996.
+Ein regulärer rc6-Boot mit aktiviertem Wi-Fi und vollständiger HW-PASS bleiben offen.
+
+Status: **ROOT SHELL / ISOLATED BOOT PASS / EEPROM MAC PASS / WIFI DISABLED / HW PASS OFFEN**.
