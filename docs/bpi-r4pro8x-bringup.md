@@ -3920,3 +3920,47 @@ Der nächste Kaltstart prüft deshalb den Schutzpatch bei automatischer Wi-Fi-Pr
 Ein neuer Root-Zugang benötigt nach dem Neuaufspielen erneut die erste Login-Einrichtung.
 
 Status: **DOWNLOAD / SHA256 / SD WRITE / FULL READBACK PASS / FIX HW TEST PENDING**.
+
+## 121. Erster Schutzpatch-Kaltstart besteht trotz Wi-Fi-Probe-Fehler
+
+Der Nutzer startet die frisch beschriebene SD-Karte.
+Die separate UART-Aufzeichnung beginnt vor dem Start mit 115200 Baud und Dateimodus 0600.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38082815846-rc6-guard-20261010T233055.log`.
+Das Log enthält BootROM, TF-A 2.14 mit `WDT: Cold boot`, U-Boot 2025.04 und Linux 7.3.0-rc6.
+Der Speichertest besteht; DRAM beträgt 8192 MB.
+Root-UUID: `1a6cf974-bdc4-4559-b3e2-d784942c206e`; Rootgerät: `mmcblk0p5`.
+Die Kernelzeile enthält keine MT7996-Modulsperre.
+`/etc/armbian-release` bestätigt `BUILD_REPOSITORY_COMMIT=d0329f2`.
+
+Die automatische MT7996-Probe startet bei 20.875 Sekunden.
+Die Variantenwahl meldet 444; `MT_PAD_GPIO` bleibt vor und nach Reset null.
+Die ROM-Patch-Datei meldet Build Time `20260311120419a`.
+Bei 26.009 Sekunden folgen Message-7-Timeout und `Failed to start patch`.
+Bei 31.049 Sekunden folgen Message-10-Timeout und `Failed to release patch semaphore`.
+Die Probe endet unmittelbar danach mit Fehler `-11`.
+Es folgen weder zehn Recovery-Versuche noch `chip full reset failed` oder `Hardware restart was requested`.
+Die vorherige mac80211-Panic tritt im beobachteten Zeitraum nicht auf.
+Der erste Hardwaretest bestätigt damit den Schutz des frühen Timeoutpfads.
+Er bestätigt keine funktionierende Wi-Fi-Initialisierung oder fehlerfreie Laufzeit-Recovery.
+
+Systemd erreicht `multi-user.target`; die SD-Rootpartition wird automatisch vergrößert.
+Der zuvor autorisierte temporäre Root-Zugang wird erneut eingerichtet.
+Die optionale Benutzeranlage wird abgebrochen; die Root-Shell ist erreichbar.
+`/proc/uptime` bestätigt 89.41 Sekunden und damit Betrieb nach dem bisherigen Panic-Zeitpunkt.
+`systemctl is-system-running` meldet `running`; `systemctl --failed` listet null Units.
+`lsmod` bestätigt das geladene MT7996-Modul.
+`/sys/class/ieee80211` enthält kein Radio; eine erfolgreiche Modulladung bedeutet keinen erfolgreichen Geräte-Probe.
+`ip -br link` bestätigt `eth0`, `eth1`, `wan`, `lan1` bis `lan6` und `fpc`.
+Die MACs entsprechen weiterhin dem EEPROM-Adressblock von `da:68:a5:94:9a:ee` bis `da:68:a5:94:9a:f7`.
+Ethernet-Datenverkehr wird nicht getestet; externe Ports haben keinen Carrier.
+
+HaLow-RNDIS erscheint diesmal als `eth3` und meldet weiterhin Sende-Timeouts.
+Das QMI-Modem erscheint als `wwan0`; weitere USB-Module werden erkannt.
+Die automatische SPI-NAND-UBI-Anbindung bleibt vorhanden.
+Es erfolgt kein manueller Flash- oder EEPROM-Schreibzugriff und kein weiterer Board-Reset.
+Das Board bleibt eingeschaltet; die UART-Aufzeichnung bleibt aktiv.
+Das Rohlog enthält möglicherweise Zugangsdaten und bleibt ausschließlich lokal.
+Dieser Nachweis gilt für einen Kaltstart; Wiederholungs-, Warmstart- und Langzeittests stehen aus.
+Der nächste Wi-Fi-Schritt untersucht den ursprünglichen Patchstartfehler ohne die bisherige Panic-Schleife.
+
+Status: **FIRST GUARD BOOT PASS / EARLY PANIC GUARD PASS / WIFI INIT FAIL / HW PASS OFFEN**.

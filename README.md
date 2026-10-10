@@ -15,7 +15,8 @@ Der Referenzbranch `bpi-r4pro-8x`, sämtliche Dateien und die vollständige Chro
 
 > **Referenzstatus:** Der bisherige 6.18-Port erreicht `BOOT PASS`; `HW PASS` bleibt offen.
 > Wi-Fi startet unter OpenWrt, scheitert aber im zuletzt geprüften Armbian-Referenzimage.
-> 7.3-rc6 erreicht `BUILD PASS` in Run `38051805424`; der SD-Start scheitert im Wi-Fi-Restart mit Kernel-Panic.
+> 7.3-rc6 mit Schutzpatch erreicht `BUILD PASS` in Run `38082815846` und einen SD-Kaltstart bis zur Root-Shell.
+> Wi-Fi scheitert weiterhin beim Firmware-Patchstart; die vorherige Restart-Panic tritt in diesem Test nicht auf.
 
 ## Zielbild
 
@@ -53,14 +54,14 @@ die Regression eingeführt hat.
 | SoC | MediaTek MT7988A | implementiert |
 | RAM | 8 GiB DDR4 | ATF mit `DDR4_4BG_MODE=1` |
 | Distribution | Debian Trixie | vorgesehen |
-| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | BUILD PASS; SD-Start mit Wi-Fi-Panic |
+| Kernel | Torvalds `v7.3-rc6` + portierte Frank-Erweiterungen | BUILD PASS; erster SD-Kaltstart mit Schutzpatch besteht |
 | Linux DTB | `mt7988a-bananapi-bpi-r4-pro-8x.dtb` | integriert |
 | SD DTBO | `mt7988a-bananapi-bpi-r4-pro-sd.dtbo` | integriert |
 | U-Boot | Armbian Filogic-Basis + minimaler R4-Pro-SD-Target / 2025.04 | BUILD PASS |
 | Bootformat | extlinux | integriert |
 | Firmware | `pinned` / `latest` / `ref`, 15 PHY/Wi-Fi-Payloadpfade + MT7988-WED-Blobs | integriert |
 | Automatischer Check | `tools/bpi-r4pro8x-check.sh` | vorhanden |
-| Hardwaretest | UART/SD | 6.18: BOOT PASS; rc6: BOOT FAIL mit Wi-Fi |
+| Hardwaretest | UART/SD | rc6: BOOT PASS mit Schutzpatch, ein Kaltstart; Wiederholung offen |
 | Hardwaretest | Netzwerk/PCIe/Wi-Fi | HW PASS noch offen |
 
 ## Schnellstart
@@ -386,6 +387,7 @@ Nachtragen der eigenen SHA.
 | 147 | `SELF` | Korrigierter Schutzpatch `d0329f25e` gepusht. Neuer manueller latest-Build startet als Run `38082815846` auf dem rc6-Branch | GitHub Actions, Bring-up-Dokumentation Abschnitt 118 | REBUILD STARTED / RESULT PENDING |
 | 148 | `SELF` | Run `38082815846` erfolgreich. Korrigierter Schutzpatch angewendet; MT7996-Modul und vollständiges rc6-Trixie-Image gebaut. Latest-Firmware bleibt auf afabaf77 mit 15 Payloads. Buildlogs gesichert; Image-Download gestartet | Actions und Buildlogs, Bring-up-Dokumentation Abschnitt 119 | GUARD BUILD PASS / DOWNLOAD PENDING / HW TEST PENDING |
 | 149 | `SELF` | Erster Downloadprozess endet vor Abschluss. Neuer Download gelingt; Image-SHA256 stimmt. Nach pkexec-Freigabe auf die eindeutig identifizierte 64-GB-SD geschrieben. Vollständiger Image-Rücklesevergleich besteht | Imagehash, SD-Schreiben und Rücklesen, Bring-up-Dokumentation Abschnitt 120 | DOWNLOAD / SD WRITE / READBACK PASS |
+| 150 | `HW` | Erster Schutzpatch-Kaltstart ohne Modulsperre erreicht Root-Shell und running nach 89 Sekunden. Wi-Fi-Probe endet mit -11 statt Recovery-Schleife und Panic. Kein Wi-Fi-Radio. Portnamen und EEPROM-MACs stimmen; HaLow-Sende-Timeouts bleiben | UART und Systemstatus, Bring-up-Dokumentation Abschnitt 121 | FIRST GUARD BOOT PASS / WIFI INIT FAIL / HW PASS offen |
 
 ## Verbindliche Regel für kommende Änderungen
 
