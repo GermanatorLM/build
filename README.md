@@ -376,6 +376,7 @@ Nachtragen der eigenen SHA.
 | 137 | `SELF` | Zweiter Download abgeschlossen; SHA256 stimmt. rc6-Image nach pkexec-Freigabe auf die identifizierte 64-GB-SD geschrieben. Vollständiger Datenvergleich besteht; Karte sicher getrennt | Imagehash, SD-Schreiben, Readback, Bring-up-Dokumentation Abschnitt 108 | DOWNLOAD / SD WRITE / READBACK PASS; BOOT offen |
 | 138 | `SELF` | Erster aufgezeichneter Start verwendet OpenWrt aus eMMC: TF-A 2.10, U-Boot 2024.10 und Linux 6.6.93. Das rc6-SD-Image wird nicht gestartet | UART-Kaltstart, Bring-up-Dokumentation Abschnitt 109 | EMMC BOOT / RC6 UNTESTED |
 | 139 | `SELF` | Nutzer bestätigt falschen Bootmodus und verlangt Logentfernung. OpenWrt erreicht `Power down`; TF-A meldet anschließend PANIC. Nur das eMMC-Fehlstartlog wandert in den Papierkorb. Neue UART-Aufzeichnung startet | Shutdown, gezielte Logentfernung, Bring-up-Dokumentation Abschnitt 110 | LINUX HALTED / FRESH UART READY |
+| 140 | `SELF` | SD-Kaltstart erreicht TF-A 2.14, U-Boot 2025.04 und Linux 7.3.0-rc6. SD-Rootfilesystem wird eingebunden. MT7996-Patchstart scheitert; Hardware-Restart löst nach 76 Sekunden eine Kernel-Panic aus. Automatischer Neustart folgt | UART-Log, Bring-up-Dokumentation Abschnitt 111 | RC6 SD BOOT FAIL / WIFI INIT FAIL / HW PASS offen |
 
 ## Verbindliche Regel für kommende Änderungen
 

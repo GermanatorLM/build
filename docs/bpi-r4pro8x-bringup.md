@@ -3584,3 +3584,51 @@ Der alte Recorder wird beendet; eine neue Aufzeichnung beginnt mit 115200 Baud.
 Neues Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-20261010T185200.log`.
 
 Status: **LINUX HALTED / FRESH UART READY / RC6 BOOT PENDING**.
+
+## 111. rc6-SD-Kaltstart scheitert im Wi-Fi-Fehlerpfad
+
+Der Nutzer startet das Board im SD-Modus.
+Die UART-Aufzeichnung bleibt aktiv.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38051805424-rc6-20261010T185200.log`.
+BL2 meldet TF-A 2.14 und `WDT: Cold boot`.
+Der Speichertest besteht; das Board erkennt 8192 MB DRAM.
+U-Boot 2025.04 lädt extlinux, das 8X-DTB und das SD-Overlay.
+Linux meldet `7.3.0-rc6-current-filogic`.
+Das SD-Rootfilesystem auf `mmcblk0p5` wird eingebunden.
+Systemd startet Debian Trixie; ein Login wird vor der Panic nicht erreicht.
+
+Beide USB-Controller initialisieren.
+QMI, USB-Seriell, ACM und RNDIS erkennen angeschlossene Geräte.
+Die Ethernet-Treiber registrieren GMACs und DSA-Ports.
+Diese Meldungen bestätigen keine Link-, Datenverkehrs- oder vollständigen MAC-Tests.
+Die PCIe-Controller `11280000` und `11290000` melden Probe-Timeouts mit Fehler `-110`.
+
+MT7996 erkennt Variante 444 und fordert `mediatek/mt7996/mt7996_rom_patch.bin` an.
+Die Firmware meldet Build Time `20260311120419a`.
+Bei 25.368 Sekunden scheitert `Failed to start patch` nach Message-7-Timeout.
+Weitere Versuche melden Message-10-Timeouts und `Failed to get patch semaphore`.
+`MT_PAD_GPIO` bleibt vor und nach Reset bei `0x00000000`.
+Bei 76.568 Sekunden folgen `chip full reset failed` und `Hardware restart was requested`.
+Der Probe endet mit Fehler `-11`.
+Gleichzeitig entsteht ein Speicherzugriffsfehler an Adresse `0x20`.
+Der Stacktrace nennt `mutex_lock`, `ieee80211_restart_work`, `process_one_work`, `worker_thread` und `kthread`.
+Die Workqueue heißt `events_freezable`; der Restart-Worker stammt aus `mac80211`.
+Bei 76.886 Sekunden folgt `Kernel panic - not syncing: Oops: Fatal exception`.
+Pstore meldet zusätzlich Schreibfehler `-28`.
+Bei 78.081 Sekunden kündigt Linux den automatischen Neustart an.
+Das Log enthält anschließend einen zweiten rc6-Start mit erneutem Wi-Fi-Patchstartfehler.
+Auch der zweite Start endet bei 76.332 Sekunden mit derselben Kernel-Panic und automatischem Neustart.
+
+Die früheste funktionale Wi-Fi-Abweichung liegt beim Firmware-Patchstart.
+Der anschließende Restart-Fehler verhindert zusätzlich den Abschluss des Systemstarts.
+Der Stacktrace belegt den Fehlerpfad, aber noch nicht die genaue Ursache des ungültigen Workqueue-Zugriffs.
+Es erfolgt kein PCIe-Busreset, Firmwarewechsel oder Eingriff in den Treiber.
+
+Linux hängt automatisch die SPI-NAND-UBI-Partition ein.
+Es erfolgt kein manueller Flash-Schreibbefehl.
+Automatische UBI-Verwaltungszugriffe sind damit nicht ausgeschlossen.
+Ein späterer SD-Test muss diese automatische NAND-Anbindung separat bewerten.
+Das Rohlog bleibt lokal und wird nicht eingecheckt.
+Die bisherige Chronik bleibt erhalten.
+
+Status: **RC6 SD BOOT FAIL / WIFI INIT FAIL / HW PASS OFFEN**.
