@@ -381,6 +381,7 @@ Nachtragen der eigenen SHA.
 | 142 | `HW` | rc6-SD-Kaltstart ohne MT7996 erreicht Login-Einrichtung und `multi-user.target`. Kernel bestätigt Modulsperre. Konsole reagiert nach dem bisherigen Panic-Zeitpunkt. HaLow-RNDIS meldet Sende-Timeouts; Netzwerkverbindung fehlt | UART, Bring-up-Dokumentation Abschnitt 113 | ISOLATED SD START PASS / WIFI DISABLED / HW PASS offen |
 | 143 | `HW` | Temporären Root-Zugang auf Nutzerwunsch eingerichtet; optionale Benutzeranlage abgebrochen. Shell bestätigt nach 180 Sekunden Systemstatus running und keine fehlgeschlagenen Units. EEPROM-MACs und alle zehn Portnamen stimmen | UART, Systemstatus, Bring-up-Dokumentation Abschnitt 114 | ROOT SHELL / ISOLATED BOOT PASS / WIFI DISABLED |
 | 144 | `SELF` | rc6-MCU-Timeout startet Recovery vor mac80211-Registrierung. Restart-Worker greift auf fehlende Workqueue zu. Board-lokaler Schutzpatch unterdrückt frühe Recovery, erhält Laufzeit-Recovery und Timeoutfehler. Patchprüfung, Preflight und Shellcheck bestehen | `004-mt7996-skip-preinit-timeout-recovery.patch`, Checker, Bring-up-Dokumentation Abschnitt 115 | STATIC / PATCH PASS / BUILD AND HW PENDING |
+| 145 | `SELF` | Schutzpatch und Testchronik gepusht. Manueller Actions-Build startet mit latest-Firmware für Commit `aae03a372` als Run `38079324031`. Laufende SD-Ladesperre bleibt unverändert | GitHub Actions, Bring-up-Dokumentation Abschnitt 116 | BUILD STARTED / RESULT PENDING |
 
 ## Verbindliche Regel für kommende Änderungen
 

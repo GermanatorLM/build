@@ -3805,3 +3805,23 @@ Das laufende Board und seine SD-Konfiguration bleiben unverändert.
 Der nächste Schritt baut den Patch und prüft einen SD-Kaltstart mit wieder aktiviertem MT7996.
 
 Status: **PANIC PATH IDENTIFIED / STATIC AND PATCH PASS / BUILD AND HW PENDING / WIFI CAUSE OPEN**.
+
+## 116. Imagebuild mit frühem Recovery-Schutz gestartet
+
+Der Nutzer verlangt den Build.
+Commit `aae03a3721aeded8b18f715f4ed05e9ca6fb5a96` ist auf `origin/bpi-r4pro-8x-7.3-rc6` gepusht.
+Der Push erhält die bisherigen Test- und Fehlversuchscommits.
+Der manuelle Workflow `bpi-r4pro8x-build.yml` verwendet `firmware_mode=latest`.
+Run: `38079324031`.
+URL: https://github.com/GermanatorLM/build/actions/runs/38079324031
+GitHub bestätigt den Buildcommit und Status `in_progress`.
+Ein Build-Ergebnis liegt noch nicht vor.
+
+Das neue Image enthält den frühen MT7996-Recovery-Schutz.
+Die lokale SD-Modulsperre aus Abschnitt 112 ist nicht Teil der Buildkonfiguration.
+Der nächste Image-Kaltstart lädt deshalb MT7996 wieder automatisch.
+Firmware-Patchstartfehler können weiterhin auftreten; der Schutz benötigt einen Hardwaretest.
+Das laufende Board, die eingelegte SD und die UART-Aufzeichnung bleiben unverändert.
+Es erfolgt kein neuer Download, SD-Schreibvorgang oder Board-Reset.
+
+Status: **BUILD STARTED / RESULT PENDING / FIX HW TEST PENDING**.
