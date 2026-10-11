@@ -4400,3 +4400,58 @@ Nach 206.76 Sekunden bleibt die Root-Shell erreichbar; `iw dev` und `iw phy` ble
 Der Kernel-Taint beträgt 4608 nach den Bereinigungswarnungen.
 Der abschließende Kernel-Ringpuffer liegt unter `/tmp/r4pro-nand-compare/dmesg.txt`.
 Die Host-Aufzeichnung bleibt erhalten; OpenWrt bleibt eingeschaltet.
+
+## 133. Neuer SPI-NAND-Kaltstart startet 233-Firmware und drei WLAN-Bänder
+
+Der vorherige NAND-Shutdown hängt die NVMe bei 279.516 Sekunden aus und erreicht `Power down` bei 282.692 Sekunden.
+Die bekannte TF-A-Panic bei `0x430047ec` folgt.
+Der Nutzer verbindet Debug erneut für den angekündigten Hardwarevergleich.
+Die Hostprüfung bestätigt 115200 Baud, 8N1, Raw-Modus und deaktivierte Flusskontrolle.
+Der Recorder öffnet ein neues Log mit Dateimodus 0600.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38096780032-rc6-dma-20261011T161250.log`.
+
+Der folgende Start bestätigt erneut SPI-NAND und TF-A `Cold boot`.
+Linux 6.6.93 erreicht die Root-Shell.
+Boot-ID: `0fa68d62-5489-4b00-b9f2-5850f2dbd3ab`.
+Die lesende Geräteinventur zeigt weiterhin NVMe `1ed0:2283`.
+Der Aufbau ist deshalb kein vollständig auf BE14 reduzierter Test.
+USB zeigt nur Hub- und Root-Hub-IDs; die vorherigen externen Modem-/HaLow-Endpunkte fehlen.
+Die tatsächlich entfernten Module und sämtliche physischen Stromquellen sind nicht eigenständig bestätigt.
+
+Bei 38.387 Sekunden meldet der ROM-Patch diesmal Build Time `20250605130343a`.
+Bei 39.123 Sekunden startet WM, Build Time `20250605130338`.
+Bei 39.191 Sekunden startet DSP, Build Time `20250605125645`.
+Bei 39.335 Sekunden startet WA, Build Time `20250605130248`.
+Bei 40.196 Sekunden registriert der Treiber `mt76-phy0`.
+Die Hersteller-Firmwaredateien bleiben unverändert; beide ROM-SHA256-Werte stimmen weiterhin mit Abschnitt 130 überein.
+Der geladene ROM-Build entspricht dem gelesenen Header von `mt7996_rom_patch_233.bin`.
+Der unsuffigierte ROM-Header bleibt `20250605125803a`, wie bei den vorherigen Fehlversuchen.
+
+Debugfs bestätigt Firmwareversion `4.4.25.06` und den geladenen 233-ROM-Build.
+Debugfs meldet `efuse mode`, MT7976 `0x8a10`, MT7977 `0x8a11` und iFEM.
+Ein Wi-Fi-PHY stellt die drei Radio-Bänder und MLO-Links bereit.
+`iw dev` zeigt APs auf 2412 MHz, 5180 MHz und 6135 MHz.
+Die zugehörigen Breiten betragen 40, 160 und 320 MHz.
+Die bestehenden Hersteller-APs heißen `OpenWrt-2g`, `OpenWrt-5g` und `OpenWrt-6g`.
+Die bestehenden MLO-Links verbinden alle drei Bänder unter `MT76_AP_MLD`.
+Diese Beobachtung prüft Initialisierung und AP-Konfiguration, nicht Reichweite oder Datenübertragung.
+
+Die Variantenregisterprüfung verwendet den vorhandenen Debugfs-Registerselektor und liest Adresse `0x700056f0`.
+Der ursprüngliche Selektorwert beträgt null.
+Der erste Set-e-Aufruf bricht ab, weil der Hersteller-Debugfs-Schreibzugriff Exitcode 1 zurückliefert.
+Der Folgetest zeigt: Der Selektor übernimmt den angeforderten Wert trotz Exitcode 1.
+`regval` liefert `MT_PAD_GPIO=0x00094800`.
+Der Selektor wird danach auf null zurückgestellt; eine separate Leseprüfung bestätigt null.
+Die Prüfung schreibt nur den Debug-Selektor, keinen Hardware-Registerwert.
+Bit 19 ist gesetzt; der geprüfte rc6-Auswahlcode verwendet dieses Bit für Variante 233.
+Die früheren Armbian-Fehlstarts melden dagegen Registerwert null und Auswahl 444.
+Die Beobachtung stützt eine zustandsabhängige Varianten-/Versorgungsursache, beweist aber nicht deren konkreten Auslöser.
+
+Nach 196.54 Sekunden bleiben alle drei AP-Bänder sichtbar und die Root-Shell erreichbar.
+Der Kernel-Taint beträgt 4096; die Prüfung findet keine WLAN-Timeouts, Probe-Fehler oder WARN-Stacks dieses Starts.
+Dmesg und Firmwareversion liegen zusätzlich unter `/tmp/r4pro-working-233/`.
+EEPROM-, eFuse-, Kalibrations- und Firmwaredateien erhalten keinen manuellen Schreibzugriff.
+Der nächste Vergleich verwendet das aktuelle Armbian-SD-Image mit unveränderter Bestückung.
+Keine automatische Umschaltung oder weitere Modulbestückung erfolgt; OpenWrt bleibt eingeschaltet.
+
+Status: **OPENWRT WIFI INIT PASS / THREE AP BANDS PASS / 233 ROM CONFIRMED / ARMBIAN COMPARISON PENDING**.
