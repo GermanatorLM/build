@@ -4291,3 +4291,49 @@ Dmesg und Status liegen zusätzlich unter `/root/r4pro-rc6-dma-01/` auf der SD-K
 Das Board bleibt eingeschaltet; der korrigierte Recorder zeichnet weiter auf.
 
 Status: **SD ROOT SHELL PASS / DMA DIAG PASS / LED ACTIVE / FIRMWARE HASH PASS / WIFI INIT FAIL / EARLY UART FAIL**.
+
+## 130. Hersteller-OpenWrt aus eMMC reproduziert ROM-Patchstartfehler
+
+Vor dem Vergleich sichert Armbian Dmesg zusätzlich als `/root/r4pro-rc6-dma-01/dmesg-before-shutdown.txt`.
+Linux erhält `sync` und `systemctl poweroff`.
+Bei 280.864 Sekunden bestätigt Linux alle ausgehängten Dateisysteme.
+Bei 280.980 Sekunden folgt `Power down`; TF-A meldet erneut `Power-down unsupported` und Panic bei `0x43004898`.
+Die physische Stromtrennung bleibt erforderlich.
+
+Der folgende Hersteller-OpenWrt-Start liefert einen lesbaren frühen UART-Log.
+Der Mitschnitt läuft im lesbaren Log aus Abschnitt 129 weiter; Originaldaten bleiben erhalten.
+TF-A 2.10 meldet `WDT: Cold boot`, erfolgreichen DRAM-Test und 8192 MB.
+U-Boot 2024.10-OpenWrt lädt Kernel, Rootfs und eMMC-Overlay aus eMMC.
+Ein zusätzlicher FIT-Konfigurationsversuch meldet `Could not find configuration node`; der Boot läuft trotzdem weiter.
+OpenWrt erreicht eine Root-Shell mit Linux 6.6.93 und OpenWrt 24.10-SNAPSHOT.
+Boot-ID: `5909084a-0c2e-4011-91a4-9ad233ab21a3`.
+Der Kernel-Taint beträgt 4096; der Bootlog meldet einen externen Aeonsemi-Treiber.
+Das aktive Overlay liegt auf `/dev/fitrw` als F2FS.
+Die Startfolge bindet zwischenzeitlich auch NAND-UBIFS ein; der Vergleich behauptet keine unveränderte NAND-Nutzung.
+
+Der Hersteller-Treiber aktiviert WED und HIF2.
+WED-WO meldet Build Time `20230218204509`.
+Beide Wi-Fi-PCIe-Links melden 8.0 GT/s und zwei Lanes.
+Der ROM-Patch meldet HW/SW `0x8a108a10` und Build Time `20250605125803a`.
+Die ROM-Datei umfasst 34592 Bytes, gegenüber 37216 Bytes beim aktuellen Armbian-Payload.
+SHA256 des Hersteller-ROM-Patches: `933eb31c8c111e9ef8af8ae9b2e66fbce4433b14cd33f8ad885728c686fa20f1`.
+SHA256 der Hersteller-233-Datei: `14ed39216fffe0a5b34386e4deb5f6278f1edf54da21a850fcfd10aafe65d24f`.
+Die Prüfung tauscht keine Dateien und verändert keine Modulparameter.
+
+Bei 57.445 Sekunden meldet Message 7, Sequenz 12, einen Timeout und Wiederholungsversuch.
+Bei 77.925 Sekunden meldet Message 7, Sequenz 13, erneut einen Timeout.
+Bei 98.405 Sekunden meldet Message 7, Sequenz 14, einen dritten Timeout.
+Bei 98.411 Sekunden folgt `Failed to start patch`.
+Bei 118.885 Sekunden scheitert zusätzlich Message 10, Sequenz 15; der Treiber versucht die Semaphorefreigabe erneut.
+Nach 135.88 Sekunden zeigen weder `iw dev` noch `iw phy` ein WLAN-Radio.
+Die Hauptfunktion zeigt während der laufenden Probe einen Driver-Link; dies beweist keinen abgeschlossenen Probe-Erfolg.
+Dmesg liegt temporär unter `/tmp/r4pro-openwrt-compare/`; die Host-UART-Aufzeichnung bleibt dauerhaft erhalten.
+
+Der Fehler tritt damit auch mit älterem Hersteller-Kernel, Hersteller-Treiber und älterem ROM-Patch auf.
+Die Beobachtung widerlegt eine ausschließlich rc6-spezifische Fehlerbeschreibung, nicht jede mögliche Softwareursache.
+Die Beobachtung beweist keinen Hardwaredefekt und keinen vollständigen Versorgungsausfall des BE14.
+Ein kontrollierter weiterer Kaltstart muss alle möglichen Stromquellen einschließlich USB berücksichtigen.
+Firmware-, GPIO-, EEPROM- und eFuse-Schreibversuche bleiben im Vergleich ausgeschlossen.
+OpenWrt bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **OPENWRT EMMC COLD BOOT PASS / THREE PATCH START TIMEOUTS / NO WIFI PHY / ROOT SHELL PASS**.
