@@ -4238,3 +4238,56 @@ Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38096780032-rc6-dma-20261011T15
 Der Recorder wartet auf den nächsten Kaltstart; dieser Image-Boot ist noch nicht geprüft.
 
 Status: **BUILD PASS / DOWNLOAD HASH PASS / SD FULL READBACK PASS / BOOT PENDING / WIFI HW PENDING**.
+
+## 129. Diagnoseimage erreicht Shell; Patchstart verliert MCU-Antworten
+
+Der Nutzer meldet den Start des Diagnoseimages.
+Der frühe Mitschnitt enthält unlesbare Zeichen und NUL-Bytes.
+Die Portprüfung zeigt unerwartet 9600 Baud trotz gestarteter 115200-Baud-Socat-Sitzung.
+Die Ursache dieser Einstellungsänderung bleibt ungeklärt; nur Socat hält den UART-Port während der Prüfung offen.
+Die Portkorrektur stellt 115200 Baud, 8N1, Raw-Modus und deaktivierte Flusskontrolle her.
+Danach beendet Socat die alte Verbindung mit I/O-Fehler und verbindet den UART erneut.
+Der folgende Mitschnitt liefert lesbare Linux-Meldungen und die Erststart-Shell.
+Der frühe TF-A-/U-Boot-Verlauf ist nicht lesbar gesichert und erhält keinen vollständigen Bootlog-Pass.
+Fehlerlog: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38096780032-rc6-dma-20261011T154351.log`.
+Lesbares Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38096780032-rc6-dma-20261011T154800.log`.
+Beide Logs bleiben lokal mit Dateimodus 0600 erhalten.
+
+Eine leere Eingabe erreicht zunächst die Passwortwiederholung; der erste Passwortvergleich scheitert.
+Die erneute Anlage verwendet die bereits vereinbarten temporären Root-Zugangsdaten und besteht.
+Die optionale zusätzliche Benutzeranlage wird an der vorgesehenen Abbruchstelle beendet.
+Linux meldet `7.3.0-rc6-current-filogic` und Boot-ID `d7ca62d1-f855-4bc7-a475-8b1a3c900abf`.
+Root liegt auf `/dev/mmcblk0p5`, UUID `502fc5bb-14be-4761-a88b-05025f3a06e5`.
+Nach 109.90 Sekunden meldet systemd `running`, null fehlgeschlagene Units und Kernel-Taint null.
+Der LED-Dienst ist aktiv; der Image-Override und die erwartete Wrapper-Prüfsumme stimmen.
+Dieser frische Image-Start prüft noch keine Wiederherstellung nach einem vorherigen LED-State-Save.
+Alle 15 Firmwaredateien bestehen erneut SHA256; Quelle bleibt `afabaf773c4c2e2c841429933a6a084a5af4d14d`, Modus `latest`.
+Beide Wi-Fi-Links melden Gen3 mit zwei Lanes.
+Die Hauptfunktion bleibt ungebunden; die zweite Funktion bindet an `mt7996e_hif`.
+Ethernet-Portnamen und EEPROM-MAC-Zuordnung bleiben unverändert.
+`iw dev` bleibt leer.
+
+Der gesicherte Kernel-Ringpuffer enthält die vollständige neue Patchdiagnose.
+Bei 20.518 Sekunden antwortet die MCU auf Semaphoreanforderung: Sequenz 1, Event 4, Ergebnis 2.
+Bei 20.526 Sekunden antwortet die MCU auf Downloadanforderung: Sequenz 2, Event 1, Ergebnis 0.
+Nach Scattertransfer melden Firmwaredownload-CPU- und DMA-Indizes jeweils 10.
+Die Softwareindizes bleiben Head 10, Tail 8 und Queued 2.
+Diese asynchrone Softwarebelegung beweist keinen fehlgeschlagenen DMA-Transfer.
+Patch-Finish erreicht bei 25.528 Sekunden Timeout `-110`, Message 7, Sequenz 13.
+Der WM-Sendering schreitet dabei von CPU/DMA 2 auf 3 fort und ist softwareseitig leer.
+Semaphorefreigabe erreicht bei 30.568 Sekunden Timeout `-110`, Message 10, Sequenz 14.
+Der WM-Sendering schreitet dabei auf CPU/DMA 4 fort und bleibt softwareseitig leer.
+Der WM-Empfangsring bleibt nach der Downloadantwort bei CPU 1, DMA 2, Head 1 und Tail 2.
+Nach der Downloadantwort erscheint kein weiterer früher MCU-Antwortheader.
+Die Probe endet mit `-11`; der frühe Recovery-Schutz verhindert weiterhin die bisherige Panic-Schleife.
+
+Die Messwerte bestätigen fortschreitende DMA-Sendeindizes, nicht erfolgreiche Entschlüsselung oder Ausführung des ROM-Patches.
+Die genaue Ursache ausbleibender MCU-Antworten bleibt offen.
+Der nächste Vergleich verwendet Hersteller-OpenWrt auf derselben Hardware nach vollständiger Stromtrennung.
+Weitere Laufzeit-Linktests und Busreset-Versuche bleiben ausgeschlossen.
+HaLow-RNDIS meldet weiterhin Sende-Timeouts bei 38.088, 43.108 und 48.118 Sekunden.
+Die MDIO-PHY-LED-Pinctrl-Warnung bleibt ebenfalls vorhanden.
+Dmesg und Status liegen zusätzlich unter `/root/r4pro-rc6-dma-01/` auf der SD-Karte.
+Das Board bleibt eingeschaltet; der korrigierte Recorder zeichnet weiter auf.
+
+Status: **SD ROOT SHELL PASS / DMA DIAG PASS / LED ACTIVE / FIRMWARE HASH PASS / WIFI INIT FAIL / EARLY UART FAIL**.
