@@ -4337,3 +4337,12 @@ Firmware-, GPIO-, EEPROM- und eFuse-Schreibversuche bleiben im Vergleich ausgesc
 OpenWrt bleibt eingeschaltet; UART zeichnet weiter auf.
 
 Status: **OPENWRT EMMC COLD BOOT PASS / THREE PATCH START TIMEOUTS / NO WIFI PHY / ROOT SHELL PASS**.
+
+Die weitere Aufzeichnung bestätigt Message-10-Timeouts bei 139.365 und 159.845 Sekunden.
+Bei 159.851 Sekunden scheitert die Semaphorefreigabe endgültig.
+Die Probe-Bereinigung meldet WARN-Stacks in `devm_free_irq` und `free_irq`.
+Bei 160.730 Sekunden endet die MT7996-Probe mit `-11`.
+Nach 200.50 Sekunden bleibt die Root-Shell erreichbar; `iw phy` bleibt leer.
+Der Kernel-Taint steigt nach den WARN-Stacks auf 4608.
+Der temporäre Dmesg-Snapshot wird nach dem Probe-Ende aktualisiert.
+Der Vergleich bestätigt damit denselben endgültigen Probe-Fehler, zusätzlich mit Hersteller-Treiber-Bereinigungswarnungen.
