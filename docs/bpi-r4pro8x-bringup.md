@@ -4346,3 +4346,57 @@ Nach 200.50 Sekunden bleibt die Root-Shell erreichbar; `iw phy` bleibt leer.
 Der Kernel-Taint steigt nach den WARN-Stacks auf 4608.
 Der temporäre Dmesg-Snapshot wird nach dem Probe-Ende aktualisiert.
 Der Vergleich bestätigt damit denselben endgültigen Probe-Fehler, zusätzlich mit Hersteller-Treiber-Bereinigungswarnungen.
+
+## 131. Bootmodusprüfung erkennt erneut eMMC; folgender Start verwendet NAND
+
+Der erste OpenWrt-Shutdown erreicht bei 285.958 Sekunden `Power down` und danach TF-A-Panic bei `0x430047ec`.
+Der nächste vom Nutzer als NAND-Start gemeldete Boot lädt weiterhin aus eMMC.
+U-Boot zeigt `[eMMC]`, lädt mit `MMC read` und verwendet das eMMC-Overlay.
+Linux bildet das FIT-Rootfs erneut aus `mmcblk0p5` ab.
+Der Mitschnitt bestätigt keinen SPI-NAND-Vergleich für diesen Start.
+Auch dieser Start reproduziert den ROM-Patchfehler; die Probe endet bei 158.809 Sekunden mit `-11`.
+Der Nutzer fordert den Shutdown zum erneuten Moduswechsel an.
+Die laufende Kernelmodul-Probe verzögert den Shutdown.
+Bei 168.668 Sekunden folgt `Power down`; die bekannte TF-A-Panic folgt erneut.
+
+Der anschließende Start bestätigt erstmals in dieser Vergleichsfolge SPI-NAND.
+TF-A 2.10 meldet `mt7988-spim-nand-ubi-comb`, `Cold boot` und erfolgreichen 8192-MB-DRAM-Test.
+TF-A scannt NAND-UBI und lädt das FIP-Volume.
+U-Boot zeigt `[SPI-NAND]`, lädt die Umgebung aus UBI und liest 112119808 Bytes aus Volume `fit`.
+Linux verwendet `ubi.block=0,fit`; das aktive Overlay liegt als UBIFS auf `/dev/ubi0_6`.
+Der vollständige Mitschnitt bleibt im lesbaren UART-Log aus Abschnitt 129 erhalten.
+
+Status: **FIRST NAND SELECTION FAIL / FOLLOWING SPI-NAND COLD BOOT PASS**.
+
+## 132. SPI-NAND-OpenWrt reproduziert ROM-Patchstartfehler
+
+SPI-NAND-OpenWrt erreicht die Root-Shell mit Linux 6.6.93.
+Boot-ID: `8684bb1a-66dd-4dea-bac4-6b8ea9320eb7`.
+Der unveränderte Hersteller-ROM-Patch meldet Build Time `20250605125803a`.
+Beide ROM-Patchdateien besitzen dieselben SHA256-Werte wie beim eMMC-Vergleich in Abschnitt 130.
+Die Prüfung liest beide Dateien; sie ersetzt keine Firmware.
+Die Wi-Fi-Endpunkte melden `14c3:7990` und `14c3:7991`.
+Beide Links stehen auf 8.0 GT/s und zwei Lanes.
+Die Hersteller-Modulparameter `wed_enable` und `hif2_enable` bleiben jeweils `Y`.
+
+Message 7 erreicht bei 57.445, 77.925 und 98.405 Sekunden jeweils einen Timeout.
+Bei 98.411 Sekunden meldet der Treiber `Failed to start patch`.
+Message 10 erreicht bei 118.885 und 139.365 Sekunden ebenfalls Timeouts mit Wiederholungsversuchen.
+Die frühe PHY-Prüfung bleibt leer.
+Der Fehler entsteht damit auch beim tatsächlich bestätigten NAND-Boot.
+Die Beobachtung beweist keinen Hardwaredefekt und keine alleinige Firmwareursache.
+Der nächste kontrollierte Hardwarevergleich muss alle Stromquellen und zusätzlich bestückte Module berücksichtigen.
+Die lesenden Prüfungen verändern keine Modulparameter, GPIOs, EEPROMs oder eFuses.
+Der Boot selbst mountet konfigurierte Dateisysteme, einschließlich einer NVMe-Partition, schreibbar.
+Der Vergleich behauptet deshalb keinen vollständig schreibfreien Betrieb.
+
+Status: **SPI-NAND ROOT SHELL PASS / ROM PATCH START FAIL / WIFI PHY ABSENT**.
+
+Message 10 erreicht bei 159.845 Sekunden den dritten Timeout.
+Bei 159.851 Sekunden scheitert die Semaphorefreigabe endgültig.
+Die Bereinigung meldet dieselben WARN-Stellen in `devm_free_irq` und `free_irq` wie beim eMMC-Vergleich.
+Bei 160.740 Sekunden endet die Probe mit `-11`.
+Nach 206.76 Sekunden bleibt die Root-Shell erreichbar; `iw dev` und `iw phy` bleiben leer.
+Der Kernel-Taint beträgt 4608 nach den Bereinigungswarnungen.
+Der abschließende Kernel-Ringpuffer liegt unter `/tmp/r4pro-nand-compare/dmesg.txt`.
+Die Host-Aufzeichnung bleibt erhalten; OpenWrt bleibt eingeschaltet.
