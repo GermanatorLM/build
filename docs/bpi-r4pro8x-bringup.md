@@ -4455,3 +4455,50 @@ Der nächste Vergleich verwendet das aktuelle Armbian-SD-Image mit unveränderte
 Keine automatische Umschaltung oder weitere Modulbestückung erfolgt; OpenWrt bleibt eingeschaltet.
 
 Status: **OPENWRT WIFI INIT PASS / THREE AP BANDS PASS / 233 ROM CONFIRMED / ARMBIAN COMPARISON PENDING**.
+
+## 134. Armbian nach erfolgreichem OpenWrt-Start liest erneut Variantenregister null
+
+Der erfolgreiche OpenWrt-Stand erhält auf Nutzeranforderung einen sauberen Shutdown.
+Die WLAN-Interfaces werden entfernt; NVMe wird bei 358.147 Sekunden ausgehängt.
+Bei 361.362 Sekunden folgt `Power down` und die bekannte TF-A-Panic.
+Der Nutzer startet anschließend das vorhandene Armbian-SD-Diagnoseimage.
+Die Aufzeichnung läuft im Log aus Abschnitt 133 weiter und enthält diesmal den lesbaren vollständigen frühen Boot.
+
+TF-A 2.14 meldet `Cold boot`, erfolgreichen DRAM-Test und 8192 MB.
+U-Boot 2025.04 lädt extlinux, 8X-DTB und SD-Overlay.
+Linux meldet `7.3.0-rc6-current-filogic` und Root-UUID `502fc5bb-14be-4761-a88b-05025f3a06e5` auf `mmcblk0p5`.
+Boot-ID: `98689765-0356-48fa-8b86-27e9580aa33e`.
+Der erste Login scheitert nach vorangestellten Terminal-Antwortzeichen; der zweite Login erreicht die Root-Shell.
+Nach 118.44 Sekunden meldet systemd `running`, null fehlgeschlagene Units und Kernel-Taint null.
+Der LED-Dienst ist aktiv trotz vier gespeicherter leerer `device_name=`-Werte.
+Dieser Folgestart bestätigt deshalb auch den Restore-Fix nach vorherigem State-Save.
+Alle 15 Firmwaredateien bestehen erneut SHA256.
+
+Bei 20.558 Sekunden liest der Treiber `MT_PAD_GPIO=0` vor und nach seinem Wi-Fi-Reset.
+Die automatische Auswahl lautet erneut 444.
+Der Treiber fordert `mediatek/mt7996/mt7996_rom_patch.bin` an, Build Time `20260311120419a`.
+Semaphoreanforderung und Downloadanforderung erhalten MCU-Antworten.
+Der Firmwaredownloadring erreicht CPU/DMA 10; die Softwarebelegung bleibt asynchron bei zwei Einträgen.
+Patch-Finish erreicht bei 25.608 Sekunden `-110`; der WM-Sendering erreicht CPU/DMA 3.
+Semaphorefreigabe erreicht bei 30.648 Sekunden `-110`; der WM-Sendering erreicht CPU/DMA 4.
+Der WM-Empfangsring bleibt nach der Downloadantwort bei CPU 1 und DMA 2.
+Die Probe endet bei 30.648 Sekunden mit `-11`; `iw dev` bleibt leer.
+Die frühe Recovery-Panic tritt nicht auf.
+
+Beide Wi-Fi-Endpunkte erscheinen mit unveränderten PCI-IDs und Gen3 mit zwei Lanes.
+Die USB-Inventur zeigt dieselben Hub-IDs wie beim erfolgreichen OpenWrt-Start.
+NVMe erscheint unter Armbian dagegen nicht als PCI-Endpunkt.
+Bei 8.208 Sekunden meldet Rootport `11290000.pcie` Link Down, LTSSM `detect.quiet`, anschließend Probe-Fehler `-110`.
+Die tatsächlich unveränderte physische Bestückung ist nicht eigenständig bestätigt.
+Der NVMe-Unterschied darf deshalb nicht ohne weitere Prüfung als Softwaredefekt eingeordnet werden.
+
+Der erfolgreiche OpenWrt-Start beweist grundsätzlich funktionierende WLAN-Initialisierung auf diesem Board und BE14.
+Der Armbian-Vergleich bestätigt erneut eine abweichende frühe Registerlage und Firmwareauswahl.
+Die genaue Ursache zwischen Versorgung, Reset, ADIE-Initialisierung und Registerzugriff bleibt offen.
+Ein reiner ROM-Dateitausch löst diesen Registerunterschied nicht nachweislich.
+Der nächste Schritt vergleicht die frühe Hardwareinitialisierung des Hersteller-Treibers mit dem rc6-Treiber.
+Keine Firmware-, GPIO-, Reset- oder EEPROM-Änderung erfolgt während dieser Prüfung.
+Der Kernel-Ringpuffer liegt zusätzlich unter `/root/r4pro-after-working-openwrt/dmesg.txt`.
+Das Board bleibt eingeschaltet; UART zeichnet weiter auf.
+
+Status: **SD COLD BOOT PASS / LED RESTORE PASS / FIRMWARE HASH PASS / WIFI INIT FAIL / NVME LINK DOWN**.
