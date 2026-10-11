@@ -4204,3 +4204,37 @@ Der bisherige Fehler entsteht beim ROM-Patchstart vor der weiteren Firmwareiniti
 Ein Kalibrationsschreibtest ist deshalb kein begründeter nächster Schritt.
 
 Status: **PATCH APPLY PASS / STATIC PASS / BUILD PENDING / HW PENDING**.
+
+## 128. Diagnoseimage gebaut, geprüft und auf SD geschrieben
+
+Run `38096780032` besteht Preflight, Imagebuild und Artefaktupload für Commit `f193bb03b`.
+Das Buildlog bestätigt die Anwendung von Patch 005 und Linux `7.3.0-rc6-current-filogic`.
+Der Installer installiert 15 Firmware-Payloads im Modus `latest` aus Commit `afabaf773c4c2e2c841429933a6a084a5af4d14d`.
+Image: `Armbian-unofficial_26.11.0-trunk_Bananapir4pro8x_trixie_current_7.3.0-rc6_minimal.img`.
+Größe: 1488977920 Bytes.
+SHA256: `c3bb8bca79e1dc089fcb1e09e4c6e4408abe1d7d429e9f7257000fd044880fa9`.
+
+Der erste CLI-Download scheitert mit `disk quota exceeded` beim Schreiben der temporären ZIP unter `/tmp`.
+Die CLI entfernt die unvollständige Datei; der Download beginnt erneut mit temporärem Verzeichnis im Arbeitslaufwerk.
+Dieser Download endet erfolgreich; `sha256sum -c` meldet `OK`.
+Image und Buildlogs bleiben unter `/home/lukas/Work/bpi-r4pro8x-download-38096780032/` erhalten.
+
+Das Schreibscript prüft `/dev/sdb`, Diskseq 31, USB-Kennung, USB-Pfad und 63864569856 Bytes Kartengröße.
+Script: `/home/lukas/Work/bpi-r4pro8x-flash-rc6-run38096780032.sh`.
+Script-SHA256: `e54e482b66b3a7a56a7a86e77aad0b98eca65b2765605666b5efc73a752cca94`.
+Das Script besteht Bash-Syntaxprüfung und Shellcheck.
+Der Schreibvorgang hängt die SD-Rootpartition aus und überschreibt den Imagebereich der Karte.
+Die vorherigen SD-Daten bleiben über die erhaltenen Originalimages wiederherstellbar.
+`dd` schreibt 1488977920 Bytes mit abschließender Synchronisierung.
+Nach dem Leeren der Blockpuffer vergleicht `cmp` den vollständigen Imagebereich erfolgreich.
+Das Script meldet `WRITE PASS / FULL IMAGE READBACK PASS`.
+`udisksctl power-off -b /dev/sdb` endet erfolgreich.
+
+Der alte UART-Recorder wird beendet; seine bisherigen Logs bleiben erhalten.
+Der neue Recorder verbindet HOLTEK USB-UART mit 115200 Baud und Dateimodus 0600.
+Ein erster Start ohne PTY beendet die Verbindung wiederholt wegen geschlossenem Terminaleingang.
+Der korrigierte Start verwendet eine offene PTY-Sitzung.
+Log: `/home/lukas/Work/bpi-r4pro8x-uart/uart-run-38096780032-rc6-dma-20261011T154351.log`.
+Der Recorder wartet auf den nächsten Kaltstart; dieser Image-Boot ist noch nicht geprüft.
+
+Status: **BUILD PASS / DOWNLOAD HASH PASS / SD FULL READBACK PASS / BOOT PENDING / WIFI HW PENDING**.

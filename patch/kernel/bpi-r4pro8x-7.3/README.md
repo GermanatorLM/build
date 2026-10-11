@@ -30,7 +30,7 @@ Wi-Fi initialization still fails during ROM patch finish.
 It records rate-limited MCU event headers and command results.
 Queue snapshots are asynchronous; they do not prove firmware execution.
 It does not change firmware selection, reset timing, command results or recovery behavior.
-Compilation and physical validation of `005` remain pending.
+Run `38096780032` compiles `005`; physical validation remains pending.
 
 The upstream EEPROM path uses OF data or eFuse.
 The obsolete 6.18 RF-file patches remain in their original directory.
