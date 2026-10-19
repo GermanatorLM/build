@@ -41,9 +41,11 @@ function compile_stubble() {
 	display_alert "Downloading stubble sources" "stubble" "git"
 	fetch_from_repo "${STUBBLE_GIT_URL}" "${STUBBLE_GIT_DIR}" "${STUBBLE_GIT_BRANCH}" "yes"
 
-	# When ref_subdir="yes", fetch_from_repo puts sources in subdirectory named after branch
-	declare stubble_branch_name="${STUBBLE_GIT_BRANCH#branch:}"
-	declare stubble_source_dir="${SRC}/cache/sources/${STUBBLE_GIT_DIR}/${stubble_branch_name}"
+	# With ref_subdir="yes", fetch_from_repo puts the sources under the bare ref
+	# name. Strip any prefix, the way git_parse_ref() does, so a tag: or commit:
+	# ref finds its directory too.
+	declare stubble_ref_name="${STUBBLE_GIT_BRANCH##*:}"
+	declare stubble_source_dir="${SRC}/cache/sources/${STUBBLE_GIT_DIR}/${stubble_ref_name}"
 
 	# Use overlayfs if enabled
 	if [[ "${USE_OVERLAYFS}" == "yes" ]]; then
