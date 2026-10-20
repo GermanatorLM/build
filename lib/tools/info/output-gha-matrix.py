@@ -163,10 +163,13 @@ with open(sys.argv[2]) as f:
 	info = json.load(f)
 
 # GitHub limits the outputs of one job to 1 MB, measured in UTF-16.
-# The artifacts and the images matrices are outputs of the same job and share this limit.
-# The artifacts matrix comes first; the images matrix gets the rest.
 # Count the bytes, not the jobs: a fixed job count dropped valid images.
 job_outputs_max_bytes = 1_000_000 - 16 * 1024  # margin for the other outputs of the job
+
+# MATRIX_IMAGE_OUTPUT_JOBS=N: N separate jobs set the images outputs, each for a contiguous range of chunks.
+# They read the chunks from the gha-all-images-matrix.json file. Each job has its own limit.
+# Not set: the images matrix shares the job with the artifacts matrix; the artifacts matrix comes first.
+image_output_jobs = int(armbian_utils.get_from_env("MATRIX_IMAGE_OUTPUT_JOBS") or "0")
 
 
 def add_job_fields(item):
@@ -188,16 +191,21 @@ def utf16_bytes(text):
 	return len(text.encode("utf-16-le"))
 
 
-def limit_matrix_bytes(matrix, max_bytes, type_name, chunk_count):
+def limit_matrix_bytes(matrix, max_bytes, type_name, chunk_count, output_jobs=1):
 	# Each item is serialized with a ", " separator; each chunk adds its wrapper and three outputs.
 	chunk_outputs = f'{type_name}-chunk-json-{chunk_count}={{"include": []}}\n{type_name}-chunk-not-empty-{chunk_count}=yes\n{type_name}-chunk-size-{chunk_count}={max_chunk_size}\n'
-	total = chunk_count * utf16_bytes(chunk_outputs)
+	chunks_per_job = -(-chunk_count // output_jobs)
+	totals = [0] * output_jobs
+	for chunk in range(chunk_count):
+		totals[chunk // chunks_per_job] += utf16_bytes(chunk_outputs)
 	for index, item in enumerate(matrix):
-		total += utf16_bytes(json.dumps(item) + ", ")
-		if total > max_bytes:
-			log.warning(f"Matrix '{type_name}' is over {max_bytes} bytes, slicing to {index} of {len(matrix)} jobs. Matrix is incomplete.")
-			return matrix[:index], total - utf16_bytes(json.dumps(item) + ", ")
-	return matrix, total
+		job = (index % chunk_count) // chunks_per_job  # the same distribution as the chunks below
+		item_bytes = utf16_bytes(json.dumps(item) + ", ")
+		if totals[job] + item_bytes > max_bytes:
+			log.warning(f"Matrix '{type_name}' is over {max_bytes} bytes in output job {job + 1}, slicing to {index} of {len(matrix)} jobs. Matrix is incomplete.")
+			return matrix[:index], sum(totals)
+		totals[job] += item_bytes
+	return matrix, sum(totals)
 
 
 # third argument is the number of chunks wanted.
@@ -205,7 +213,7 @@ ideal_chunk_size = 150
 max_chunk_size = 250
 
 matrix_max_bytes = job_outputs_max_bytes
-if type_gen == "images":
+if type_gen == "images" and image_output_jobs == 0:
 	# Generate the artifacts matrix again, only to measure it. Hide its log; the artifacts run shows it.
 	logging.disable(logging.WARNING)
 	artifacts_matrix = [add_job_fields(item) for item in generate_matrix_artifacts(info)]
@@ -239,7 +247,13 @@ else:
 	num_chunks = int(len(matrix) / ideal_chunk_size) + 1
 	log.warning(f"Number of chunks: {num_chunks}")
 
-matrix, matrix_bytes = limit_matrix_bytes(matrix, matrix_max_bytes, type_gen, num_chunks)
+if type_gen == "images" and image_output_jobs > 0:
+	if image_output_jobs > num_chunks:
+		log.error(f"MATRIX_IMAGE_OUTPUT_JOBS={image_output_jobs} is more than the {num_chunks} chunks.")
+		sys.exit(1)
+	matrix, matrix_bytes = limit_matrix_bytes(matrix, matrix_max_bytes, type_gen, num_chunks, image_output_jobs)
+else:
+	matrix, matrix_bytes = limit_matrix_bytes(matrix, matrix_max_bytes, type_gen, num_chunks)
 
 # distribute the matrix items equally along the chunks. try to keep every chunk the same size.
 chunks = []
@@ -264,6 +278,10 @@ for i, chunk in enumerate(chunks):
 			{"desc": "Fake matrix element so matrix is not empty", "name": "Empty chunk", "runs_on": "ubuntu-latest", "invocation": "none", "really": "no",
 			 "shost": "no", "fdepth": "1"}
 		]
+
+	# The image output jobs set the images outputs from the matrix file.
+	if type_gen == "images" and image_output_jobs > 0:
+		continue
 
 	# Directly set outputs for _each_ GHA chunk here.
 	gha.set_gha_output(f"{type_gen}-chunk-json-{i + 1}", json.dumps({"include": chunk}))
