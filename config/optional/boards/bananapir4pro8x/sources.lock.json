@@ -21,7 +21,12 @@
   "tfa": {
     "url": "https://github.com/frank-w/u-boot.git",
     "revision": "5ef7f379d5d92bd5d1733c10c5fbb2019a0a14b1",
-    "archive_sha256": "5b180662259e68d8c36bebeb17c434c0d51baeb0dfb51375df76a8b7b27e0efe"
+    "archive_sha256": "5b180662259e68d8c36bebeb17c434c0d51baeb0dfb51375df76a8b7b27e0efe",
+    "ddr_blob": {
+      "path": "plat/mediatek/mt7988/drivers/dram/release/dram.a",
+      "sha256": "30ba6ff9d774ea32e4421c3dd7b7d3974e2ce3746c5e75a56f3afaef95549d17",
+      "redistribution_review": "pending"
+    }
   },
   "firmware": [
     {
