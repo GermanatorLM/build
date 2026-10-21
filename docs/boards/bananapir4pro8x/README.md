@@ -82,6 +82,9 @@ It returns the original timeout. It does **not** fix intermittent BE14 initializ
 Do not force the 233 or 444 firmware selection.
 Both firmware sets include internal-FEM EEPROM defaults.
 No board EEPROM writer or personal calibration data is included.
+Firmware downloads use `cache/download/r4pro8x-firmware`, indexed by SHA256.
+Every installation verifies cached bytes against the locked checksum.
+Verified cached files support builds during network failures.
 
 TF-A uses `DRAM_USE_COMB=1 DDR4_4BG_MODE=1` for both media, matching Frank's MT7988 build configuration.
 The first hardware boot fails DDR calibration with the forced `DRAM_USE_DDR4=1` configuration.
