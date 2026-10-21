@@ -76,7 +76,9 @@ Do not force the 233 or 444 firmware selection.
 Both firmware sets include internal-FEM EEPROM defaults.
 No board EEPROM writer or personal calibration data is included.
 
-TF-A uses `DRAM_USE_DDR4=1 DDR4_4BG_MODE=1` for both media.
+TF-A uses `DRAM_USE_COMB=1 DDR4_4BG_MODE=1` for both media, matching Frank's MT7988 build configuration.
+The first hardware boot fails DDR calibration with the forced `DRAM_USE_DDR4=1` configuration.
+The combined DDR configuration still needs hardware verification.
 TF-A builds `fiptool` through its top-level target.
 U-Boot probes memory up to 8 GiB. Verify actual RAM through UART and Linux.
 U-Boot uses a volatile environment and loads extlinux from SD partition five.
