@@ -47,6 +47,10 @@ function post_family_tweaks__r4pro8x_firmware() {
 	PINS
 }
 
+function post_family_tweaks__r4pro8x_alsa_restore() {
+	run_host_command_logged python3 "${SRC}/tools/r4pro8x/alsa.py" "${SDCARD}"
+}
+
 function post_family_tweaks__r4pro8x_regdb() {
 	[[ -f "${SDCARD}/lib/firmware/regulatory.db-upstream" ]] ||
 		exit_with_error "Missing upstream wireless regulatory database"

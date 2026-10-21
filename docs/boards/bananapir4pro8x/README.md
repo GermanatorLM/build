@@ -48,7 +48,9 @@ The writer accepts build loop devices only.
 Do not use the generic Armbian installer for this board before eMMC validation.
 SD and eMMC share a controller. Do not assume simultaneous access.
 SPI-NAND installation is outside this project stage.
-The 8X device tree disables SPI-NAND probing during SD and eMMC validation.
+The 8X device tree enables SPI-NAND and exposes the inherited BL2 and UBI MTD partitions.
+The board patch removes automatic UBI attachment. Explicit UBI attachment remains available.
+No backup prerequisite or NAND installation workflow is imposed.
 
 ## Sources
 
@@ -106,6 +108,12 @@ For LAN6 SFP tests, replace `8x-lan-phy` with `8x-lan-sfp` in the extlinux overl
 Keep the boot medium overlay. Never load both LAN6 overlays together.
 The image includes Aeonsemi firmware in the initramfs.
 Ethernet SRAM and the PCA9555 driver are enabled.
+
+The image backports alsa-utils commit `f90124c73edd050b24961197a4abcf17e53b41a8`.
+The restore rule defines distinct entry and standard restore labels.
+The backport accepts the Debian partial fix and the complete upstream fix.
+
+See [pcie.md](pcie.md) for the current PCIe state and controlled comparison tests.
 
 ## First boot and updates
 

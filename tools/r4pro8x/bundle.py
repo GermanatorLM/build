@@ -31,6 +31,9 @@ def main(source: Path, bundle: Path) -> None:
     shutil.copy(source / "config/optional/boards/bananapir4pro8x/sources.lock.json", bundle)
     shutil.copytree(source / "patch/kernel/archive/bananapir4pro8x-7.3", bundle / "kernel-patches", dirs_exist_ok=True)
     shutil.copytree(source / "patch/u-boot/u-boot-r4pro8x", bundle / "uboot-patches", dirs_exist_ok=True)
+    backports = bundle / "userspace-backports"
+    backports.mkdir(exist_ok=True)
+    shutil.copy(source / "tools/r4pro8x/alsa.py", backports)
     sums = []
     for path in sorted(bundle.rglob("*")):
         if path.is_file() and path.name != "SHA256SUMS":

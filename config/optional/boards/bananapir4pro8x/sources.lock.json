@@ -136,5 +136,14 @@
       "destination": "usr/share/doc/r4pro8x-firmware/WHENCE",
       "sha256": "0dd59e46f1e5d33d112236b17cb6de9d8f46fbf8fd09685cb474eb70a55f4da1"
     }
+  ],
+  "userspace_backports": [
+    {
+      "project": "alsa-utils",
+      "url": "https://github.com/alsa-project/alsa-utils",
+      "revision": "f90124c73edd050b24961197a4abcf17e53b41a8",
+      "implementation": "tools/r4pro8x/alsa.py",
+      "implementation_sha256": "8ba0bf40aca1ff5141aa4e34d6c4a9834f03860d1dc62da78cc5a69787d0ca4b"
+    }
   ]
 }
