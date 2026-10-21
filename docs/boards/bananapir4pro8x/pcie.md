@@ -41,3 +41,13 @@ Sources:
 
 - [Frank's slot explanation](https://forum.banana-pi.org/t/m-2-m-key-connector-cn-14-does-not-work-on-bpi-r4-pro/26379)
 - [OpenWrt PR25751](https://github.com/openwrt/openwrt/pull/25751)
+
+## CN14 comparison result
+
+The user confirms a Patriot P300 NVMe in CN14, lane 1L1.
+Adding only the CN14 overlay restores NVMe enumeration in three observed warm boots.
+The NVMe negotiates PCIe Gen3 x1. Both BE14 endpoints also register.
+Kernel, initramfs, base DTB, and command line hashes remain unchanged.
+The unpopulated CN13 host still reports link down.
+Cold-start reliability and storage integrity remain untested.
+Use `R4PRO_NVME_SLOT=cn14` to include this slot selection in a new build.

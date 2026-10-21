@@ -106,6 +106,11 @@ The overlay address is `0x62080000`.
 The default LAN6 overlay selects the RJ45 PHY through GPIO54.
 For LAN6 SFP tests, replace `8x-lan-phy` with `8x-lan-sfp` in the extlinux overlay path.
 Keep the boot medium overlay. Never load both LAN6 overlays together.
+Select the installed NVMe socket with `R4PRO_NVME_SLOT=cn13` or `R4PRO_NVME_SLOT=cn14`.
+The default `none` preserves the board slot selection.
+Both slot overlays are included for later extlinux configuration.
+Example: `./compile.sh r4pro8x R4PRO_BOOT_MEDIA=sd R4PRO_NVME_SLOT=cn14 PREFER_DOCKER=no`.
+
 The image includes Aeonsemi firmware in the initramfs.
 Ethernet SRAM and the PCA9555 driver are enabled.
 

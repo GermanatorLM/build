@@ -86,6 +86,8 @@ function post_install_kernel_debs__r4pro8x_overlay_path() {
 	cp "${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-${R4PRO_BOOT_MEDIA}.dtbo" \
 		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-8x-lan-phy.dtbo" \
 		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-8x-lan-sfp.dtbo" \
+		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-cn13.dtbo" \
+		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-cn14.dtbo" \
 		"${SDCARD}/boot/dtb/mediatek/overlay/"
 }
 
