@@ -1,0 +1,19 @@
+From: GermanatorLM
+Subject: [PATCH] arm: dts: build the selected legacy MT7988 device tree
+
+The MT7988 U-Boot include cannot apply to other MediaTek SoCs.
+Let Makefile.dts add the selected tree from the defconfig.
+
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -1227,6 +1227,10 @@
+ 
+ dtb-$(CONFIG_TARGET_COREPRIMEVELTE) += pxa1908-samsung-coreprimevelte.dtb
+ 
++ifeq ($(CONFIG_TARGET_MT7988),y)
++dtb-y :=
++endif
++
+ include $(srctree)/scripts/Makefile.dts
+ 
+ # Add any required device tree compiler flags here
