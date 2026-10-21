@@ -1,0 +1,18 @@
+From: GermanatorLM
+Subject: [PATCH] wifi: mt7996: skip recovery before hardware registration
+
+Return the probe timeout before scheduling mac80211 recovery work.
+This guard does not fix the intermittent BE14 initialization failure.
+
+--- a/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
++++ b/drivers/net/wireless/mediatek/mt76/mt7996/mcu.c
+@@ -228,6 +228,9 @@
+ 	if (!skb) {
+ 		dev_err(mdev->dev, "Message %08x (seq %d) timeout\n",
+ 			cmd, seq);
++
++		if (!dev->recovery.hw_init_done)
++			return -ETIMEDOUT;
+ 
+ 		if (!test_and_set_bit(MT76_MCU_RESET, &dev->mphy.state)) {
+ 			dev->recovery.restart = true;

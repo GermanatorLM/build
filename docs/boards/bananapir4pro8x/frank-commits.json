@@ -1,0 +1,1379 @@
+[
+  {
+    "sha": "99050909eb682a75f0b3ea60db635c87e39e0260",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-08T11:40:21Z"
+    },
+    "message": "[RSS/LRO coverletter] Add RSS and LRO support (mtk-instructions)\n\nThis series is currently only for discussion to get the upported SDK driver\nchanges in a good shape.\n\nRSS / LRO is HW-acceleration for terminating traffic.\n\npatches are upported from mtk SDK:\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-08-mtk_eth_soc-add-register-definitions-for-rss-lro-reg.patch\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-09-mtk_eth_soc-add-rss-support.patch\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-10-mtk_eth_soc-add-hw-lro-support.patch\n\nwith additional fixes\n\n=== RSS (Receive Side Scaling) ===\n\nusing 4 additional IRQ for spreading load\n\ncat /proc/interrupts | grep ethernet\n\necho 1 > /proc/irq/104/smp_affinity\necho 2 > /proc/irq/105/smp_affinity\necho 4 > /proc/irq/106/smp_affinity\necho 8 > /proc/irq/107/smp_affinity\n\nmoving tx frame-engine irq to different cpu (here 2rd)\necho 2 > /proc/irq/102/smp_affinity\n\ndisable RPS (Receive Packet Steering) for all macs:\n\necho 0 > /sys/devices/platform/soc/15100000.ethernet/net/eth0/queues/rx-0/rps_cpus\n\npay attention on iperf-version (iperf 3.17 is ok, 3.12 is not)\n\ntraffic must be created using multiple streams so that it can be splitted, so use\nmultithreaded iperf3\n\non R4: bin/iperf3 -s\non the other side: iperf3 -c 192.168.1.1 -i 1 -P 4\n\nsee spreading load over CPU cores\n\n102:          0     184088          0          0    GICv3 229 Level     15100000.ethernet TX\n104:      32146          0          0          0    GICv3 221 Level     15100000.ethernet PDMA RX 0, 15100000.ethernet LRO RX 0\n105:          0      56821          0          0    GICv3 222 Level     15100000.ethernet PDMA RX 1, 15100000.ethernet LRO RX 1\n106:          0          0      25689          0    GICv3 223 Level     15100000.ethernet PDMA RX 2, 15100000.ethernet LRO RX 2\n107:          0          0          0      87587    GICv3 224 Level     15100000.ethernet PDMA RX 3, 15100000.ethernet LRO RX 3\n\nusing the iperf3 from debian bookworm (3.12) results in only 6.7GBit/s, so\nnewer version is needed (not tested yet in trixie).\n\n=== LRO (Large Receive Offload) ===\n\nAdd HW LRO RX rule:\n\nethtool -N [interface] flow-type tcp4 dst-ip [IP] action 0 loc [0/1]\n\nDelete HW LRO RX rule:\n\nethtool -N [interface] delete [0/1]\n\nEnable/Disable HW LRO rule:\n\nethtool -K [interface] lro [on | off]\n\nexample:\n\nethtool -N eth2 flow-type tcp4 dst-ip 192.168.1.1 action 0 loc 0\nethtool -K eth2 lro on ethtool -k eth2\n\n=== example logs ===\n\nR4 test on eth2 SFP: https://pastebin.com/9pbj78Kd\nR3-test on 1G dsa wan port: https://pastebin.com/M3E66Gbf\n\nchanges:\n  v3:\n    - readded the change dropped in v2 because it was a fix\n      for getting RSS working on mt7986\n    - changes requested by jakub\n    - reworked coverletter\n    - name all PDMA-IRQ the same way\n    - retested on\n      - BPI-R3/mt7986 (RSS needs to be enabled)\n      - BPI-R4/mt7988\n      - BPI-R64/mt7622 and BPI-R2/mt7623 for not breaking network functionality\n\n  v2:\n    - drop wrong change (MTK_CDMP_IG_CTRL is only netsys v1)\n    - Fix immutable string IRQ setup (thx to Emilia Schotte)\n    - drop links to 6.6 patches/commits in sdk in comments"
+  },
+  {
+    "sha": "59ad9664099234ad9afb17186b7f405d7e187ef5",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-08T11:40:21Z"
+    },
+    "message": "[RSS/LRO coverletter v8] Add RSS and LRO support\n\nThis series add RSS and LRO hardware acceleration for terminating\ntraffic on MT798x.\n\npatches are upported from mtk SDK:\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-08-mtk_eth_soc-add-register-definitions-for-rss-lro-reg.patch\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-09-mtk_eth_soc-add-rss-support.patch\n- https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/master/files/target/linux/mediatek/patches-6.12/999-eth-10-mtk_eth_soc-add-hw-lro-support.patch\nwith additional fixes\n\nchanges:\n  v8:\n  - fix more sparse errors, should be all touched lines now\n\n  v7:\n  - fix u32 vs. be32 reported by patchwork check\n  - add L4 PSH check\n    https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/7521c42b0bd5be20d52e20b110daea8c756fc069%5E%21/#F1\n  - Add HW LRO max 4-depth VLAN support including switch special tag.\n    https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/35490cec6a2e5982532935fb0a1c884f7c4efdb0%5E%21/#F2\n\n  v6:\n    - no RFC\n    - rebase on netnext (7.1-rc1)\n    - drop unused MTK_CTRL_DW0_SDL_MASK\n    - e33bd8dd7f1f (\"net: mediatek: convert to use .get_rx_ring_count\") moved\n      ETHTOOL_GRXRINGS handling from mtk_get_rxnfc to mtk_get_rx_ring_count\n      move changes to this new function too\n    - fix some Macro argument '...' may be better as '(...)' to avoid precedence issues\n  v5:\n    - fix too long lines after macro changes reported by checkpatch\n  v4:\n    - drop unrelated file\n    - rss-changes suggested by andrew\n    - fix MTK_HW_LRO_RING_NUM macro (add eth)\n    - fix MTK_LRO_CTRL_DW[123]_CFG (add reg_map param)\n    - fix MTK_RX_DONE_INT (add eth param)\n    - fix lro reverse christmas tree and LRO params suggested by andrew\n    - drop mtk_hwlro_stats_ebl and unused IS_HW_LRO_RING (only used in\n      properitary debugfs)\n  v3:\n    - readded the change dropped in v2 because it was a fix\n      for getting RSS working on mt7986\n    - changes requested by jakub\n    - reworked coverletter (dropped instructions for configuration)\n    - name all PDMA-IRQ the same way\n    - retested on\n      - BPI-R3/mt7986 (RSS needs to be enabled)\n      - BPI-R4/mt7988\n      - BPI-R64/mt7622 and BPI-R2/mt7623 for not breaking network functionality\n\n  v2:\n    - drop wrong change (MTK_CDMP_IG_CTRL is only netsys v1)\n    - Fix immutable string IRQ setup (thx to Emilia Schotte)\n    - drop links to 6.6 patches/commits in sdk in comments"
+  },
+  {
+    "sha": "55e3bd74d5048ca6dc493b33b00e8ffcb3271bd5",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2026-05-09T19:09:30Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: Add register definitions for RSS and LRO\n\nAdd definitions for Receive Side Scaling and Large Receive Offload support.\n\nSigned-off-by: Mason Chang <mason-cw.chang@mediatek.com>\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "20472491c458abd21c4a0c76b2f0458bcee26bb0",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2026-05-09T19:09:31Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: Add RSS support\n\nAdd support for Receive Side Scaling.\n\nWe can adjust SMP affinity with the following command:\necho [CPU bitmap num] > /proc/irq/[virtual IRQ ID]/smp_affinity,\nwith interrupts evenly assigned to 4 CPUs, we were able to measure\nan RX throughput of 7.3Gbps using iperf3 on the MT7988. Further\noptimizations will be carried out in the future.\n\nThe experimental command is as follows:\nPC: iperf3 -c [IP] -P 10\nDUT: iperf3 -s\n\nThe entire indirection table can be imagined as 128 buckets, we\ncan use the ethtool command to mark which RX ring we want to send\nthe packets in these buckets to.\n\nShow RSS RX ring parameters in indirection table and RSS hash key:\nethtool -x [interface]\nChange RSS RX rings weight under uniform distribution:\nethtool --set-rxfh-indir [interface] equal [ring num]\nChange RSS RX rings weight under non-uniform distribution:\nethtool --set-rxfh-indir [interface] weight [ring0 weight]\n[ring1 weight] [ring2 weight] [ring3 weight]\n\nSigned-off-by: Mason Chang <mason-cw.chang@mediatek.com>\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "2e0a7532c8d1a9b0efd23203b63866d0694a1a9a",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2026-05-09T19:09:32Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: Add LRO support\n\nAdd Large Receive Offload support to mediatek ethernet driver and\nactivate it for MT7988.\n\nSigned-off-by: Mason Chang <mason-cw.chang@mediatek.com>\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "d5891c3bd0546390ac60e3979270106628b059b3",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-01T08:26:43Z"
+    },
+    "message": "build.sh/defconfig"
+  },
+  {
+    "sha": "95a46960f0ffada69e44dbda6cb5b6aed572205b",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2024-01-14T13:47:21Z"
+    },
+    "message": "kbuild: deb-pkg: add kernels for bpi-boards to deb-packages"
+  },
+  {
+    "sha": "d1d4a869a6d8c84a1ba3c9946b67abd32d9df6eb",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-30T13:27:15Z"
+    },
+    "message": "kbuild: deb-pkg: add bpi router variants"
+  },
+  {
+    "sha": "3a35711796cab88a73f038324bd9a8b877c16c1a",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-09-03T06:43:14Z"
+    },
+    "message": "clk: mediatek: add clock driver for mt7987 from sdk"
+  },
+  {
+    "sha": "b73378c719cfb4e794f3f15c7bccdbc637cb65ca",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-09-03T06:53:19Z"
+    },
+    "message": "pinctrl: add pinctrl driver for mt7987 from sdk"
+  },
+  {
+    "sha": "530b540dba4b63dfc531892b296d042d39d35435",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-07-28T20:31:56Z"
+    },
+    "message": "net: phy: mxl-gpy: report firmware version via ethtool\n\nFill the phydev fw_version buffer so the GPY PHY firmware version is\nreported through ETHTOOL_MSG_PHY_GET, and drop the probe-time log line\nthat printed it to the kernel log.\n\nMaxLinear only ever refers to the GPHY firmware version as a hexadecimal\nnumber matching the raw PHY_FWV register (0x1E), so present it that way\nrather than as a decimal major.minor pair. The release-bit qualifier\ndoes not apply to the MxL86252 and MxL86282 PHYs, so drop the \"test\nversion\" text and the now-unused PHY_FWV_REL_MASK. The fw_major and\nfw_minor fields are kept as they still drive feature quirks.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "801038e4eddca7e1b13215a1e97e8c2ca99338b4",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2025-11-11T14:49:44Z"
+    },
+    "message": "net: phy: mxl-gpy: register thermal zone\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "f53f6a743e5642867514680d7fb5d6665d2cd454",
+    "author": {
+      "name": "Chad Monroe",
+      "email": "chad@monroe.io",
+      "date": "2023-04-28T00:00:17Z"
+    },
+    "message": "net: phy: mxl: toggle SGMII AN on link change\n\nSometimes the GPY211 can come up and report all is well but no RX packets\nare received by the MAC. For some reason toggling the SGMII AN bit clears\nthis condition. As a very hacky workaround, enable it during physical\nlink change and let gpy_update_interface disable it shortly after.\n\nSigned-off-by: Chad Monroe <chad@monroe.io>"
+  },
+  {
+    "sha": "df20c9aed19ffada03981283f8bdde50d07ad0ee",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-07-28T20:31:50Z"
+    },
+    "message": "net: ethtool: report PHY firmware version in PHY_GET\n\nThe per-PHY netlink interface exposes the driver name and topology of a\nPHY but not the firmware version running on it, which is useful for\nidentifying units in the field and matching known-good releases.\n\nAdd a generic ETHTOOL_A_PHY_FWVERSION string attribute to the PHY_GET\nreply, backed by a fixed-size fw_version buffer in struct phy_device.\nA PHY driver fills the buffer at probe time in whatever textual form\nsuits its hardware; the attribute is emitted only when non-empty.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "b5940aaed1acec65fe1fe8aa46810aea35af0cf2",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-22T13:19:50Z"
+    },
+    "message": "net: dsa: add walk helpers for bridge-scoped host FDB/MDB entries\n\nHost FDB/MDB entries installed in the shared bridge FID survive as long\nas any bridge member holds a reference, so DSA refcount-bumps them on\nsubsequent joins rather than re-invoking ->port_fdb_add / ->port_mdb_add.\nDrivers that encode the bridge membership in their hardware FDB entry\n(e.g. tag_8021q mode with a per-port virtual bridge port picked by\nportmap intersection) therefore have no way to update those entries as\nmembers join or leave.\n\nAdd dsa_switch_for_each_bridge_host_fdb() and its MDB counterpart: a\ndriver callback is invoked per bridge-scoped host entry on every\nCPU/DSA port's address list, so .port_bridge_join and\n.port_bridge_leave handlers can reprogram the hardware state to reflect\nthe updated member set.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "b5f245e95f32467a24e3196de32c8b04bfd01a2c",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-06-24T22:45:11Z"
+    },
+    "message": "net: phy: add PHY_DETACH_NO_HW_RESET PHY flag\n\nSome PHY require a firmware to correctly work and such firmware might\nget reset when the GPIO reset is assert.\n\nThis is the case for the Aeonsemi PHY where when the PHY is torn down,\nphy_detach() is called that assert the GPIO reset pin resetting the\nfirmware.\n\nTo handle this introduce a flag, PHY_DETACH_NO_HW_RESET that instruct\nphy_detach() to skip asserting the GPIO reset on detaching the PHY.\n\nThe PHY is still reset in all other case where it's removed or the PHY\nfails to probe.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "b585dfaae01a2b4375f23f1c8f1698cbdf077cbc",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-06-24T22:51:45Z"
+    },
+    "message": "net: phy: as21xxx: add flag PHY_DETACH_NO_HW_RESET\n\nAdd flag PHY_DETACH_NO_HW_RESET to handle firmware getting reset on\ncalling phy_detach() if the GPIO reset PIN is defined in DT.\n\nThis will skip the firmware from getting reset permitting the PHY to\ncontinue work when the PHY is torn down and gets up again.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "e80ca11c32dbc3cb53cebcd3b2ab580a84f372c5",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-07-07T16:58:25Z"
+    },
+    "message": "net: phy: as21xxx: handle corner case with link and autoneg complete\n\nAdd missing case in custom read_link, when autoneg is started, autoneg\ncomplete bit is reset but link is still not up.\n\nFixes: 830877d89edc (\"net: phy: Add support for Aeonsemi AS21xxx PHYs\")\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "70c9c6fceda66af1d5c8616483b05aa25543aaa6",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-07-08T08:50:42Z"
+    },
+    "message": "net: phy: as21xxx: fix read_status speed handling\n\nWith further test with 2.5G NIC it was discovered that\nphy_resolve_aneg_linkmode is not enough to detect speed higher that 1G\nwhen autoneg is enabled.\n\nAlso in the switch case there is a typo where the speed mask is AND with\nVEND1_SPEED_STATUS instead of the correct mask VEND1_SPEED_MASK.\n\nRework the read_status code to always read the speed from the vendor\nregister and parse the generic bit only for the pause frame.\n\nFixes: 830877d89edc (\"net: phy: Add support for Aeonsemi AS21xxx PHYs\")\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "8959e10bdad7deab0dd6004f1c6080dbe94b7e72",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-07-08T09:29:49Z"
+    },
+    "message": "net: phy: as21xxx: force C45 OPs for AUTONEG\n\nWith further testing with 2.5G NIC, it was discovered that the PHY\nrequire the C45 OPs to configure and restart ANEG or speed higher than\n1G doesn't function correctly.\n\nTo force C45 OPs with generic PHY function, clear the C22 bit from\ndevices_in_package bitmask.\n\nFixes: 830877d89edc (\"net: phy: Add support for Aeonsemi AS21xxx PHYs\")\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "ffb184b339d45ba6221ba97f551122eccd294258",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-10-18T02:12:41Z"
+    },
+    "message": "net: phy: as21xxx: implement read workaround for C45 read\n\nThis PHY have lots of problems with MDIO read operation. We somehow\nworkaround this with using C45 operation for pretty much everything but\nthis is not enough. The reference code for this PHY makes a write to an\nunused PHY to workaround this read problem. This was also confirmed by\nAeonsemi.\n\nVarious test were made to try to workaround this ins alternative way\nthan the random write.\n\nOne effective solution was to limit the write only to BMSR. And also\nwrite to BMSR is safe since they are only read only registers.\n\nThis is only done for read operation as write operation doesn't suffer\nfrom this problem.\n\nWorth to mention that when multiple Aeonsemi PHY are mounted, the\nworkaround doesn't work if we write to another Aeonsemi PHY.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "eb3b8bacb29f3acd2eb0058693de9cb5e6df7934",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:33Z"
+    },
+    "message": "clk: mediatek: mt7988: keep combo-lane U3 PHY ref clock enabled\n\nCLK_INFRA_USB_PIPE is the reference clock of xphyu3port0, the U3/PCIe\ncombo serdes. On MT7988 that lane is shared between ssusb0's SuperSpeed\nside and pcie2, but only the consumer that claims the PHY holds the gate.\n\nOn the BPI-R4 Pro, ssusb0 is configured USB2-only (u3p-dis-msk=1) and\npcie2 claims the lane for the CN13/CN15 M.2 slot, so pcie2 is the sole\nholder. u3p-dis-msk does not remove ssusb0's SuperSpeed root hub: that is\ndecided by xhci_has_one_roothub(), which keys off usb3_rhub.num_ports\nfrom the xHCI capability registers, so bus 2 is registered and live\nregardless. When the M.2 slot is empty, pcie2 fails link training (-110)\nand its error path calls phy_power_off()/phy_exit(), which gates this\nclock - and sspxtp_sel with it, as nothing else consumes it. The still\nregistered SuperSpeed root hub is then left polling a serdes whose PHY\nreference clock has just stopped, and asserts the shared SSUSB interrupt\noutside the xHCI event ring; xhci_irq() reads USBSTS with EINT clear and\nreturns IRQ_NONE, so the core disables the line (\"nobody cared\") and the\nnext USB teardown blocks forever in xhci_disable_slot().\n\nBoot logs show the storm threshold being crossed 86-107 ms after the\npcie2 probe failure, while the earlier combo-mux switch to PCIe mode\n(~550 ms before) causes no trouble, pointing at the clock gating rather\nthan the mux as the trigger.\n\nMark the gate CLK_IS_CRITICAL so the combo lane keeps its reference clock.\nOnly port 0's gate is affected; ssusb1 uses CLK_INFRA_USB_PIPE_CK_P1.\n\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "80c19b42daad2a53f5fc6e75adc7ae573d2f4234",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:35Z"
+    },
+    "message": "usb: xhci-mtk: power down u3 ports skipped by u3p-dis-msk\n\nxhci_mtk_host_enable() skips ports flagged in \"mediatek,u3p-dis-msk\"\nentirely: it neither powers them up nor powers them down, leaving them\nin their power-on/bootloader default state, which on MediaTek IPPC is\npowered up and host-selected. The mask exists precisely for ports whose\nUSB3 PHY is not usable - on BPI-R4 Pro (MT7988A) ssusb0's U3 SerDes\nlane is shared with (and muxed to) PCIe2, so the board DT masks U3 port\n0 and omits the xphy U3 port from \"phys\".\n\nThe result on that board is a U3 port that is powered and host-selected\nbut has no initialized PHY and a MAC clock domain that is never\nreleased from reset (the driver deliberately excludes STS1_U3_MAC_RST\nfrom its stability poll for masked ports). This holds the controller's\nlevel interrupt permanently asserted with a status the xHCI interrupt\nhandler cannot acknowledge:\n\n  [    2.455798] xhci-mtk 11190000.usb: irq 120, io mem 0x11190000\n  [    2.861314] irq 120: nobody cared (try booting with the \"irqpoll\" option)\n  [    3.242105] [<0000000014dcb6ae>] usb_hcd_irq\n  [    3.246371] Disabling IRQ #120\n\nOnce the spurious-IRQ detector disables the line, the fully functional\nUSB2 bus on the same controller dies with it: xHC commands are queued\nbut their completions never interrupt, the first hub_event needing a\ncommand parks in D state holding the hub lock\n\n  [  126.053644] Workqueue: usb_hub_wq hub_event\n  [  126.053742]  xhci_disable_slot+0xb4/0x188\n  [  126.053757]  xhci_free_dev+0xfc/0x2a4\n  [  126.053771]  hub_event+0x1364/0x1a0c\n\nand device_shutdown() blocks behind it on reboot, hanging the system.\n\nExplicitly park masked ports by setting CTRL_U3_PORT_PDN and\nCTRL_U3_PORT_DIS, mirroring what host_enable() does in reverse for\nactive ports. xhci_mtk_host_disable() already skips masked ports, which\nremains correct as they are now already down.\n\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "a04e4ce15f312870c1e84404a6ef2d03d545082b",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-01-08T16:46:18Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: increase MTK_RESV_BUF\n\nChange CDM guard band RSV_BUF from 0x40 to 0x80, default 0x40 may\ncause xDMA hang.\n\ntaken from mtk-sdk:\nhttps://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/872c417f7926279cc25c44a7b2886be434e38904^!\n\nFixes: 160d3a9b1929 (\"net: ethernet: mtk_eth_soc: introduce MTK_NETSYS_V2 support\")\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "4fd0132b901335b0fc92a664e4a4f86d2df022af",
+    "author": {
+      "name": "Petr Wozniak",
+      "email": "petr.wozniak@gmail.com",
+      "date": "2026-06-28T09:53:12Z"
+    },
+    "message": "wifi: mt76: share the throughput LED trigger across bands\n\nieee80211_create_tpt_led_trigger() creates one trigger per ieee80211_hw\nand returns NULL with a WARN_ON() if called again for the same hw.\n\nUnder the single-wiphy MLO model each band registers its own LED classdev\nfor the same hw, and the bands can be initialised in any order. Create the\ntrigger on the first mt76_led_init() call, stash it on the primary phy's\nclassdev and let the other bands reuse it. This avoids the WARN_ON() splat\nand gives every band the same throughput trigger regardless of init order.\n\nSigned-off-by: Petr Wozniak <petr.wozniak@gmail.com>"
+  },
+  {
+    "sha": "432f9e168aff635a3546d12510ac3a39608ec7b1",
+    "author": {
+      "name": "Petr Wozniak",
+      "email": "petr.wozniak@gmail.com",
+      "date": "2026-06-28T09:53:13Z"
+    },
+    "message": "wifi: mt76: mt7996: register a LED classdev for every band\n\nThe per-band LED callbacks (brightness_set/blink_set) were only assigned\nto the primary PHY (dev->mphy) in mt7996_init_wiphy(). The 5/6 GHz bands\nare brought up later through mt7996_register_phy() ->\nmt7996_init_wiphy_band(), which never set those callbacks, so\nmt76_led_init() bailed out early for them and only the 2.4 GHz LED was\never registered.\n\nThe hardware path is already per band: mt7996_led_set_config() indexes\nMT_LED_EN()/MT_LED_CTRL()/MT_LED_TX_BLINK() by mphy->band_idx, so per-band\nhardware TX-blink works as soon as the classdev exists.\n\nMove the callback assignment into mt7996_init_wiphy_band(), which runs for\nevery band, so a LED classdev is registered for each band.\n\nSigned-off-by: Petr Wozniak <petr.wozniak@gmail.com>"
+  },
+  {
+    "sha": "e66a74c345302634bd76d0f0d6e0c8bf44de3073",
+    "author": {
+      "name": "meehien",
+      "email": "research@mihaiordean.com",
+      "date": "2026-06-27T22:44:37Z"
+    },
+    "message": "wifi: Skip the check for the combined-radio global combination\n\nRestore the 6.18/7.0-main behaviour where the global combos do not set beacon_int_min_gcd.\n\nReverted my previous patch which applies to just\nto mt7996. I think this could manifest on similar\nboards too. See below.\n\nThe IBSS-vs-beacon_int_min_gcd check was missed in\nwiphy_verify_iface_combinations. When a driver supports\nIBSS on one radio and advertises a beacon_int_min_gcd\nfor its AP/STATION interfaces, it generates a combination\nthat simultaneously includes both NL80211_IFTYPE_ADHOC and\na non-zero beacon_int_min_gcd. These should not coexist on a\nsingle radio.\n\nFix: Skip the check for the combined-radio global combination,\nmatching the nearby DFS and P2P_DEVICE checks in a simmilar\nfashion using the combined_radio flag."
+  },
+  {
+    "sha": "099ab2f40092bce52db255520b924fc2217cf24e",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-11-25T04:41:53Z"
+    },
+    "message": "net: phylink: set phy_state interface when attaching SFP\n\nAssume 'usxgmii' being set as initial interface mode in DTS. Now plug\na 2.5GBase-T SFP module with exposed PHY. Currently this results in\nthe rather bizare situation:\nRTL8221B-VB-CG 2.5Gbps PHY (C45) i2c:sfp1-wan:11: rtl822x_c45_get_features: supported=00,00000000,00008000,000080ef\nmtk_soc_eth 15100000.ethernet eth2: requesting link mode phy/2500base-x with support 00,00000000,00008000,0000e0ef\nmtk_soc_eth 15100000.ethernet eth2: switched to phy/2500base-x link mode\nmtk_soc_eth 15100000.ethernet eth2: major config usxgmii\nmtk_soc_eth 15100000.ethernet eth2: phylink_mac_config: mode=phy/usxgmii/none adv=00,00000000,00000000,00000000 pause=00\nmtk_soc_eth 15100000.ethernet eth2: PHY [i2c:sfp1-wan:11] driver [RTL8221B-VB-CG 2.5Gbps PHY (C45)] (irq=POLL)\nmtk_soc_eth 15100000.ethernet eth2: phy: 2500base-x setting supported 00,00000000,00008000,0000e0ef advertising 00,00000000,00008000,0000e0ef\n... (and no subsequent call to phylink_major_config actually\nconfiguring 2500base-x mode)\n\nThis is because phylink_mac_initial_config() considers\npl->phy_state.interface if in MLO_AN_PHY mode while\nphylink_sfp_set_config() only sets pl->link_config.interface.\n\nAlso set pl->phy_state.interface in phylink_sfp_set_config().\n\nFixes: 31eb8907aa5b9 (\"net: phylink: allow attaching phy for SFP modules on 802.3z mode\")\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "670ef3ccfb51f6e03e55698a9e02a46e97f88184",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:16Z"
+    },
+    "message": "net: phylink: keep and use MAC supported_interfaces in phylink struct\n\nAdd in phylink struct a copy of supported_interfaces from phylink_config\nand make use of that instead of relying on phylink_config value.\n\nThis in preparation for support of PCS handling internally to phylink\nwhere a PCS can be removed or added after the phylink is created and we\nneed both a reference of the supported_interfaces value from\nphylink_config and an internal value that can be updated with the new\nPCS info.\n\nTested-by: Maxime Chevallier <maxime.chevallier@bootlin.com>\nReviewed-by: Maxime Chevallier <maxime.chevallier@bootlin.com>\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "beb5ad7ab1ff24632e2751a60fb8e753c3d5c4cf",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:17Z"
+    },
+    "message": "net: phylink: introduce internal phylink PCS handling\n\nIntroduce internal handling of PCS for phylink. This is an alternative\nway to .mac_select_pcs that moves the selection logic of the PCS entirely\nto phylink with the usage of the supported_interface value in the PCS\nstruct.\n\nMAC should now provide a callback to fill the available PCS in\nphylink_config in .fill_available_pcs and fill the .num_possible_pcs with\nthe number of elements in the array. MAC should also define a new bitmap,\npcs_interfaces, in phylink_config to define for what interface mode a\ndedicated PCS is required.\n\nOn phylink_create(), an array of PCS pointer is allocated of size\n.num_possible_pcs from phylink_config and .fill_available_pcs from\nphylink_config is called passing as args the just allocated array and\nthe number of possible element in it.\n\nMAC will fill this passed array with all the available PCS.\n\nThis array is then parsed and a linked list of PCS is created based on\nthe allocated PCS array filled by MAC via .fill_available_pcs().\n\nEvery PCS in phylink PCS list gets then linked to the phylink instance\nby setting the phylink value in phylink_pcs struct to the phylink instance.\nAlso the supported_interface value in phylink struct is updated with\nthe new supported_interface from the provided PCS.\n\nOn phylink_destroy(), every PCS in phylink PCS list is unlinked from the\nphylink instance by setting the phylink value in phylink_pcs struct to NULL\nand removed from the PCS list.\n\nphylink_validate_mac_and_pcs(), phylink_major_config() and\nphylink_inband_caps() are updated to support this new implementation\nwith the PCS list stored in phylink.\n\nThey will make use of phylink_validate_pcs_interface() that will loop\nfor every PCS in the phylink PCS available list and find one that supports\nthe passed interface.\n\nphylink_validate_pcs_interface() applies the same logic of .mac_select_pcs\nwhere if a supported_interface value is not set for the PCS struct, then\nit's assumed every interface is supported.\n\nA MAC is required to implement either a .mac_select_pcs or make use of\nthe PCS list implementation. Implementing both will result in a fail\non phylink_create().\n\nA MAC defining .num_possible_pcs in phylink_config MUST also define a\n.fill_available_pcs or phylink_create() will fail with an negative error.\n\nphylink value in phylink_pcs struct with this implementation is used to\ntrack from PCS side when it's attached to a phylink instance. PCS driver\nwill make use of this information to correctly detach from a phylink\ninstance if needed.\n\nphylink_pcs_change() is also changed to verify that the PCS that triggered\na link change is the one that is currently used by the phylink instance.\n\nThe .mac_select_pcs implementation is not changed but it's expected that\nevery MAC driver migrates to the new implementation to later deprecate\nand remove .mac_select_pcs.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "9203394f8cdabedc811040aac7407784b8e7f654",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:18Z"
+    },
+    "message": "net: pcs: implement Firmware node support for PCS driver\n\nImplement the foundation of Firmware node support for PCS driver.\n\nTo support this, implement a simple Provider API where a PCS driver can\nexpose multiple PCS with an xlate .fwnode_xlate function.\n\nPCS driver will have to call fwnode_pcs_add_provider() and pass the\nfirmware node pointer and a xlate function to return the correct PCS for\nthe passed #pcs-cells.\n\nThis will register the PCS in a global list of providers so that\nconsumer can access it.\n\nThe consumer will then use fwnode_pcs_get() to get the actual PCS by\npassing the firmware node pointer and the index for #pcs-cells.\n\nFor a simple implementation where #pcs-cells is 0 and the PCS driver\nexpose a single PCS, the xlate function fwnode_pcs_simple_xlate() is\nprovided.\n\nFor an advanced implementation a custom xlate function is required.\n\nOn removal the PCS driver must delete itself from the provider list\nusing fwnode_pcs_del_provider().\n\nA devm variant devm_fwnode_pcs_add() is provided to automate the release\nprocedure.\n\nGeneric functions fwnode_phylink_pcs_count() and fwnode_phylink_pcs_parse()\nare provided for MAC driver that will declare PCS in DT (or ACPI).\n\nFunction fwnode_phylink_pcs_count() will parse \"pcs-handle\" property and\nwill return the number of PCS entries described in the passed firmware\nnode.\n\nFunction fwnode_phylink_pcs_parse() will parse \"pcs-handle\" property and\nfill the passed available_pcs array with the available PCS found up to\npassed num_pcs value. It's worth to mention that this function will ignore\nPCS that still needs to be probed (returning -ENODEV) and such PCS won't be\nadded to the available_pcs array.\n\nCo-developed-by: Daniel Golle <daniel@makrotopia.org>\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "8ceefc00df103d50a2c0a3e14cb6c2bcac31cf97",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:19Z"
+    },
+    "message": "net: phylink: save phylink instance fwnode on phylink_create\n\nThe firmware node associated with the phylink instance might differ from\nthe device firmware node passed in phylink_config as such device can\nreference the parent switch or other platform peripherals.\n\nSome function might need to reference this firmware node after\nphylink_create so add a dedicated fwnode entry in phylink internal struct\nand save it on phylink_create().\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "758a219132bdee62eb568b8301f42040e00c7aa7",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:20Z"
+    },
+    "message": "net: phylink: support PCS provider release\n\nAdd support for release of fwnode PCS from a PCS provider.\nThis works by creating a global notifier for the PCS provider and\nmaking each phylink instance that makes use of fwnode subscribe to\nthis notifier.\n\nThe PCS notifier will emit the event FWNODE_PCS_PROVIDER_DEL every time\na new PCS provider is released.\n\nphylink will then react to this event and will call the new function\nfwnode_pcs_matches_provider() on each PCS of the phylink instance and\nwill check if the PCS is provided by the PCS provider that is getting\nreleased.\n\nIf a related PCS is found, then such PCS is removed from the phylink\ninstance PCS list and the supported_interfaces value is updated.\n\nThe flag force_major_config is set to make phylink resolve reconfigure\nthe interface (even if it didn't change).\nThis is needed to handle the special case when the current PCS used\nby phylink is removed and a major_config is needed to propagae the\nconfiguration change. With this option enabled we also force mac_config\neven if the PHY link is not up for the in-band case.\n\nFinally a phylink resolve is triggered to handle the PCS removal.\n\nProtect every access of phylink pcs_list with state_mutex to handle async\nPCS provider release.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "41be80d285848a52810420f29a520baee31c1a0f",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:21Z"
+    },
+    "message": "net: phylink: support late PCS provider attach\n\nAdd support for late PCS provider attachment to a phylink instance.\nSimilar to FWNODE_PCS_PROVIDER_DEL, FWNODE_PCS_PROVIDER_ADD is added to\naddress the case where a PCS provider is added after a phylink instance is\ncreated and started.\n\nThe PCS notifier will emit the event FWNODE_PCS_PROVIDER_ADD every time\na new PCS provider is added.\n\nIf a related PCS is found, then such PCS is added to the phylink\ninstance PCS list.\n\nSuch PCS is then linked to the phylink instance and the supported\ninterfaces of the phylink instance get refreshed.\n\nIf we are in a major_config_failed scenario an interface reconfiguration\nis triggered in the next phylink resolve.\n\nIn the example scenario where the link was previously torn down due to\nremoval of PCS, the link will be established again as the PCS came back\nand is now available to phylink.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "889b08f7f75cd987ede628c974bfa203889d9e0b",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:22Z"
+    },
+    "message": "net: Document PCS subsystem\n\nAdd extensive documentation of the new PCS subsystem and the fwnode\nimplementation with producer/consumer API.\n\nAlso update the sfp-phylink migration guide.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "6981f8aa7d88bae7d2ead19a080844f73064a975",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:23Z"
+    },
+    "message": "MAINTAINERS: add myself as PCS subsystem maintainer\n\nList all the files of the Ethernet PCS subsystem and add myself as\nmaintainer.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "777b518d8dcc257f24089b06f2c3da392e14913f",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:24Z"
+    },
+    "message": "net: phylink: add .pcs_link_down PCS OP\n\nPermit for PCS driver to define specific operation to tear down the link\nbetween the MAC and the PCS.\n\nThis might be needed for some PCS that reset counter or require special\nreset to correctly work if the link needs to be restored later.\n\nOn phylink_link_down() call, the additional phylink_pcs_link_down() will\nbe called after .mac_link_down to tear down the link.\n\nPCS driver will need to define .pcs_link_down to make use of this.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>\nReviewed-by: Maxime Chevallier <maxime.chevallier@bootlin.com>"
+  },
+  {
+    "sha": "ec848f36647cc201354304d8d7948c8309ae61db",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:25Z"
+    },
+    "message": "dt-bindings: net: pcs: Document support for Airoha Ethernet PCS\n\nDocument support for Airoha Ethernet PCS for AN7581 SoC.\n\nAiroha AN7581 SoC expose multiple Physical Coding Sublayer (PCS) for\nthe various Serdes port supporting different Media Independent Interface\n(10BASE-R, USXGMII, 2500BASE-X, 1000BASE-X, SGMII).\n\nThis follow the new PCS provider with the use of #pcs-cells property.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "6e525b8df7f26eef1822c171510913da742031f3",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:26Z"
+    },
+    "message": "net: pcs: airoha: add PCS driver for Airoha AN7581 SoC\n\nAdd PCS driver for Airoha AN7581 SoC for Ethernet/PON/PCIe/USB SERDES\nand permit usage of external PHY or connected SFP cage. Supported modes\nare USXGMII, 10G-BASER, 2500BASE-X, 1000BASE-X and SGMII.\n\nThe driver probe and register the various needed registers and register as\na PCS provider for fwnode usage.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "288d511b96bb0ce1d87770a470606b047f0d5c54",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2026-09-01T08:29:27Z"
+    },
+    "message": "net: airoha: add phylink support\n\nAdd phylink support for each GDM port. For GDM1 add the internal interface\nmode as the only supported mode. For GDM2/3/4 add the required\nconfiguration of the PCS to make the external PHY or attached SFP cage\nwork.\n\nThese needs to be defined in the GDM port node using the pcs-handle\nproperty.\n\nUpdate and provide a .get/set_link_ksettings function that use phylink\nfor ethtool OPs now that we fully support phylink.\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "b6f4478939fa17bc8a9234671e9ef5b82a66ebda",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-12-12T03:51:14Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add paths and SerDes modes for MT7988\n\nMT7988 comes with two SerDes interfaces to connect external PHYs or\ntransceivers in USXGMII, 10GBase-R, 5GBase-R, 2500Base-X, 1000Base-X and\nCisco SGMII interface modes.\n\nImplement support for configuring for the new paths to SerDes interfaces.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "877539bc03a587bea504d5545aa989f16f2808a6",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-09-01T11:31:38Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add more DMA monitor for MT7988"
+  },
+  {
+    "sha": "1e59228257e5f986bde3439a8b4f5c4f8a7720d9",
+    "author": {
+      "name": "Chad Monroe",
+      "email": "chad@monroe.io",
+      "date": "2024-09-17T02:29:03Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: increase QDMA RESV_BUF size\n\nIncrease QDMA RESV_BUF from 2K to 3K for netsys v2 to match Mediatek SDK.\nThis helps reduce the possibility of Ethernet transmit timeouts.\n\nLink: https://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/9d6776fba0abd41a37055bc94c4c08029af3d64a\nSigned-off-by: Chad Monroe <chad@monroe.io>"
+  },
+  {
+    "sha": "ce788e3a6f320a454d837b5be2324427ca3e9c61",
+    "author": {
+      "name": "developer",
+      "email": "developer@mediatek.com",
+      "date": "2023-02-08T07:18:10Z"
+    },
+    "message": "Add+Fix software padding processing in Ethernet Tx path.\n\nAdd software padding processing in Ethernet Tx path.\n\nIt's found that too-short packets would lead to\nswitch Tx CRC error, followed by switch output\nqueue stuck issue. So Ethernet driver should check\nif the packet is too short and conduct software\npadding when necessary.\n\nIf without this patch, switch might encounter output\nqueue stuck issue.\n\nChange-Id: Ibd94cbf3be0530d2b9ee61477b0362d099c47d8e\nReviewed-on: https://gerrit.mediatek.inc/c/openwrt/feeds/mtk_openwrt_feeds/+/7109899\n\nFix software padding processing in Ethernet Tx path.\n\nIt's found that 20bytes(LLC), 28bytes, and 36bytes(PPP LCP Configuration\nAck) packets with additional 4bytes special tag for dsa driver would lead\nto switch Tx CRC error, followed by switch output queue stuck issue.\nTherefore, Ethernet driver check skb->len <= 40(36bytes PPP LCP + 4bytes\nspecial tag) and conduct software padding.\n\nMoreover, skb linearization should be checked again after conduct\nsoftware padding.\n\nIf without this patch, users might encounter problems when establishing\na PPPoE tunnel.\n\nChange-Id: Id28fa3870dc9e905207d95634fe5cd692f363761\nReviewed-on: https://gerrit.mediatek.inc/c/openwrt/feeds/mtk_openwrt_feeds/+/9129634\n\nfrank-w: changed condition to MTK_MIN_TX_LENGTH"
+  },
+  {
+    "sha": "99eda33cf9e838e8b8dcb78f1e759425fc7f1489",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-03-26T18:44:18Z"
+    },
+    "message": "net: ethernet: move desc assignment below check for its txd3\n\nhttps://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/refs/heads/master/21.02/files/target/linux/mediatek/files-5.4/drivers/net/ethernet/mediatek/mtk_eth_soc.c#2891"
+  },
+  {
+    "sha": "6a700882266792833f0297a6e3c866943f45b6f9",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2025-04-05T03:49:08Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add scheduler settings for 2.5G and 5G ports\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "7b46b7158b7edfa9512ce6181f46842e623f7b4a",
+    "author": {
+      "name": "Eric Woudstra",
+      "email": "ericwouds@gmail.com",
+      "date": "2024-07-29T09:49:23Z"
+    },
+    "message": "net: sfp: Fixup for OEM SFP-2.5G-T(-R-RM) module\n\nChange from quirk to fixup for the OEM SFP-2.5G-T module.\nAdd OEM SFP-2.5G-T-R-RM module.\n\nThe module is re-branded to different brands:\n\nOEM     SFP-2.5G-T       Visible brand on label LuLeey.\nOEM     SFP-2.5G-T-R-RM  No visible brand, bought from Sinovoip store\nFS      SFP-2.5G-T       Fiberstore [NEEDS A DIFFERENT FIXUP]\nTurris  RTSFP-2.5G       Turris [SAME FIXUP AS LULEEY]"
+  },
+  {
+    "sha": "20df79f2f37d2be5113f8d2b5e9e057550ede032",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-05-01T10:03:43Z"
+    },
+    "message": "net: sfp: restore sfp_quirk_oem_2_5g dropped by 2.5g sfp rollball change"
+  },
+  {
+    "sha": "349527cf49c24789b6c6525361fb30bc784a240f",
+    "author": {
+      "name": "PancakeTAS",
+      "email": "pancake@mgnet.work",
+      "date": "2025-11-22T07:23:38Z"
+    },
+    "message": "net: phy: ensure inband is not none for 10GBASE-R"
+  },
+  {
+    "sha": "2c155d7e9d59c0c1bb220917b7d6848566d7b2ae",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2024-11-28T05:19:38Z"
+    },
+    "message": "net: phy: sfp: support shared mod-def0 gpio\n\nThe SFP/PHY dynamic switching through the passive mux will use the\nmod-def0 GPIO to detect whether the SFP module has been inserted.\nWe need to change this GPIO to shared to avoid failures in GPIO\nrequests within mtk_add_mux().\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "c8a70fd40f1dec1424f1e3ff7d1dd57f7b2ac0a0",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2025-05-26T05:20:42Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add mt7987 support\n\nWithout this patch, users are unable to bring up ETH driver on the\nmt7987.\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>\n---\nsquashed:\nnet: mtk_eth_soc: drop MTK_SRAM as it is too small for DMA RX/TX rings"
+  },
+  {
+    "sha": "0d04df5d26e14ce3a02fd3df6d3c291dc945523b",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2025-05-09T01:49:04Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: revise hardware configuration for mt7987\n\nChange hardware configuration for the MT7987.\n - Enable PSE drop mechanism when the WDMA Rx ring full\n - Enable PSE no-drop mechanism for packets from the WDMA Tx\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "c7877ded430254f62f5f87c82f62bc78a318972d",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-09T22:02:07Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: rss-changes for mt7987"
+  },
+  {
+    "sha": "48ead86e8ab741031e68abf19384ae932a09d517",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-09T10:22:00Z"
+    },
+    "message": "net: phy: mtk-2p5ge: add support for mt7987"
+  },
+  {
+    "sha": "67c9b870d11e245c23a362ef9f3722b6722267c7",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-09T15:37:52Z"
+    },
+    "message": "net: phy: mtk-2p5ge: extend priv for firmware loading\n\nsquashed:\nnet: phy: mtk-2p5ge: fix struct name for 2p5g phy priv"
+  },
+  {
+    "sha": "dc88dec83973e2bad9e68fe0eabdbb4ce137fb2c",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-17T15:42:17Z"
+    },
+    "message": "net: phy: mtk-2p5ge: fix crash because of missing callbacks\n\ncommit\n5e3aae2d3271 2025-08-27 net: phy: mtk-2p5ge: Add LED support for MT7988\n\nintroduces new callbacks which crash kernel if missing\n\nUnable to handle kernel execute from non-executable memory at virtual address 0000000000000000"
+  },
+  {
+    "sha": "dd507b98b81bed5618424f5cd32cfd8020e727e7",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-17T16:14:51Z"
+    },
+    "message": "net: phy: mtk-2p5ge: support inverted polarity for leds\n\nPHY LED on BPI-R4 Lite / mt7987 seems inverted:\n\ngreen led on when no cable connected and off when link established\n\nadd a dt-property to allow inverted polarity"
+  },
+  {
+    "sha": "267f8867e0faf7e45e2e2e9d50a18f54c84f8320",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-12-12T03:47:18Z"
+    },
+    "message": "net: pcs: pcs-mtk-lynxi: add platform driver for MT7988\n\nIntroduce a full platform MFD driver for the LynxI (H)SGMII PCS which\nis going to initially be used for the MT7988 SoC.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "d1d1b66c61535fa2ec42de71782f9bb980a94e17",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-12-12T03:47:31Z"
+    },
+    "message": "dt-bindings: net: pcs: add bindings for MediaTek USXGMII PCS\n\nMediaTek's USXGMII can be found in the MT7988 SoC. We need to access\nit in order to configure and monitor the Ethernet SerDes link in\nUSXGMII, 10GBase-R and 5GBase-R mode. By including a wrapped\nlegacy 1000Base-X/2500Base-X/Cisco SGMII LynxI PCS as well, those\ninterface modes are also available.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "f57525000282b1caada8ed19f710c3f957e8ad69",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2023-12-12T03:47:47Z"
+    },
+    "message": "net: pcs: add driver for MediaTek USXGMII PCS\n\nAdd driver for USXGMII PCS found in the MediaTek MT7988 SoC and supporting\nUSXGMII, 10GBase-R and 5GBase-R interface modes.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "19732cc8d945d2fef1ddcd63655f739f341ad9b0",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2025-04-08T04:48:07Z"
+    },
+    "message": "net: pcs: mtk-lynxi: correct power down setting\n\nWithout this patch, the SGMII may not power down correctly.\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "c549803e697b660c392e88797b57c37cb3742394",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-01T11:37:12Z"
+    },
+    "message": "net: pcs: lynxi: change to devm_fwnode_pcs_add_provider and drop .remove\n\ndel_provider and release_pcs is no more available so drop .remove entirely"
+  },
+  {
+    "sha": "425316c381f6a3457fd84809c13ddfea5f31dd60",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-01T11:38:16Z"
+    },
+    "message": "net: pcs: usxgmii: change to devm_fwnode_pcs_add_provider and drop .remove\n\ndel_provider and release_pcs is no more available so drop .remove entirely"
+  },
+  {
+    "sha": "30c253169e58ad709939bd24ccd26b03e3fb67a6",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-01T11:51:47Z"
+    },
+    "message": "WIP: net: mtk_eth_soc: try to fix the pcs handling after change to fill_pcs\n\nsee how it is done in airoha driver:\nhttps://patchwork.kernel.org/project/netdevbpf/patch/20260901083001.8044-13-ansuelsmth@gmail.com/"
+  },
+  {
+    "sha": "57a45904c262132694eb8991a6b846181611e6c6",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2025-05-09T05:22:14Z"
+    },
+    "message": "net: pcs: mtk_lynxi: add mt7987 support\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "ac452ec13bbba9c692f354264cac35c08daf8988",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2025-05-06T04:53:37Z"
+    },
+    "message": "net: pcs: mtk-lynxi: add phya tx rx clock path\n\nIn NETSYSv3.1, the SGMII hardware introduces a new clock path from PHYA.\nConsequently, users can switch the SGMII PCS to this new clock source\nfor better performance on the MT7987.\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "8faad4034c16fc0c0ca0a1ab351cac805630b89f",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2021-07-12T07:00:02Z"
+    },
+    "message": "arm: dts: mt7623: swap mmc and put uart2 first"
+  },
+  {
+    "sha": "e14b31e93bd8ef657613b74f80c848fe8759362b",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2019-11-27T16:19:07Z"
+    },
+    "message": "dts64: enable sata and disable pcie-slot CN8 (shared)"
+  },
+  {
+    "sha": "a36bf79e3e1747c4ac24e602bf5f330e933f1a75",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2024-06-27T20:48:27Z"
+    },
+    "message": "arm64: dts: mt7622: fix sata\n\n[    2.480551] ahci-mtk 1a200000.sata: missing phy-mode phandle\n[    2.486249] ahci-mtk 1a200000.sata: probe with driver ahci-mtk failed with error -22\n\nFixes: 3ba5a6159434 (\"arm64: dts: mediatek: mt7622: fix clock controllers\")"
+  },
+  {
+    "sha": "8589a2b8136a22244146c4d5e02929a538945789",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-12-08T06:59:03Z"
+    },
+    "message": "arm64: dts: mt7622: add aliases for mmc to avoid swapping on probe"
+  },
+  {
+    "sha": "e603fbb2764554403382a696e97b97f724dafaff",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-05-05T18:01:00Z"
+    },
+    "message": "arm64: dts: mt7988: re-add sgmiisys"
+  },
+  {
+    "sha": "49daa4eb9ccbc37f75cfc077db3c13d333c7df25",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-05-01T17:46:37Z"
+    },
+    "message": "arm64: dts: add usxgmii pcs and link both pcs"
+  },
+  {
+    "sha": "1c6f8d02442aef942919add034e95a0477fb1d3a",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-12-06T10:20:07Z"
+    },
+    "message": "arm64: dts: mediatek: mt7988a-bpi-r4: enable gmac1+2"
+  },
+  {
+    "sha": "9e4157f1d2577b142215c5c248b2eb2a60f625fb",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-08-19T20:14:37Z"
+    },
+    "message": "arm64: dts: mediatek: mt7988a-bpi-r4: add i2c1\n\nAdd the i2c on gpio header.\n\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "44e467c3658c9d7c1a82619a53d6f6445f678a0e",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-01-17T15:47:21Z"
+    },
+    "message": "arm64: dts: mediatek: mt7988-bpi-r4: add uart1 / uart2\n\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "79d9a233cfb1ddaaf847a343e5cc54a41e352d0d",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-13T18:20:21Z"
+    },
+    "message": "arm64: dts: mediatek: mt7988a-bpi-r4: add overlay to disable pcie2\n\nSome Modems like FM350-GL require pcie disabled on m.2 key-b slot (CN16)\nto work properly.\n\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>\n---\nbased on overlay file from user Andrew\nhttps://forum.banana-pi.org/t/fm350-gl-and-be14-finally-works-on-bpi-r4/19170/40"
+  },
+  {
+    "sha": "9827754ed623a3b253d7189a35b79bdff235a086",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-12-19T16:11:30Z"
+    },
+    "message": "arm64: dts: mediatek: apply bpi-r4 nopcie2 overlay"
+  },
+  {
+    "sha": "4f511f7a3e9dccbd03199692efa1623fca0f51a5",
+    "author": {
+      "name": "Daniel Pawlik",
+      "email": "pawlik.dan@gmail.com",
+      "date": "2026-05-15T11:30:00Z"
+    },
+    "message": "arm64: dts: mt7988a: device tree overlay for BPI-R4 with BE14 module\n\nSome Banana Pi BPI-R4 BE14 WiFi modules are shipped with zeroed\ntx_power fields in EEPROM (2G/5G/6G). This leads to low transmit power\non affected bands.\nThis overlay provides known-good EEPROM data (including correct tx_power\nvalues for 2G/5G/6G bands) dumped from a working BE14 module.\n\nTo enable BE14 overlay, add into u-boot bootconf_extra\nparameter: 'mt7988a-bananapi-bpi-r4-wifi-be14'.\nYou can use example script:\n\n    overlay=\"mt7988a-bananapi-bpi-r4-wifi-be14\"\n    current=\"$(fw_printenv -n bootconf_extra 2>/dev/null)\"\n    if [ -n \"${current}\" ]; then\n        fw_setenv bootconf_extra \"${current}#${overlay}\"\n    else\n        fw_setenv bootconf_extra \"${overlay}\"\n    fi\n\nEarlier proposal proposed in [1] was fallback to default values if\ninvalid EEPROM content is detected.\n\n[1] #19503\n\nFixes: #17489\n\nhttps://github.com/openwrt/openwrt/pull/22447/"
+  },
+  {
+    "sha": "5cbd129d9f73e1b91959a50b3921187c6ed69dad",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-06-16T21:13:27Z"
+    },
+    "message": "arm64: dts: mt7988a-bpi-r4: add ubi partition"
+  },
+  {
+    "sha": "c84840d7057673de7251a1a3298b3f4085a2b266",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-05-23T17:24:30Z"
+    },
+    "message": "arm64: dts: add nand-overlay for R4 8G which has 256MB"
+  },
+  {
+    "sha": "edf54bcb15178395c493e473c36f71418f39d54e",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-09T21:48:15Z"
+    },
+    "message": "arm64: dts: mediatek: mt7987: Add Bananapi-R4 Lite\n\nsquashed:\narm64: dts: mt7987: add lvts irq"
+  },
+  {
+    "sha": "b38e9c850ea3db4b0b5b282bb1dc30ccf74e41e0",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-11-07T21:24:35Z"
+    },
+    "message": "arm64: dts: add bpi-r4 lite overlays"
+  },
+  {
+    "sha": "4a16899ff3ef3a8f6e5f123c1599ea351c164f1a",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-12-16T21:50:47Z"
+    },
+    "message": "arm64: dts: build overlays for bpi-r4-lite emmc/sd + nand/nor\n\nto fix this warning except pcie:\n\nscripts/Makefile.dtbs:20: .dtbo is not applied to any base:\nmt7987a-bananapi-bpi-r4-lite-1pcie-2L.dtbo\nmt7987a-bananapi-bpi-r4-lite-2pcie-1L.dtbo\n\n- mt7987a-bananapi-bpi-r4-lite-sd.dtbo\n- mt7987a-bananapi-bpi-r4-lite-emmc.dtbo\n- mt7987a-bananapi-bpi-r4-lite-nand.dtbo\n- mt7987a-bananapi-bpi-r4-lite-nor.dtbo\n\nmt7988a-bananapi-bpi-r4-nopcie2.dtbo\n\nsquashed:\narm64: dts: mediatek: apply mt7987 pcie overlays on buildtime"
+  },
+  {
+    "sha": "574388241ba0e511f0e1cbd8ee142d76362e9f52",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-27T19:55:04Z"
+    },
+    "message": "arm64: dts: r4pro: re-add bootargs"
+  },
+  {
+    "sha": "c2ca19695b5ebe1013d86e7a861b481891f69be6",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-27T10:43:43Z"
+    },
+    "message": "arm64: dts: r4pro: add devices not detected and unused labels"
+  },
+  {
+    "sha": "3e40f0e4623c32c8cc44c339bafe0fea37b7001b",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-26T16:55:28Z"
+    },
+    "message": "arm64: dts: r4pro: add serial 1+2\n\nsquashed:\ndts: mt7988: Add labels for serial1+2"
+  },
+  {
+    "sha": "d05718f4f109780402100de15922daea630c5515",
+    "author": {
+      "name": "Allie",
+      "email": "allie.leth@gmail.com",
+      "date": "2026-07-24T18:39:25Z"
+    },
+    "message": "arm64: dts: r4pro: add serial0-2 aliases for stable ttyS numbering\n\nWithout serial aliases the ttyS numbers follow probe order. On 7.1\nUART1 registers first and takes ttyS0, so console=ttyS0 attaches to a\nUART with no header pins and the console goes dark when the boot\nconsole hands over, even on an otherwise healthy boot. Alias serial0-2\nto the three UARTs so the debug header is always ttyS0.\n\nSigned-off-by: Allie <allie.leth@gmail.com>\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "a172eb07756efd359fb4f078e7f14bfed6d61c72",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-08-29T17:24:35Z"
+    },
+    "message": "arm64: dts: r4pro: add missing eth1+2 aliases"
+  },
+  {
+    "sha": "d2ac347f4ce9cd8e4ddf978fe809b55c11f68574",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-10-26T14:10:01Z"
+    },
+    "message": "arm64: dts: r4pro: add phys"
+  },
+  {
+    "sha": "841b988b99918efbfa21ff8d02e3087fe7051111",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-02-02T10:57:39Z"
+    },
+    "message": "arm64: dts: add switch to BPi-R4Pro\n\nwork in progress, just for testing the MxL86252 in various ways...\n\nsquashed:\ndrop mxl port13 from dtsi and fix address to be decimal"
+  },
+  {
+    "sha": "4646c91e0dccc92c498d195de94b56b76a9b9056",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-04-25T16:24:36Z"
+    },
+    "message": "arm64: dts: mt7988a-bpi-r4pro: add overlays for lan/wan phy/sfp\n\nto manually replace the ethernet-muxes"
+  },
+  {
+    "sha": "4e32a216085f4d04f57c21005940c428bfee1869",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-07-29T12:06:10Z"
+    },
+    "message": "arm64: dts: mt7988-bpi-r4pro: add overlay for lan-fpc"
+  },
+  {
+    "sha": "81a2a8d887efb4e0a6444bf93342817a06801408",
+    "author": {
+      "name": "Wilfried Teiken",
+      "email": "wteiken@teiken.org",
+      "date": "2026-05-21T22:09:53Z"
+    },
+    "message": "arm64: r4pro: Add lan SFP and overlays for the wan port (SFP/2g5) on bpi-r4-pro-4e"
+  },
+  {
+    "sha": "8dddc07d9b618639ca03f7e574c3e0f513fdc8c7",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-16T22:00:00Z"
+    },
+    "message": "arm64: dts: mediatek: mt7988a-bpi-r4-pro: use PHY LED framework\n\nDescribe the LEDs of both external Aeonsemi PHYs using the common PHY\nLED binding. Assign color and function properties so phylib can create\nunique LED class device names and offload the netdev trigger to the PHY.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "4133e2519d0b337cfc77386c2ab1ac4fbca5040e",
+    "author": {
+      "name": "Christian Marangi",
+      "email": "ansuelsmth@gmail.com",
+      "date": "2025-10-16T11:15:45Z"
+    },
+    "message": "TEST INBAND DISABLED UXGMII\n\nSigned-off-by: Christian Marangi <ansuelsmth@gmail.com>"
+  },
+  {
+    "sha": "99bc12a7e6386be572b189fbaeae45c692e27b94",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2024-11-27T02:16:27Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: support forced reset control\n\nWithout this patch, users are unable to control the forced reset\nthrough the proprietary debugfs.\n\nSigned-off-by: Bo-Cun Chen <bc-bocun.chen@mediatek.com>"
+  },
+  {
+    "sha": "21fc46867e937ce0f76915155da27769fcb9a5c5",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-01-15T19:00:57Z"
+    },
+    "message": "net: mediatek: add proprietary debugfs\n\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:355:5: warning: no previous prototype for 'mt798x_iomap' [-Wmissing-prototypes]\n  355 | int mt798x_iomap(void)\n      |     ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:375:5: warning: no previous prototype for 'mt798x_iounmap' [-Wmissing-prototypes]\n  375 | int mt798x_iounmap(void)\n      |     ^~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:384:6: warning: no previous prototype for 'mt7530_mdio_w32' [-Wmissing-prototypes]\n  384 | void mt7530_mdio_w32(struct mtk_eth *eth, u16 reg, u32 val)\n      |      ^~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:399:5: warning: no previous prototype for 'mt7530_mdio_r32' [-Wmissing-prototypes]\n  399 | u32 mt7530_mdio_r32(struct mtk_eth *eth, u32 reg)\n      |     ^~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:420:6: warning: no previous prototype for 'mtk_switch_w32' [-Wmissing-prototypes]\n  420 | void mtk_switch_w32(struct mtk_eth *eth, u32 val, unsigned int reg)\n      |      ^~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:426:5: warning: no previous prototype for 'mtk_switch_r32' [-Wmissing-prototypes]\n  426 | u32 mtk_switch_r32(struct mtk_eth *eth, unsigned int reg)\n      |     ^~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'mtketh_debugfs_reset':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:680:39: error: 'struct <anonymous>' has no member named 'force'\n  680 |                 atomic_set(&eth->reset.force, 0);\n      |                                       ^\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:683:44: error: 'struct <anonymous>' has no member named 'force'\n  683 |                 if (atomic_read(&eth->reset.force))\n      |                                            ^\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:689:39: error: 'struct <anonymous>' has no member named 'force'\n  689 |                 atomic_set(&eth->reset.force, 1);\n      |                                       ^\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:782:6: warning: no previous prototype for 'mii_mgr_read_combine' [-Wmissing-prototypes]\n  782 | void mii_mgr_read_combine(struct mtk_eth *eth, u32 phy_addr, u32 phy_register,\n      |      ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:792:6: warning: no previous prototype for 'mii_mgr_write_combine' [-Wmissing-prototypes]\n  792 | void mii_mgr_write_combine(struct mtk_eth *eth, u16 phy_addr, u16 phy_register,\n      |      ^~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:991:6: warning: no previous prototype for 'dump_each_port' [-Wmissing-prototypes]\n  991 | void dump_each_port(struct seq_file *seq, struct mtk_eth *eth, u32 base)\n      |      ^~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'dump_each_port':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1003:33: warning: suggest braces around empty body in an 'else' statement [-Wempty-body]\n 1003 |                                 ;\n      |                                 ^\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1011:5: warning: no previous prototype for 'esw_cnt_read' [-Wmissing-prototypes]\n 1011 | int esw_cnt_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1085:6: warning: no previous prototype for 'xfi_mib_dump' [-Wmissing-prototypes]\n 1085 | void xfi_mib_dump(struct seq_file *seq, u32 gdm_id)\n      |      ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1111:5: warning: no previous prototype for 'xfi_cnt_read' [-Wmissing-prototypes]\n 1111 | int xfi_cnt_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1144:5: warning: no previous prototype for 'tx_ring_read' [-Wmissing-prototypes]\n 1144 | int tx_ring_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1190:5: warning: no previous prototype for 'hwtx_ring_read' [-Wmissing-prototypes]\n 1190 | int hwtx_ring_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1230:5: warning: no previous prototype for 'rx_ring_read' [-Wmissing-prototypes]\n 1230 | int rx_ring_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1282:5: warning: no previous prototype for 'dbg_regs_read' [-Wmissing-prototypes]\n 1282 | int dbg_regs_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1482:9: warning: no previous prototype for 'hw_lro_stats_write' [-Wmissing-prototypes]\n 1482 | ssize_t hw_lro_stats_write(struct file *file, const char __user *buffer,\n      |         ^~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1501:5: warning: no previous prototype for 'hw_lro_stats_read_v1' [-Wmissing-prototypes]\n 1501 | int hw_lro_stats_read_v1(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1598:5: warning: no previous prototype for 'hw_lro_stats_read_v2' [-Wmissing-prototypes]\n 1598 | int hw_lro_stats_read_v2(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1705:5: warning: no previous prototype for 'hw_lro_stats_read_wrapper' [-Wmissing-prototypes]\n 1705 | int hw_lro_stats_read_wrapper(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1730:5: warning: no previous prototype for 'hwlro_agg_cnt_ctrl' [-Wmissing-prototypes]\n 1730 | int hwlro_agg_cnt_ctrl(int cnt)\n      |     ^~~~~~~~~~~~~~~~~~\nIn file included from /media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:29:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hwlro_agg_cnt_ctrl':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:263:42: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  263 | #define MTK_LRO_CTRL_DW2_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + 0x4 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.h:118:37: note: in expansion of macro 'MTK_LRO_CTRL_DW2_CFG'\n  118 |         u32 reg_val1 = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));           \\\n      |                                     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1736:17: note: in expansion of macro 'SET_PDMA_RXRING_MAX_AGG_CNT'\n 1736 |                 SET_PDMA_RXRING_MAX_AGG_CNT(eth, i, cnt);\n      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:263:42: note: each undeclared identifier is reported only once for each function it appears in\n  263 | #define MTK_LRO_CTRL_DW2_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + 0x4 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.h:118:37: note: in expansion of macro 'MTK_LRO_CTRL_DW2_CFG'\n  118 |         u32 reg_val1 = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));           \\\n      |                                     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1736:17: note: in expansion of macro 'SET_PDMA_RXRING_MAX_AGG_CNT'\n 1736 |                 SET_PDMA_RXRING_MAX_AGG_CNT(eth, i, cnt);\n      |                 ^~~~~~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1741:5: warning: no previous prototype for 'hwlro_agg_time_ctrl' [-Wmissing-prototypes]\n 1741 | int hwlro_agg_time_ctrl(int time)\n      |     ^~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hwlro_agg_time_ctrl':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:263:42: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  263 | #define MTK_LRO_CTRL_DW2_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + 0x4 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.h:131:36: note: in expansion of macro 'MTK_LRO_CTRL_DW2_CFG'\n  131 |         u32 reg_val = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));            \\\n      |                                    ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1747:17: note: in expansion of macro 'SET_PDMA_RXRING_AGG_TIME'\n 1747 |                 SET_PDMA_RXRING_AGG_TIME(eth, i, time);\n      |                 ^~~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1752:5: warning: no previous prototype for 'hwlro_age_time_ctrl' [-Wmissing-prototypes]\n 1752 | int hwlro_age_time_ctrl(int time)\n      |     ^~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hwlro_age_time_ctrl':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:262:42: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  262 | #define MTK_LRO_CTRL_DW1_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.h:139:37: note: in expansion of macro 'MTK_LRO_CTRL_DW1_CFG'\n  139 |         u32 reg_val1 = mtk_r32(eth, MTK_LRO_CTRL_DW1_CFG(x));           \\\n      |                                     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1758:17: note: in expansion of macro 'SET_PDMA_RXRING_AGE_TIME'\n 1758 |                 SET_PDMA_RXRING_AGE_TIME(eth, i, time);\n      |                 ^~~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1762:5: warning: no previous prototype for 'hwlro_threshold_ctrl' [-Wmissing-prototypes]\n 1762 | int hwlro_threshold_ctrl(int bandwidth)\n      |     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1771:5: warning: no previous prototype for 'hwlro_ring_enable_ctrl' [-Wmissing-prototypes]\n 1771 | int hwlro_ring_enable_ctrl(int enable)\n      |     ^~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hwlro_ring_enable_ctrl':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:263:42: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  263 | #define MTK_LRO_CTRL_DW2_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + 0x4 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.h:159:36: note: in expansion of macro 'MTK_LRO_CTRL_DW2_CFG'\n  159 |         u32 reg_val = mtk_r32(eth, MTK_LRO_CTRL_DW2_CFG(x));            \\\n      |                                    ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1779:17: note: in expansion of macro 'SET_PDMA_RXRING_VALID'\n 1779 |                 SET_PDMA_RXRING_VALID(eth, i, enable);\n      |                 ^~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: At top level:\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1784:5: warning: no previous prototype for 'hwlro_stats_enable_ctrl' [-Wmissing-prototypes]\n 1784 | int hwlro_stats_enable_ctrl(int enable)\n      |     ^~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1801:9: warning: no previous prototype for 'hw_lro_auto_tlb_write' [-Wmissing-prototypes]\n 1801 | ssize_t hw_lro_auto_tlb_write(struct file *file, const char __user *buffer,\n      |         ^~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1839:6: warning: no previous prototype for 'hw_lro_auto_tlb_dump_v1' [-Wmissing-prototypes]\n 1839 | void hw_lro_auto_tlb_dump_v1(struct seq_file *seq, u32 index)\n      |      ^~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1898:6: warning: no previous prototype for 'hw_lro_auto_tlb_dump_v2' [-Wmissing-prototypes]\n 1898 | void hw_lro_auto_tlb_dump_v2(struct seq_file *seq, u32 index)\n      |      ^~~~~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:1969:5: warning: no previous prototype for 'hw_lro_auto_tlb_read' [-Wmissing-prototypes]\n 1969 | int hw_lro_auto_tlb_read(struct seq_file *seq, void *v)\n      |     ^~~~~~~~~~~~~~~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hw_lro_auto_tlb_read':\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_soc.h:262:42: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  262 | #define MTK_LRO_CTRL_DW1_CFG(x)         (reg_map->pdma.lro_ring_ctrl_dw1 + (x * 0x40))\n      |                                          ^~~~~~~\n/media/data_ext/git/kernel/BPI-R2-4.14/drivers/net/ethernet/mediatek/mtk_eth_dbg.c:2009:40: note: in expansion of macro 'MTK_LRO_CTRL_DW1_CFG'\n 2009 |                 reg_op1 = mtk_r32(eth, MTK_LRO_CTRL_DW1_CFG(i));\n      |                                        ^~~~~~~~~~~~~~~~~~~~\nmake[7]: *** [/media/data_ext/git/kernel/BPI-R2-4.14/scripts/Makefile.build:194: drivers/net/ethernet/mediatek/mtk_eth_dbg.o] Error 1\nmake[7]: *** Waiting for unfinished jobs....\nmake[6]: *** [/media/data_ext/git/kernel/BPI-R2-4.14/scripts/Makefile.build:440: drivers/net/ethernet/mediatek] Error 2\nmake[5]: *** [/media/data_ext/git/kernel/BPI-R2-4.14/scripts/Makefile.build:440: drivers/net/ethernet] Error 2\nmake[1]: Leaving directory '/media/data_ext/git/kernel/build'\n\nfix build-errors/warnings for mtk_eth_dbg\n\nthese are still there:\n\nIn file included from drivers/net/ethernet/mediatek/mtk_eth_dbg.c:29:\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hwlro_threshold_ctrl':\ndrivers/net/ethernet/mediatek/mtk_eth_soc.h:204:34: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  204 | #define MTK_PDMA_LRO_CTRL_DW2   (reg_map->pdma.lro_ctrl_dw0 + 0x08)\n      |                                  ^~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.h:152:36: note: in expansion of macro 'MTK_PDMA_LRO_CTRL_DW2'\n  152 |         u32 reg_val = mtk_r32(eth, MTK_PDMA_LRO_CTRL_DW2);              \\\n      |                                    ^~~~~~~~~~~~~~~~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c:1769:9: note: in expansion of macro 'SET_PDMA_LRO_BW_THRESHOLD'\n 1769 |         SET_PDMA_LRO_BW_THRESHOLD(eth, bandwidth);\n      |         ^~~~~~~~~~~~~~~~~~~~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_soc.h:204:34: note: each undeclared identifier is reported only once for each function it appears in\n  204 | #define MTK_PDMA_LRO_CTRL_DW2   (reg_map->pdma.lro_ctrl_dw0 + 0x08)\n      |                                  ^~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.h:152:36: note: in expansion of macro 'MTK_PDMA_LRO_CTRL_DW2'\n  152 |         u32 reg_val = mtk_r32(eth, MTK_PDMA_LRO_CTRL_DW2);              \\\n      |                                    ^~~~~~~~~~~~~~~~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c:1769:9: note: in expansion of macro 'SET_PDMA_LRO_BW_THRESHOLD'\n 1769 |         SET_PDMA_LRO_BW_THRESHOLD(eth, bandwidth);\n      |         ^~~~~~~~~~~~~~~~~~~~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hw_lro_auto_tlb_dump_v1':\ndrivers/net/ethernet/mediatek/mtk_eth_soc.h:202:34: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  202 | #define MTK_PDMA_LRO_CTRL_DW0   (reg_map->pdma.lro_ctrl_dw0)\n      |                                  ^~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c:1868:26: note: in expansion of macro 'MTK_PDMA_LRO_CTRL_DW0'\n 1868 |         if (mtk_r32(eth, MTK_PDMA_LRO_CTRL_DW0) & MTK_LRO_ALT_PKT_CNT_MODE)\n      |                          ^~~~~~~~~~~~~~~~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c: In function 'hw_lro_auto_tlb_dump_v2':\ndrivers/net/ethernet/mediatek/mtk_eth_soc.h:202:34: error: 'reg_map' undeclared (first use in this function); did you mean 'regmap'?\n  202 | #define MTK_PDMA_LRO_CTRL_DW0   (reg_map->pdma.lro_ctrl_dw0)\n      |                                  ^~~~~~~\ndrivers/net/ethernet/mediatek/mtk_eth_dbg.c:1919:26: note: in expansion of macro 'MTK_PDMA_LRO_CTRL_DW0'\n 1919 |         if (mtk_r32(eth, MTK_PDMA_LRO_CTRL_DW0) & MTK_LRO_ALT_PKT_CNT_MODE)\n      |                          ^~~~~~~~~~~~~~~~~~~~~\n\nmore fixes for mtk_eth_dbg after adding lro code\n\nnet: mediatek: update propritary debugfs\n\nnet: mediatek: add some missing values"
+  },
+  {
+    "sha": "2d97c6da931166152b9194a07ee556cdddeb8a9f",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-05-08T16:45:44Z"
+    },
+    "message": "mtk_eth_dbg: fix some sparse errors"
+  },
+  {
+    "sha": "7d3f0b9fe9e67ca7e8996f187a5f9a40379d4dcb",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-07-12T12:59:51Z"
+    },
+    "message": "net: mediatek: mtk_eth_soc: add RSS capabilty for mt798[16]"
+  },
+  {
+    "sha": "60e2bec3fed5e386567b89c027cc0a8a1336b491",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-04-12T12:36:54Z"
+    },
+    "message": "net: mediatek change mt7986 from RSS to LRO (only 1 possible) - untested\n\nhttps://git01.mediatek.com/plugins/gitiles/openwrt/feeds/mtk-openwrt-feeds/+/30c22fcf9e2dd7d04e630969557c8ef3e96bf451"
+  },
+  {
+    "sha": "fc95b8717dad31c88839b74da82bef681d061748",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2025-01-18T14:59:43Z"
+    },
+    "message": "enable LRO debugfs"
+  },
+  {
+    "sha": "75d9e61e89cd4dd88334707d382a38d0345616ad",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-11T21:47:15Z"
+    },
+    "message": "PM / devfreq: mtk-cci: use devres for resource management in probe\n\nConvert mtk_ccifreq_probe() to use devm-managed resource cleanup\ninstead of manual goto-based error handling.\n\nThis pattern (devm_add_action_or_reset with a regulator disable\ncallback) is well-established in the kernel, used by drivers such as\nads7846, max6639 and others.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "93f131be2db2c79606062baa4ce99cf9fc4c2a24",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-13T14:22:05Z"
+    },
+    "message": "PM / devfreq: mtk-cci: check cpufreq availability early\n\nCheck spufreq availablility early at probe so -EPROBE_DEFER is emitted\nbefore touching any regulators.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "2452929ca6c92f4d96fb2ebc825ceae5b263892f",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-01T14:41:40Z"
+    },
+    "message": "ci: add build.yml"
+  },
+  {
+    "sha": "aa572ff8f2a8ace727f0001823587160f9dc000f",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-05-06T16:42:02Z"
+    },
+    "message": "phy: mtk-xfi: add mtk_xfi_tphy_valid_ctle for use in usxgmii driver"
+  },
+  {
+    "sha": "769cea6dc4204ef3e43ac347d91ae9ef74f81b1d",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-05-06T16:43:32Z"
+    },
+    "message": "net: pcs: mtk-usxgmii: check link status and phy ctle before reset"
+  },
+  {
+    "sha": "0d499d6358505b803ba05766caae68042a880cf1",
+    "author": {
+      "name": "Mathias Nyman",
+      "email": "mathias.nyman@://intel.com",
+      "date": "2026-08-26T11:20:11Z"
+    },
+    "message": "usb: xhci: fix maximum event ring segments calculation\n\nThe migration to FIELD_GET introduced an incorrect bit shift.\nInstead of raising 2 to the power of the register value, the code\nincorrectly used a static shift of 2 (<< 2). This severely limits the\nmaximum event ring segments on modern controllers.\n\nFix this by converting the FIELD_GET result to a proper power of two\nusing the BIT() macro.\n\nSigned-off-by: Mathias Nyman <mathias.nyman@://intel.com>"
+  },
+  {
+    "sha": "e72fe0dad81179e96f3f2587d358626cf711b487",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2025-10-08T05:46:34Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: change default rx buffer length\n\nChange default RX buffer length from 2K to 1.5K.\nThis adjustment can improve the SW path peak throughput and reduce the\ntotal CPU usage."
+  },
+  {
+    "sha": "86241592617ab5fa1e8738e1e7dff0e0a49a9b10",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2025-10-17T09:25:15Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add 9k jumbo frame support"
+  },
+  {
+    "sha": "4bec28928b00a6167cfef03ce4da21c9dce8a6fe",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2025-12-11T11:29:31Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add dynamic rx buffer adjustment\n\nsupport"
+  },
+  {
+    "sha": "0257f8d5e46e676c64afbfc6e1d5fdb6efe0b4ed",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2026-05-28T05:57:41Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: add netdev restart work\n\nAdd netdev restart work to reallocate RX buffer.\n\nPreviously, in order to support jumbo frame in the Ethernet driver,\nwe adjusted the RX buffer length setting synchronously when the MTU\nwas changed. However, since all interfaces share the same RX rings,\nthe RX buffer could not be reallocated until a network restart was\ntriggered in user space. This patch adds a netdev restart work,\nwhich schedules a restart of all netdevs after the MTU is changed,\nso that the RX buffer can be reallocated according to the updated\nRX buffer length immediately.\n\nWithout this patch, the adjustment of RX buffer length would not\ntake effect until a network restart was triggered in user space."
+  },
+  {
+    "sha": "5e46767a1229887573d3ddd3f69173839e00d527",
+    "author": {
+      "name": "Mason Chang",
+      "email": "mason-cw.chang@mediatek.com",
+      "date": "2026-05-29T05:59:05Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: drop the dynamic\n\nPPE MTU update\n\nDrop the dynamic PPE MTU update tied to netdev MTU changes.\n\nThe HW offload path is designed around the default 1.5K MTU\nsetting, and altering it at runtime is outside the expected\nsystem configuration. Keeping the PPE at its default avoids\nunexpected behavior on offloaded flows."
+  },
+  {
+    "sha": "dad7ffb0d1f578760cf41f4a69ed42d26c1ed00d",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-17T08:30:00Z"
+    },
+    "message": "net: phy: as21xxx: discard stale C45 read response\n\nThe first C45 response returned by the AS21xxx belongs to the preceding\nMDIO transaction. The existing workaround performs the required write\nafter the read, but still returns that stale first response to callers.\nThis makes runtime status reads unreliable even though PHY matching can\nsucceed with repeated reads.\n\nDiscard the first response, perform the workaround write, and issue the\nC45 read again. Keep a second workaround write after the returned read so\nthe following transaction starts from the same known state.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "01863c9945ee4537635174ae92224d256328ed92",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-14T22:08:52Z"
+    },
+    "message": "net: phy: as21xxx: handle stale IDs during driver matching\n\nThe AS21xxx can return the response from the preceding Clause 45\ntransaction. The PHY-ID reads performed by match_phy_device() happen before\na model-specific driver is bound, so they cannot use the driver's read_mmd\nworkaround. A stale IPC or PHY-ID response can therefore prevent the\nmodel-specific driver from matching.\n\nReuse as21xxx_read_mmd() for the match-time PHY-ID reads. It cannot be\nreached through phy_read_mmd() at this stage because phydev->drv has not\nbeen assigned yet. Since as21xxx_read_mmd() uses the unlocked MDIO bus\naccessors, explicitly hold the MDIO bus lock around these direct calls.\n\nThe initial Clause 45 scan happens before phylib acquires and asserts the\nper-PHY reset GPIO. Phylib applies that reset during registration and before\ndriver matching, but it does not refresh the cached IDs afterwards. The PCS\nID can consequently be left as 0xffffffff, contain the response shifted\nfrom an adjacent PMA/PMD transaction, or hold another stale value.\n\nFor firmware-described PHYs whose cached PCS ID does not identify Aeonsemi,\nrefresh it in the AS21xxx matcher using the delayed-read workaround. Verify\nthe vendor after the refresh so unrelated PHYs are not claimed. Also\nreconstruct a potentially shifted ID from the adjacent cached PMA/PMD and\nPCS IDs before falling back to the generic Clause 45 driver. This keeps the\nworkaround local to the affected PHY family and allows normal vendor and\nmodel matching after reset deassertion.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "b7366d5eaa013ec921814af70ddf5c36a34ca190",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-28T22:00:00Z"
+    },
+    "message": "net: phy: as21xxx: recover unresponsive IPC after warm reboot\n\nThe firmware can remain loaded across a warm reboot while its IPC interface\nis no longer responsive. In that case the model-specific driver matches,\nbut its probe times out while synchronizing IPC parity.\n\nOn an IPC synchronization timeout, reset the PHY, reload its firmware and\nretry synchronization. Issue a NOP command to wait for the freshly loaded\nfirmware to become ready and report successful recovery in the boot log.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "26aa421781309244e331cecc507543a1655ce35a",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-17T09:00:00Z"
+    },
+    "message": "net: phy: as21xxx: fix AS2101x runtime behavior\n\nMove DPC rate-adaptation setup from probe to the PHY config_init callback,\nwhile preserving the existing behavior of enabling it for every supported\nvariant.\n\nStandard Clause 45 link status does not reflect the firmware link state\nreliably. Use the vendor AN arbitration state and report link complete\nwhen it reaches LINK_GOOD.\n\nFinally, expose the full-duplex BASE-T modes supported by the AS21010 and\nAS21011 variants. The generic feature discovery does not provide these\ncapabilities before the firmware-backed PHY is fully operational.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "73ce83d972c55c66bb3d2973175cb0974ab90ec4",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-17T22:00:00Z"
+    },
+    "message": "net: phy: as21xxx: apply a default LED configuration\n\nThe driver never programs the VEND1_LED_REG() event field on its own, it\nonly reacts to the LED class devices instantiated by of_phy_leds(). Two\nthings follow from that and both end up with dark RJ45 LEDs.\n\nWithout a \"leds\" node in the PHY device tree node the event registers keep\ntheir post firmware-load reset value, which is not a link or activity\npattern. With a \"leds\" node the situation is worse: of_phy_leds() runs from\nphy_probe(), long before phy_attach_direct() populates phydev->attached_dev,\nso phy_led_hw_control_get_device() returns NULL, the netdev trigger falls\nback to software mode with no interface bound and the initial brightness\nupdate writes EVENT_OFF to the PHY.\n\nProgram a default from config_init(), which runs on phy_init_hw() and\ntherefore after of_phy_leds(). Keep LED0 as link-plus-activity and change\nLED1 to indicate any link speed, matching the expected board behavior where\nyellow is solid when link is up.\nUserspace and the netdev trigger can still override this at any time\nthrough the LED class devices.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "7d638d138e45b6f6687c7ba5728f174e99ff77d2",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-08-17T22:00:00Z"
+    },
+    "message": "net: phy: as21xxx: report multi-gigabit link partner abilities\n\nas21xxx_read_status() only decodes the link partner advertisement from the\nC22 registers mapped into the AN MMD, which stop at 1000BASE-T. On a link\nnegotiated at 2.5G ethtool therefore reports:\n\n  Link partner advertised link modes: 10baseT/Half 10baseT/Full\n                                      100baseT/Half 100baseT/Full\n                                      1000baseT/Full\n  Speed: 2500Mb/s\n\nThe multi-gigabit abilities are available in the C45 10GBASE-T AN status\nregister (7.33), which reads 0xd5e1 in the case above: LP2_5G and LP5G set,\nLP10G clear, exactly matching the link partner. LOCOK however stays clear,\nas the firmware drives autonegotiation on its own and does not maintain the\nstandard AN bookkeeping. The 10GBASE-T AN control register (7.32) shows the\nsame, it reads back without any of the ADV2_5G, ADV5G or ADV10G bits even\nthough those speeds are advertised.\n\nOpenWrt's pending patch 713 changes\nmii_10gbt_stat_mod_linkmode_lpa_t() to discard the whole word unless both\nLOCOK and REMOK are set. Decode the three ability bits directly to avoid\nthat OpenWrt-specific gating. Clear them together with the C22 ones while\nautonegotiation is still running.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "c219b8486421fd8c0264e5e74fa27eb031ba57fc",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-09-01T22:00:00Z"
+    },
+    "message": "net: phy: as21xxx: add hwmon temperature sensor\n\nAS21xxx firmware exposes the on-chip temperature monitor through the\nCFG_PARAM/DIRECT IPC command. The monitor needs to be configured and started\nbefore a temperature sample is available. Once started, the GET operation\nreturns the current temperature as a signed 16.16 Celsius value in response\nwords 1 and 2.\n\nAdd optional hwmon support and expose the temperature as temp1_input in\nmillidegrees Celsius. If the firmware rejects the temperature monitor setup,\nkeep probing the PHY and simply skip hwmon registration.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "7265e3635c6516f7c22037b043d7d4fad1f388a5",
+    "author": {
+      "name": "Pietro Ameruoso",
+      "email": "p.ameruoso@live.it",
+      "date": "2026-09-01T22:00:00Z"
+    },
+    "message": "net: phy: as21xxx: fix temperature monitor config parameter\n\nThe CFG_PARAM/DIRECT temperature monitor parameter is decimal 11 in the\nAS21xxx firmware, so it must be encoded as 0xb rather than the hexadecimal\nliteral 0x11 used by the upstream define.\n\nThis value was verified against firmware 1.9.1 during hardware testing: the\nconfiguration payload uses { 0x4, 11, 0x4, 0 } and the monitor returns valid\nsamples after configuration and start. The adjacent\nIPC_CFG_PARAM_DIRECT_SDS_RESTART_AN (0x10) and\nIPC_CFG_PARAM_DIRECT_WOL (0x12) values are unchanged because they were not\nverified by this change.\n\nSigned-off-by: Pietro Ameruoso <p.ameruoso@live.it>"
+  },
+  {
+    "sha": "33107accb0b831ec60fc35a6375f2472970fa119",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-04T13:49:59Z"
+    },
+    "message": "arm64: dts: mt7988-bpi-r4pro: add gpio-names for i2c-to-gpio chip"
+  },
+  {
+    "sha": "d618cb587929674bb04cc369ef1817a6d14a89b5",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:37Z"
+    },
+    "message": "Revert \"net: ethernet: move desc assignment below check for its txd3\"\n\nThis reverts commit 4027eb01de8da26ece393116f823c98a871a4a15.\n\nThat commit moved the descriptor advance below the TX_DMA_OWNER_CPU\ntest in mtk_poll_tx_qdma(), citing a MediaTek 5.4 vendor tree as its\nonly justification.  The reorder makes the test tautological.\n\nThe QDMA completion path walks a linked list of descriptors starting\nfrom ring->last_free_ptr.  On each iteration the driver must advance to\nthe next descriptor and then test *that* descriptor's ownership bit.\nOn NETSYS v2 and later mtk_dma_init() programs MTK_CHK_DDONE_EN into\nthe QDMA global configuration, under which the bit written back into\ntxd3 is the engine's statement that it has finished with the buffer the\ndescriptor points at.  Mainline orders the two statements that way and\nstill does.\n\nAfter the reorder the test is applied to the descriptor the driver\nreleased on the previous iteration, which is CPU-owned by definition.\nThe test can therefore never break the loop, and the per-descriptor\nDDONE handshake the driver takes the trouble to enable is never\nconsulted.  Reclaim is left to the loop bound alone, cpu != drx_ptr.\n\nThat bound is not by itself unsafe: drx_ptr is the QDMA TX *release*\nDMA pointer, and the register map names the acquire pair separately as\nctx_ptr and dtx_ptr.  So this is not a use-after-free.  It does mean\nthe driver trusts one indication where the hardware offers two, and\nthat a check the MediaTek SDK describes as ensuring the DMA has\ncompleted processing before a descriptor is reused was disabled by\naccident rather than by decision.\n\nNo functional change is expected while drx_ptr is accurate.  Restore\nthe mainline order so the check does the job it was written for.\n\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "8f95775b7c70449b12f0e6acf7fc8a7f180dadda",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:37Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: do not free the skb twice when TX padding fails\n\nCommit 80584a8e6556 (\"Add+Fix software padding processing in Ethernet\nTx path.\") pads runt frames from mtk_tx_map() using skb_put_padto().\n\nskb_put_padto() is __skb_put_padto() with free_on_error set, so it\nkfree_skb()s the skb before returning -ENOMEM.  mtk_tx_map() propagates\nthat error to mtk_start_xmit(), which jumps to its drop label and calls\ndev_kfree_skb_any() on the same skb.  The skb is freed twice.\n\nUse __skb_put_padto() with free_on_error = false so that ownership of\nthe skb stays with the caller on every error path out of mtk_tx_map(),\nmatching how the function already behaves for DMA mapping failures.\n\nWhile here, only pad when the frame is actually shorter than the\nminimum length.  At exactly MTK_MIN_TX_LENGTH the old test entered the\nblock to perform a no-op pad.\n\nFixes: 80584a8e6556 (\"Add+Fix software padding processing in Ethernet Tx path.\")\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "c0251de9ec2949983dc7da1c7d92032baa570a61",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:37Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: free the skb on the last descriptor of a job\n\nmtk_tx_map() stores the skb on the first descriptor of a job, and\nmtk_poll_tx_qdma() walks released descriptors in submission order,\nfreeing the skb when it reclaims that first descriptor.  The QDMA\nrelease interface is per descriptor - drx_ptr advances and DDONE is\nwritten back as the engine consumes each buffer - so reclaiming the\nfirst descriptor only asserts that the engine is done with the first\nbuffer.  For a multi-descriptor job, and above all for a hardware LSO\njob whose remaining fragments are fetched over the whole emission of up\nto 17 generated segments, freeing the skb there drops every fragment\npage reference while the engine still has buffers left to read.\n\nWhether the pages are then observed corrupt depends on what happens to\nfreed memory.  With init_on_free=1 they are zeroed immediately, in the\nreclaim softirq itself, and the engine's remaining fetches return\nzeros.  Measured on a BPI-R4 (MT7988A) forwarding a 512 MB HTTP\ntransfer at line rate to a client behind the DSA switch, generated\nsegments arrive with their payload intact up to a point and zero from\nthere to the segment boundary, at roughly 36 ppm of transferred bytes,\nwith a matching TCP checksum because the GDM checksums whatever was\nassembled.  The zeroed spans are quantised to the 64 byte DC ZVA blocks\nof the arm64 memset, corrupted segments arrive in clusters matching the\nset of fragments sharing one 32 KB page fragment cache page, and the\nfault needs sustained egress backpressure - which is what stretches the\nwindow between the first descriptor's release and the last fragment's\nfetch.  Without init_on_free the same use-after-free exists but freed\npages usually still hold the payload, which is presumably why this has\ngone unnoticed.\n\nMove the skb to the job's last descriptor, so the free waits until the\nengine has consumed every buffer.  The first descriptor keeps its\nmapping for unmap and carries the dummy marker like any other\nnon-final descriptor.  Single-descriptor packets are unchanged, as is\nthe PDMA path, whose paired-slot bookkeeping is different and whose\nSoCs do not perform hardware segmentation of this kind.  The XDP\ntransmit path attaches frames to the first descriptor in the same way\nand inherits the same theoretical hazard, but is not changed here.\n\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "f553759f6dc6d69d421aa9c797db928e99296535",
+    "author": {
+      "name": "Mihai Ordean",
+      "email": "research@mihaiordean.com",
+      "date": "2026-07-30T13:36:38Z"
+    },
+    "message": "net: ethernet: mtk_eth_soc: log DMA hangs discarded by the forced-reset gate\n\nCommit 049c428f2ebf (\"net: ethernet: mtk_eth_soc: support forced reset\ncontrol\") gates the hang-triggered SER behind eth->reset.force, which\ndefaults to off.  mtk_hw_reset_monitor_work() still evaluates\nmtk_hw_check_dma_hang() every second, but when the gate is closed a\npositive detection is discarded without a trace: the DMA engine stays\nin whatever state tripped three consecutive hang checks, and nothing in\nthe log records that it happened.\n\nUpstream schedules the recovery unconditionally here, so the gate is a\ndeliberate semantic deviation; keep it, but emit a ratelimited error\nwhen a detection is dropped so that degraded-DMA states can be\ncorrelated with traffic symptoms from the log alone.\n\nNo functional change when no hang is detected or when forced reset is\nenabled.\n\nSigned-off-by: Mihai Ordean <research@mihaiordean.com>"
+  },
+  {
+    "sha": "c2f34194ba506de60dbad833b279ac21ef8adc70",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-06T15:46:23Z"
+    },
+    "message": "arm64: dts: label gpio-hogs for r4pro\n\ngpio hogs were tagged with name \"?\" in recent kernel versions (7.1+,\n7.0 showed the unit-name).\n\ngpiochip0: 84 GPIOs, parent: platform/1001f000.pinctrl, pinctrl_moore:\n gpio-0   (                    |tx-disable          ) in  lo\n gpio-1   (                    |mod-def0            ) in  hi IRQ ACTIVE LOW\n gpio-2   (                    |los                 ) in  hi IRQ\n gpio-3   (                    |?                   ) out lo\n gpio-12  (                    |cd                  ) in  lo IRQ ACTIVE LOW\n gpio-13  (                    |reset               ) in  hi IRQ ACTIVE LOW\n gpio-14  (                    |WPS                 ) in  hi IRQ ACTIVE LOW\n gpio-21  (                    |tx-disable          ) in  lo\n gpio-54  (                    |?                   ) out hi\n gpio-63  (                    |?                   ) out hi\n gpio-69  (                    |mod-def0            ) in  hi IRQ ACTIVE LOW\n gpio-70  (                    |los                 ) in  hi IRQ\n gpio-79  (                    |?                   ) out lo\n gpio-82  (                    |PHY reset           ) out hi ACTIVE LOW\n gpio-83  (                    |PHY reset           ) out hi ACTIVE LOW\n\nafter the change:\n\nroot@bpi-r4:~# cat /sys/kernel/debug/gpio\ngpiochip0: 84 GPIOs, parent: platform/1001f000.pinctrl, pinctrl_moore:\n gpio-0   (                    |tx-disable          ) in  lo\n gpio-1   (                    |mod-def0            ) in  hi IRQ ACTIVE LOW\n gpio-2   (                    |los                 ) in  hi IRQ\n gpio-3   (                    |wan-phy-hog         ) out lo\n gpio-12  (                    |cd                  ) in  lo IRQ ACTIVE LOW\n gpio-13  (                    |reset               ) in  hi IRQ ACTIVE LOW\n gpio-14  (                    |WPS                 ) in  hi IRQ ACTIVE LOW\n gpio-21  (                    |tx-disable          ) in  lo\n gpio-54  (                    |lan-phy-hog         ) out hi\n gpio-63  (                    |pcie3-cn14-hog      ) out hi\n gpio-69  (                    |mod-def0            ) in  hi IRQ ACTIVE LOW\n gpio-70  (                    |los                 ) in  hi IRQ\n gpio-79  (                    |pcie2-cn15-hog      ) out lo\n gpio-82  (                    |PHY reset           ) out hi ACTIVE LOW\n gpio-83  (                    |PHY reset           ) out hi ACTIVE LOW\n\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "3c84b083760d7fd37ecfebe91a3a0944b82e227f",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-07T12:24:55Z"
+    },
+    "message": "try to fix kismet warning about unmet depencies for usxgmii support\n\ncommit: 9775a230703aed4ca384dfe8d9a1df84f62ffc96 [78/144] net: pcs: add driver for MediaTek USXGMII PCS\nconfig: hexagon-kismet-CONFIG_FWNODE_PCS-CONFIG_PCS_MTK_USXGMII-0-0 (https://download.01.org/0day-ci/archive/20260907/202609071106.0rGV0ARR-lkp@intel.com/config)\nreproduce: (https://download.01.org/0day-ci/archive/20260907/202609071106.0rGV0ARR-lkp@intel.com/reproduce)\n\n>> kismet: WARNING: unmet direct dependencies detected for FWNODE_PCS when selected by PCS_MTK_USXGMII\nWARNING: unmet direct dependencies detected for FWNODE_PCS\nDepends on [n]: NETDEVICES [=y] && (ACPI || OF [=n] || COMPILE_TEST [=n])\nSelected by [y]:\n- PCS_MTK_USXGMII [=y] && NETDEVICES [=y]\n\nReported-by: kernel test robot <lkp@intel.com>\nCloses: https://lore.kernel.org/oe-kbuild-all/202609071106.0rGV0ARR-lkp@intel.com/"
+  },
+  {
+    "sha": "c48dbe306022f7cbecc07a7fd4703c9bedb2fe61",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:46:34Z"
+    },
+    "message": "net: dsa: add devlink flash_update callback to dsa_switch_ops\n\nAdd a devlink_flash_update callback to dsa_switch_ops so that DSA\ndrivers can support devlink dev flash without open-coding the devlink\nplumbing. Like the other trampolines in net/dsa/devlink.c, the op\nreturns -EOPNOTSUPP when the driver does not implement the callback;\nthe devlink core will then have fetched the firmware file from\nuserspace before the request fails, which is acceptable for an\noperation as infrequent as a firmware update.\n\nThe devlink core calls the op with the devlink instance lock held and\nwithout rtnl_lock, whereas DSA serialises its switch and port ops\nunder rtnl_lock, so a driver has to serialise a flash against its own\nops itself.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nReviewed-by: Andrew Lunn <andrew@lunn.ch>"
+  },
+  {
+    "sha": "c7c8145ad2cefcb94267b8aa87b1a4140295764f",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:46:46Z"
+    },
+    "message": "net: dsa: mxl862xx: add SMDIO clause-22 register access\n\nAdd mxl862xx_smdio_read() and mxl862xx_smdio_write() for clause-22\nSMDIO register access. The switch's MCUboot bootloader exposes only\nclause-22 registers; the clause-45 MMD interface needs the running\nfirmware and is unavailable while the switch is in MCUboot. The MDIO\nbus lock is held per-transaction (not across polls) so that SB PDI\npolling during flash erase does not starve other non-switch users of\nthe same MDIO bus, such as separate PHYs providing WAN or management\ninterfaces.\n\nUnlike mxl862xx_api_wrap(), which takes the bus lock with\nMDIO_MUTEX_NESTED because it can be entered from the accessors of\nthe switch-internal MDIO bus while that bus's lock of the same lock\nclass is already held, the SMDIO helpers take it with a plain\nmutex_lock(). They are only called from probe and devlink flash\ncontexts where no other MDIO bus lock can be held.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nReviewed-by: Andrew Lunn <andrew@lunn.ch>"
+  },
+  {
+    "sha": "abe935057a1d06ec956d152f28b982c5672e1fd3",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:46:57Z"
+    },
+    "message": "driver core: add device_schedule_reprobe()\n\nThree in-tree drivers schedule a deferred re-probe of their own device\nfrom a work item whose work function lives in module text: iwlwifi\n(iwl_trans_schedule_reprobe(), firmware crash recovery when a lighter\nrestart is not sufficient), hci_h5 (h5_btrtl_resume(), RTL devices\nlose their firmware state over suspend) and btintel_pcie (synchronous\ndevice_reprobe() from its own reset work, with a hand-rolled locking\ncontract spanning several comments).\n\nTwo bug classes affect the hand-rolled implementations:\n\n1. The work function ends with put_device(); kfree();\n   module_put(THIS_MODULE); in module text. After the atomic decrement\n   a concurrent rmmod can free the module text before the function\n   epilogue has finished executing. This is exactly the race\n   module_put_and_kthread_exit() exists to close for kthreads; there\n   is no work-item equivalent.\n\n2. There is no synchronization between the deferred device_reprobe()\n   and device_shutdown() or a driver unbind. The drivers do not check\n   any bound state before calling device_reprobe(), so a stale\n   re-probe can undo an administrative unbind, and the detach half can\n   run against a device whose ->shutdown() callback has already run.\n   The core already blocks the attach half during shutdown\n   (device_shutdown() calls device_block_probing() before any\n   callback, and really_probe() honors defer_all_probes), but nothing\n   blocks the detach half. For drivers which clear their drvdata in\n   ->shutdown() so that a subsequent ->remove() becomes a no-op this\n   escalates to use-after-free of driver state which other subsystem\n   structures still reference.\n\nBoth classes disappear when the driver core owns the deferred work.\nAdd device_schedule_reprobe(), which schedules a detach and re-probe\nof a device after a caller-specified delay:\n\n- The work function is builtin text, so callers do not need to hold a\n  module reference. If the driver module is unloaded before the work\n  runs, driver_unregister() has already unbound the device, the bound\n  driver no longer matches the driver recorded at scheduling time and\n  the work does nothing.\n\n- The recorded driver pointer is only ever compared, never\n  dereferenced, so it may legitimately point to freed memory.\n\n- The bound-state check and __device_release_driver() run under a\n  single hold of the device lock and, where the bus needs it, the\n  parent lock, the same lock dance device_release_driver_internal()\n  uses. This closes the check-vs-detach TOCTOU that drivers cannot\n  close themselves, because device_reprobe() takes the device lock\n  internally. __device_release_driver() reports whether this call was\n  the one to release the driver, so an unbind that wins the race while\n  busy consumer links are being unbound is not followed by a re-attach.\n\n- Both @dev and its parent are pinned for the lifetime of the work, and\n  whether the parent needs locking is recorded at scheduling time. An\n  unregister of @dev drops @dev's reference to the parent, and a device\n  that was unregistered before the work runs may have outlived the\n  module providing its bus type, so neither dev->parent nor dev->bus is\n  read before the device is found live under the lock.\n\n- A new shutdown_done flag in struct device_private, set under the\n  device lock once device_shutdown() reaches a device, suppresses the\n  detach half during shutdown. It occupies a spare bit in an existing\n  byte, mirroring how kill_device() sets the dead flag.\n\n- The work is queued on system_freezable_wq. A re-probe pending across\n  system suspend therefore runs once the devices have resumed and\n  probing is unblocked again, instead of detaching a device the PM core\n  has already suspended or running concurrently with its late suspend\n  callbacks, which the PM core invokes without the device lock. The\n  attach half is plain device_attach(), which checks the dead flag, and\n  it takes the parent lock on buses that set need_parent_lock,\n  mirroring bus_rescan_devices_helper().\n\nOne pre-existing window remains: __device_release_driver()\ntransiently drops the locks while consumer device links are busy, so\nfor devices with busy consumers a ->shutdown() can still interleave\nin the middle of the release. That window exists identically for\nevery unbind path in the kernel, sysfs unbind included, and is not\nmade worse by this helper.\n\nAssisted-by: LLM\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "f2b3131767248d9f8d0214d9797f56d4d0751b43",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:47:24Z"
+    },
+    "message": "net: dsa: mxl862xx: add devlink flash_update and info_get\n\nImplement runtime firmware upgrade via \"devlink dev flash\" and version\nreporting via \"devlink dev info\":\n\n  $ devlink dev info mdio_bus/mdio-bus:10\n  mdio_bus/mdio-bus:10:\n    driver mxl862xx\n    versions:\n        fixed:\n          asic.id 8628\n          asic.rev 0\n        running:\n          fw 1.0.70\n        stored:\n          fw 1.0.70\n\nThe \"asic.id\" and \"asic.rev\" fixed versions carry the numeric chip part\nnumber and revision from the static CHIP ID registers (SYS_MISC_REG_RD),\nwhich userspace such as fwupd matches firmware against; they are omitted\nif the read fails or the part is unfused, so no bogus \"0000\" is\npublished. The switch boots its firmware from its own flash, so \"fw\" is\nreported as both the running and the stored version; a flashless part\nwould omit \"stored\", distinguishing the two without an API change.\n\n  $ devlink dev flash mdio_bus/mdio-bus:10 file mxl862xx-fw.bin\n\nThe image, including both payload CRCs, is validated first, so a\nmalformed file is rejected without disturbing the running switch. The\ndriver then sends SYS_MISC_FW_UPDATE, which reboots the switch into its\nMCUboot bootloader, and transfers the signed image over the SB PDI\nprotocol (clause-22 SMDIO), checking every write: a failed address write\nat the half-bank boundary would otherwise misplace half the payload\nunnoticed. A successful transfer reboots the switch into the new\nfirmware. The loader verifies the image once the last slice has been\nprogrammed and publishes the verdict, so a rejected image is reported as\nsuch rather than as a transfer timeout. The whole cycle takes just under\na minute.\n\nFor its duration the driver closes all user and conduit interfaces and\nmarks the user ports not-present with netif_device_detach() so userspace\ncannot reopen them; the conduit belongs to the MAC driver and is only\nclosed. This also stops phylib polling the switch-internal PHYs,\nunreachable in MCUboot. The bridge's deferred STP DISABLED transitions\nare flushed under rtnl so they reach the firmware while it still runs;\nthe stats poll and CRC error handler are stopped; and firmware API\ncommands from other paths are blocked under the MDIO bus lock so none\nreaches the bus once the switch has rebooted. Progress is reported\nthrough devlink status notifications.\n\nThe switch leaves MCUboot on its own by booting the new image, but the\ndriver has no in-place path back, so it reinitialises with a deferred\nre-probe scheduled regardless of the transfer outcome, using\ndevice_schedule_reprobe() from the previous patch. The helper's work\nruns in the driver core, off the devlink caller's locking and signal\ncontext, without this driver holding module or device references, and\nit skips the re-probe if the device is unbound or shut down before it\nfires, so a stale re-probe can neither undo an administrative unbind\nnor detach a device whose ->shutdown() has already run. During the\nteardown the driver's API reads return -ENODEV and writes fake success,\nso it neither stalls on the absent firmware nor consumes buffers it\nnever filled; port_mdb_del() takes that -ENODEV for a MAC table that is\ngone and reports success, since there is nothing left to delete. A\nfailed re-probe leaves the device unbound, exactly as a failed initial\nprobe would, and a further flash is refused until it has run. An\naborted transfer leaves the switch in MCUboot, where nothing here can\nreach it; the next patch adds the detection that makes such a switch\nflashable again.\n\nScheduling the re-probe can only fail on memory allocation, and only\nafter the switch has already been flashed. -ENOMEM there is a\nsystem-wide condition that no driver-level message or recovery attempt\nimproves, so it is returned as-is with no further action: the driver\nstays bound with its firmware API short-circuited, and unbinding and\nrebinding it runs the same teardown and fresh probe the re-probe would\nhave.\n\nThe closed user ports and conduit are not returned to their pre-flash\nadministrative state across the reprobe; userspace brings them back up,\nand restoring it in-driver would need DSA-core support that does not\nyet exist.\n\nAssisted-by: LLM\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nReviewed-by: Andrew Lunn <andrew@lunn.ch>"
+  },
+  {
+    "sha": "77167959cefb9f1df057daba10acb412b0b77e7f",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:47:40Z"
+    },
+    "message": "net: dsa: mxl862xx: recover switch stuck in MCUboot rescue mode\n\nA broken or interrupted firmware image, or the sticky rescue bit, keeps\nthe switch in its MCUboot bootloader, which exposes only the clause-22\nSMDIO download interface. The clause-45 MMD API never comes up, so probe\nwould fail with -ETIMEDOUT and the only way back would be the switch's\nUART console, or a power cycle or out-of-band reset (not currently\nimplemented).\n\nProbe for the loader over SB PDI at setup, before any clause-45 access,\nsince the C45 API floods the log with CRC errors when no firmware\nanswers. A scratch write to two mailbox registers first establishes\nthat a switch is there at all. It reaches a running firmware as well,\nbut lands in registers that firmware does not read, so it is inert\nthere. The status register the loader publishes then tells the cases\napart without touching C45: a running firmware, which answers with its\nown non-zero status word (0x0003 on the firmware tested), so probe\ncontinues normally; a loader idle in its console loop, confirmed live\nby a register-read challenge; a loader wedged mid-download, the one\ncase that publishes zero; the flashless download loop, which this\ndriver cannot drive; and a switch whose scratch write does not latch --\nabsent, unpowered, misdescribed in the device tree (wrong address or\nbus, or a reset GPIO with inverted polarity), or with its SB PDI window\nsomewhere other than the OTP reset offsets assumed here. The first\nthree enter rescue mode or normal operation, the last two fail probe\ncleanly with -EOPNOTSUPP and -ENODEV instead of a CRC-error storm.\n\nA loader that publishes the ready magic but never services the\nregister-read challenge fails probe too, with -ENXIO. The challenge is\nwhat tells the loader apart from a firmware whose status word happens\nto read the same value, and offering to flash a healthy firmware would\nbe worse than refusing to bind, so a mailbox that does not answer is\ntreated as unusable rather than as a flash target. Every loader tested\nservices it.\n\nIn rescue mode the switch registers without user interfaces so devlink\nstays available: user ports fail port_setup with -ENODEV (the DSA core\nre-registers them as unused) while shared and CPU ports succeed, and the\nCPU port works on its fixed link with mac_select_pcs returning no PCS.\nFirmware API commands fail fast with -ENODEV and the port and STP\ncallbacks become no-ops.\n\nAn interrupted download can leave the loader wedged mid-payload. A\nbackground work item off the devlink flash path drains it back to a\nclean ready state by feeding the outstanding byte count one byte at a\ntime, which takes tens of minutes for a large image and is logged as it\nprogresses; until then devlink dev info reports no version and devlink\ndev flash returns -EBUSY, and -EIO once a drain has failed for good.\nReaching the end of the count is all the drain does: the loader then\nverifies the corrupt image and returns to its console loop on its own,\nso the drain reprobes and lets the probe-time detection re-classify the\nswitch -- a valid image that a last-moment interruption left bootable\ncomes up as running firmware, with no second-guessing in the drain path.\n\nThe re-probe the drain schedules is the same device_schedule_reprobe()\nhand-off the flash path uses: the core skips it if the device is\nunbound or shut down before it fires, so a drain finishing after the\ndriver is gone does nothing. Should scheduling it fail, recovery is\nmarked failed, since the loader would otherwise sit at a clean ready\nstate that nothing reclassifies while devlink keeps promising that a\nretry will work.\n\nThe CHIP ID registers need a running firmware, so no asic.id/asic.rev is\nreported in rescue mode. Once the loader is ready, devlink dev info\nreports the null firmware version \"0.0.0\" as both running and stored:\n\n  $ devlink dev info mdio_bus/mdio-bus:10\n  mdio_bus/mdio-bus:10:\n    driver mxl862xx\n    versions:\n        running:\n          fw 0.0.0\n        stored:\n          fw 0.0.0\n\nAn operational switch never reports 0.0.0 (a released firmware's major\nis non-zero), so version-comparing tools like fwupd offer every release\nas an upgrade, recovering the switch through the regular flash flow,\nmatched on the driver name. The flash skips the FW_UPDATE command since\nMCUboot is already waiting. A successful flash reboots the switch into\nthe new firmware and the reprobe then brings the driver up against it\nnormally; after a failed one the switch is still in MCUboot, rescue mode\nis detected again, and the user can retry.\n\nAssisted-by: LLM\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nReviewed-by: Andrew Lunn <andrew@lunn.ch>"
+  },
+  {
+    "sha": "937ce8e8cbb6a6dfacf9f238671f35285ff0c967",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-09-09T18:47:53Z"
+    },
+    "message": "net: dsa: mxl862xx: document devlink flash and info support\n\nDescribe the devlink info versions and the flash update behaviour,\nincluding the MCUboot rescue mode recovery, in a dedicated file under\nDocumentation/networking/devlink/ and link it from the index. Add the\nnew file to the driver's MAINTAINERS entry.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>\nReviewed-by: Andrew Lunn <andrew@lunn.ch>"
+  },
+  {
+    "sha": "6ff30e6b3eb05e2f1e6aabc93e0659e860b52603",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T18:51:13Z"
+    },
+    "message": "net: dsa: mxl862xx: trap link-local and multicast snooping frames to CPU\n\nInstall per-CTP PCE rules on each user port that trap IEEE 802.1D\nlink-local frames (01:80:c2:00:00:0x) and IP multicast snooping\nframes (IGMP, MLDv1, MLDv2) to the CPU port.\n\nAll trap rules share a common action helper,\nmxl862xx_fill_cpu_trap_action(), which sets PORTMAP_ALTERNATIVE to\nredirect frames to the CPU and enables cross-state forwarding so\nthat frames reach the host even when the bridge port is in BLOCKING\nor LEARNING state. Learning is forced off for trapped frames so\nthat their source addresses are not learned into the trap FID.\n\nA dedicated bridge FID (cpu_trap_fid) is allocated during setup with\nall flood modes enabled. Each trap rule points the bridge engine at\nthis FID via bFidEnable so that IGMP and MLD frames are never\nsilently dropped by the ingress port's private flood policy.\n\nThe redirect is exclusive: matching frames are no longer forwarded\nor flooded to other ports by the hardware. The tag_mxl862xx receive\npath recognises these trapped frame classes and leaves\nskb->offload_fwd_mark unset, so the software bridge takes over\nforwarding of them (flooding queries, delivering reports to router\nports), analogous to how mv88e6xxx handles TO_CPU frames.\n\nRules are written through the firmware's logical-index API,\nGSW_TFLOW_PCERULELOGICWRITE. The firmware translates the logical\nindex in @rule->pattern.index into a physical position within the\nper-CTP block selected by @rule->region and @rule->logicalportid,\nand grows the hardware block size on demand as rules are inserted.\nA single dispatch helper, mxl862xx_pce_rule_write(), centralises the\nfirmware command so the trap callers do not need to know which API\nvariant is used. Four logical indices are consumed in each port's\nper-CTP block (index 0 is reserved by the firmware for its\nflow-control marking rule):\n\n  index 1 -- IEEE 802.1D link-local (dst 01:80:c2:00:00:0x)\n  index 2 -- IPv4 IGMP (IP protocol 2, all versions)\n  index 3 -- ICMPv6 types 130-132 (MLDv1 query, report, done)\n  index 4 -- ICMPv6 type 143 (MLDv2 Listener Report)\n\nThe MLDv1 rule matches the ICMPv6 type/code word in range mode,\nwhere the hardware accepts values from the base value up to base\nplus range span, inclusive: base 0x8200 (type 130, code 0) with\nspan 0x02ff covers exactly types 130-132 with any code value.\n\nAdd the PCE rule firmware API structures, command definitions, and\nthe rule block allocation interface.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "e0301992404be4b59c83bb41f41c33addbae3fbf",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T18:51:21Z"
+    },
+    "message": "net: dsa: mxl862xx: warn about old firmware default PCE rules\n\nFirmware versions older than 1.0.80 install global PCE rules at\nboot that redirect link-local frames (BPDUs, LLDP, LACP) to port 0\n(the on-chip microcontroller) instead of the DSA CPU port.  With\nport 0 disabled under DSA, these rules silently drop matching\ntraffic.\n\nLog a warning when old firmware is detected so users know to update.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "fce402e8db74abc6241984c0c907e0c2d1820d28",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-22T00:58:04Z"
+    },
+    "message": "net: dsa: add 802.1Q VLAN-based tag driver for MxL862xx\n\nThe MxL862xx native 8-byte special tag (SpTag) requires firmware\nsupport on the switch CPU and is not compatible with all SoC Ethernet\ncontrollers. An 802.1Q VLAN-based tagging alternative allows the\nswitch to operate with any standard Ethernet MAC that supports VLAN\ntag insertion and stripping.\n\nAdd a DSA tag driver that uses the tag_8021q framework to encode\nsource and destination port information in standard 802.1Q VLAN\ntags. Register the DSA_TAG_PROTO_MXL862_8021Q protocol in the DSA\nheader. Map TX queue priority to PCP in the xmit path and extract\nswitch_id and source port from the management VID in the receive\npath. Set promisc_on_conduit so the conduit interface accepts\nframes with management VIDs that are not in its own VLAN filter.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "d2599ffa9fdb4861956f4b65fbea5811c657aa05",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T03:44:41Z"
+    },
+    "message": "net: dsa: mxl862xx: add link aggregation support\n\nImplement LAG offloading via the firmware's trunking engine.  A\ndedicated firmware bridge port is allocated per LAG and remains\nstable for the LAG's lifetime.  All member CTPs redirect to it,\nand FDB/MDB entries target it, so no entry migration is needed\nwhen the LAG master (lowest-numbered member port) changes.\n\nThe firmware provides three cooperating mechanisms:\n\n  - PCE_TRUNK_CONF register: global 6-bit hash field selection\n    (SA, DA, SIP, DIP, sport, dport)\n  - CTP redirection: all member CTPs point bridge_port_id to the\n    LAG's dedicated bridge port\n  - P-mapper on the LAG bridge port: 64 hash-indexed entries\n    (indices 9..72) filled round-robin with active member ports\n\nHash and active-backup bond modes are supported.  The global hash\nregister is widened monotonically on LAG join and recomputed from\nstored per-port requirements on LAG leave.\n\nThe LAG master's full bridge port configuration (bridge_id, EVLAN,\nVLAN filter, learning, portmap, flood metering) is pushed to the\nLAG bridge port via __mxl862xx_set_bridge_port() whenever it\nchanges.  Bridge portmaps use the LAG bridge port ID instead of\nindividual member port indices, ensuring correct cross-LAG\nforwarding.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "67bef289e3a2bbca559771c84f6b547dc97cf57a",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T12:05:29Z"
+    },
+    "message": "net: dsa: mxl862xx: add support for mirror port\n\nThe MxL862xx hardware supports a single monitor port which can be\nconfigured to mirror any other port's ingress and/or egress traffic.\n\nImplement support for .port_mirror_add/.port_mirror_del using this\nfeature.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "2f946fe651299690dcbcc63a53befe0a516e8abd",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-01T12:43:08Z"
+    },
+    "message": "net: dsa: mxl862xx: implement port MTU configuration\n\nThe firmware exposes a global max_packet_len register via\nMXL862XX_COMMON_CFGSET. Since this is switch-wide rather than\nper-port, cache each port's requested MTU and program the register\nwith the maximum across all ports. The firmware call is skipped when\nthe effective maximum does not change.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "d873433bd34e1063cfe469e4e3198a446ca739cf",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-01T12:43:12Z"
+    },
+    "message": "net: dsa: mxl862xx: support BR_HAIRPIN_MODE bridge flag\n\nImplement hairpin mode by including the port's own bridge port ID in\nits forwarding portmap. When hairpin is enabled, bridged frames whose\ndestination resolves to the ingress port are allowed to egress there\ninstead of being dropped.\n\nFor LAG ports, the LAG's dedicated bridge port is added to the\nmaster's portmap, which naturally propagates to the LAG bridge port\nvia the second loop in sync_bridge_members.\n\nThe port_bridge_flags handler toggles the bit directly on the cached\nportmap and pushes the update via set_bridge_port, avoiding a full\nbridge member rebuild since only the calling port is affected.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "30cdc47cf777a2f4646b2d2cba5aa122d41e4641",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-25T01:51:33Z"
+    },
+    "message": "net: dsa: mxl862xx: support BR_ISOLATED bridge flag\n\nImplement port isolation by excluding isolated ports from each other's\nforwarding portmaps in sync_bridge_members. Non-isolated ports can\nstill reach isolated ports and vice versa -- only isolated-to-isolated\nforwarding is blocked.\n\nWhen the isolation state changes, all bridge members' portmaps are\nrebuilt via sync_bridge_members since multiple ports are affected.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "d1e0afb826c443c841c89e637daabebfbad86b2d",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T18:17:49Z"
+    },
+    "message": "DO NOT SUBMIT: net: dsa: mxl862xx: re-introduce PCE workaround for old firmware\n\nRe-introduce the legacy PCE rule paths needed for firmware versions\nolder than 1.0.83.\n\nFirmware >= 1.0.83 exposes the new GSW_TFLOW_PCERULELOGICWRITE API\nwhich selects the per-CTP block via @region/@logicalportid and grows\nthe hardware block on demand.  Older firmware lacks that command and\nexposes only the legacy GSW_TFLOW_PCERULEWRITE call, where the rule\nindex is a direct offset into a fixed-size pre-allocated CTP block.\nAdd MXL862XX_TFLOW_PCERULEWRITE back to mxl862xx-cmd.h and make\nmxl862xx_pce_rule_write() pick the right command at runtime based on\nthe cached firmware version.\n\nIn addition, firmware older than 1.0.80 still installs global PCE\nrules at boot that redirect link-local frames (BPDUs, LLDP, LACP) to\nport 0 (the on-chip microcontroller) instead of the DSA CPU port.\nWith port 0 disabled under DSA these rules silently drop matching\ntraffic.  Re-introduce mxl862xx_disable_fw_global_rules() to clear\nthem out during setup.  The upstream submission replaced that call\nwith a dev_warn() since firmware >= 1.0.80 no longer installs the\nproblematic rules.\n\nThis commit is for downstream use only and must not be submitted\nupstream.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "4189934cdff1f92117cecf63e41690e623204862",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-03-24T18:19:56Z"
+    },
+    "message": "DO NOT SUBMIT: net: dsa: mxl862xx: legacy SFP API fallback for old firmware\n\nRe-introduce the SYS_MISC_SFP_SET-based PCS implementation as a\nfallback for firmware versions older than 1.0.84 which lack the\nXPCS API. mxl862xx_setup_pcs() selects between the XPCS ops and\nlegacy SFP ops based on firmware version.\n\nThis commit is for downstream use only and must not be submitted\nupstream.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "7d7fe2f16f65bd9fc5561d669649f9f25f2a95f9",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-04-22T14:15:52Z"
+    },
+    "message": "DO NOT SUBMIT: net: dsa: mxl862xx: increase CMD timeout\n\nLift the command timeout by 10x from 500ms to 5s.\nThis is done because older firmware can be extremely slow to respond\nand cause -ETIMEOUT during setup, or crash the PHY state machine.\n\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "1b139183fb4cb44680d1ef34a4b0c9de3761493c",
+    "author": {
+      "name": "Allie",
+      "email": "allie.leth@gmail.com",
+      "date": "2026-08-03T22:36:31Z"
+    },
+    "message": "net: dsa: mxl862xx: wait for internal GPHYs before registering MDIO bus\n\nAfter the soft reset the switch reports ready once its management\nfirmware answers commands, but each internal GPHY keeps booting its\nown firmware for a window beyond that, and the relay answers even\nID-register reads with an error until it is done.\nof_mdiobus_register() scans the DT children once, and a PHY whose ID\nread fails is dropped permanently (\"MDIO device at address 0 is\nmissing\"); address 0 is scanned first and intermittently loses the\nrace, leaving lan1 absent until rebind or reboot.\n\nPoll every DT-declared PHY for a valid PHYSID1 before registering the\nbus; warn and continue on timeout.  Observed and validated on a\nBPI-R4 Pro 8x (switch firmware 1.0.70), where management-ready lands\nat ~2.4s and the losing window is tens of ms wide.\n\nSigned-off-by: Allie <allie.leth@gmail.com>"
+  },
+  {
+    "sha": "8d347bd19fc844f10325a35d98fcec7e18e0828a",
+    "author": {
+      "name": "Daniel Golle",
+      "email": "daniel@makrotopia.org",
+      "date": "2026-08-12T21:15:45Z"
+    },
+    "message": "net: dsa: mxl862xx: wait for firmware boot-time configuration to finish\n\nThe switch firmware answers MDIO API commands long before its\napplication thread has finished applying the built-in boot-time\ndefault configuration. The management interface is brought up as\npart of the firmware's device initialization, while the application\nthread afterwards reconfigures bridge ports 0..16, meters, WRED\nthresholds, PCE rules and VLAN resources, and only then enables\ningress SDMA on all ports as the very last step of its default\nconfiguration.\n\nmxl862xx_wait_ready() declares the switch ready as soon as\nFW_VERSION and CFGGET succeed, typically ~2.4s after reset. All\nconfiguration issued by the driver between that point and the\nfirmware's final SDMA enable races the firmware's own writes and may\nbe silently overwritten. Depending on boot timing this can leave the\nswitch in a state where every frame received from the conduit is\ndropped by the ingress filter (RxFilteredPkts on the CPU port\nincrements in lockstep with conduit TX) while the reverse direction\nkeeps working. The state persists until the race is re-run with\nbetter luck. Observed on a MxL86252C in roughly half of the boots\nof a BananaPi BPI-R4 Pro 8X board [1].\n\nGate readiness on the firmware's final configuration step instead:\npoll the SDMA port control register of logical port 0 via the\nRegisterGet API until the port enable bit is set. The reset issued\nright before waiting clears that bit on all ports, and the driver\ndoes not touch any port state until after mxl862xx_wait_ready() has\nreturned, so within this window the bit can only have been set by\nthe firmware application completing its boot-time configuration.\nLogical port 0 is the switch-internal CPU port which the driver\nitself never enables.\n\n[1] https://github.com/openwrt/openwrt/pull/24642#issuecomment-5270711174\n\nFixes: 23794bec1cb6 (\"net: dsa: add basic initial driver for MxL862xx switches\")\nSigned-off-by: Daniel Golle <daniel@makrotopia.org>"
+  },
+  {
+    "sha": "5ae63f58fec182aca4f5dbff7d7541331c8596b2",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2026-09-16T18:45:51Z"
+    },
+    "message": "net: pcs: mtk-lynxi: fix link-flapping\n\nFix the SGMII link flap issue.\n\nThis bad analog calibration situation only occurs on the MT7988 USXGMII,\nand even if a MT7988 SGMII link\u2011down event happens, it will be recovered\nautomatically by the link_poll delayed\u2011work mechanism."
+  },
+  {
+    "sha": "6584a2d00a5a2b6ba6ced96d77cdf0dec3897b86",
+    "author": {
+      "name": "Bo-Cun Chen",
+      "email": "bc-bocun.chen@mediatek.com",
+      "date": "2026-09-16T18:50:24Z"
+    },
+    "message": "net: pcs: mtk-usxgmii: fix usxgmii link flapping the mtk way\n\nFor the USXGMII link\u2011flap issue, remove statements that are already\nexecuted inside mtk_usxgmii_pcs_config()."
+  },
+  {
+    "sha": "ca9dce30888c4ee279280aa967a8237cd478aa97",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-17T12:20:40Z"
+    },
+    "message": "gpiolib: use of_node_name if line-name is missing\n\nUntil v7.0, GPIO hogs inherited the DT node name when no line-name\nproperty was specified. This was implemented as a fallback in\nof_parse_own_gpio().\n\nCommit d1d564ec4992 (\"gpio: move hogs into GPIO core\") moved hog parsing\ninto the GPIO core and removed this fallback.\n\nConsequently, GPIO hogs without a line-name property are now displayed\nwith a ? in /sys/kernel/debug/gpio. Restore the old fallback.\n\nFixes: d1d564ec4992 (\"gpio: move hogs into GPIO core\")\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>\n---\nv2:\n- move code into loop as suggested by Andy and add comment about the reason"
+  },
+  {
+    "sha": "2dc94d8ba24c339fe75e9183dd8771f761a87172",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-18T15:21:13Z"
+    },
+    "message": "Revert \"net: phy: ensure inband is not none for 10GBASE-R\"\n\nThis reverts commit ec2b59477da19fa444b185686367b7b10deab2b7."
+  },
+  {
+    "sha": "485bd3d386b88019bb7ce1fc1678780abde05734",
+    "author": {
+      "name": "Frank Wunderlich",
+      "email": "frank-w@public-files.de",
+      "date": "2026-09-18T15:19:09Z"
+    },
+    "message": "WIP: net: sfp: add quirk for FS SFP-10G-T-30\n\nSigned-off-by: Frank Wunderlich <frank-w@public-files.de>"
+  },
+  {
+    "sha": "474aac7f00d81c34a2372eba8da390f7d7f38254",
+    "author": {
+      "name": "Yuri Timenkov",
+      "email": "yuri@timenkov.pro",
+      "date": "2026-09-20T09:18:42Z"
+    },
+    "message": "net: pcs: mtk_lynxi: support fwnode_pcs as module\n\nWhen CONFIG_FWNODE_PCS set to M define becomes CONFIG_FWNODE_PCS_MODULE\nand condition incorrectly excludes the driver registration"
+  },
+  {
+    "sha": "32b3bd5458be1657056f9852b0b309f73b65a4d7",
+    "author": {
+      "name": "Jianguo Zhang",
+      "email": "jianguo.zhang@mediatek.com",
+      "date": "2025-10-14T08:00:03Z"
+    },
+    "message": "pcie: mediatek-gen3: Add WIFI HW reset flow\n\n[Description]\nAdd WIFI HW reset before PCIe host detects EP device for reboot.\n\n[Release-log]\nNA\n\nSigned-off-by: Jianguo Zhang <jianguo.zhang@mediatek.com>"
+  }
+]

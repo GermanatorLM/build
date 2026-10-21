@@ -1,0 +1,118 @@
+{
+  "schema": 1,
+  "hardware": "BPI-R4 Pro 8X; 8 GiB DDR4; BE14 Rev. 1.0",
+  "kernel": {
+    "url": "https://github.com/torvalds/linux.git",
+    "revision": "c03c1a14507dfaf8b856c2608f9ac216021fc222",
+    "version": "7.3",
+    "archive": "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz",
+    "archive_sha256": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953"
+  },
+  "frank": {
+    "url": "https://github.com/frank-w/BPI-Router-Linux.git",
+    "revision": "32b3bd5458be1657056f9852b0b309f73b65a4d7",
+    "base": "cee9395acd8043be0644b25c34bfa86623f2b935"
+  },
+  "uboot": {
+    "url": "https://github.com/frank-w/u-boot.git",
+    "revision": "6d0874983b52980d02b2b98e2009ccc8e1117e0d",
+    "archive_sha256": "8cd312edbb74deaeea66dd2f965c2289116eb24f7c77d41658f3fdef2357beab"
+  },
+  "tfa": {
+    "url": "https://github.com/frank-w/u-boot.git",
+    "revision": "5ef7f379d5d92bd5d1733c10c5fbb2019a0a14b1",
+    "archive_sha256": "5b180662259e68d8c36bebeb17c434c0d51baeb0dfb51375df76a8b7b27e0efe"
+  },
+  "firmware": [
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_dsp.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_dsp.bin",
+      "sha256": "c2d9e048cc1ce29d472f5bb342445a41bdb2d11c5c904bc904a498ae60ece3f7"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_eeprom.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_eeprom.bin",
+      "sha256": "86611acc8560d05a8e18780838cf8400e82ba313cdc9329d0097422d591199d6"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_eeprom_233.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_eeprom_233.bin",
+      "sha256": "d4e2c032657c35d79f651d7e3b6af2e05f6a498228be31394d032640851a9643"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_eeprom_233_2i5i6i.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_eeprom_233_2i5i6i.bin",
+      "sha256": "d4e2c032657c35d79f651d7e3b6af2e05f6a498228be31394d032640851a9643"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_eeprom_2i5i6i.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_eeprom_2i5i6i.bin",
+      "sha256": "22f5caa4400963ecacb840d8acb7c004260b567709b1c09c6e2309a6050d9f28"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_rom_patch.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_rom_patch.bin",
+      "sha256": "b0e5d7794d5101268a6d4bcba31bef8d8b908104ec4d7bec439b95d5fb888f3f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_rom_patch_233.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_rom_patch_233.bin",
+      "sha256": "14220455d9975e0ee901f4c905bf0eb2aeaf767c6f5443169a551af44c22e72b"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_wa.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_wa.bin",
+      "sha256": "9df39dc262aec716594d2a46a3b6d6da58afbb85a015c2f94bf467db7a764d12"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_wa_233.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_wa_233.bin",
+      "sha256": "b54558552ee4d70794c6772e90cfdcce9d77c9feaaf5ab83e215151c8595e07d"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_wm.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_wm.bin",
+      "sha256": "ba5b800e560a7940f1c51db0f99ab4dc249389f6e1a9e4e863f62ff28cc5ff50"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_wm_233.bin",
+      "destination": "lib/firmware/mediatek/mt7996/mt7996_wm_233.bin",
+      "sha256": "b41bcbdd69306885c0d94783e0fe25956137489970ef958198d6eec5ef274d72"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/LICENSE",
+      "destination": "usr/share/doc/r4pro8x-firmware/LICENSE.mt76-firmware",
+      "sha256": "77c0eb6b7915fdb17b328c1eff3d2074bff2025e88603ac59e01ffc07ba0b541"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/aeonsemi/as21x1x_fw.bin",
+      "destination": "lib/firmware/aeonsemi/as21x1x_fw.bin",
+      "sha256": "9016ee573c380bea4b36b352faaac72cb8d38d87c4675be6f2d1066a343ff8ed"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/LICENSES/LICENSE.aeonsemi",
+      "destination": "usr/share/doc/r4pro8x-firmware/LICENSE.aeonsemi",
+      "sha256": "03eaed47baea6af901b2bba19244d7cf18013a26c8a8c437e0ca4b8b24b01396"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/LICENSES/LICENCE.mediatek",
+      "destination": "usr/share/doc/r4pro8x-firmware/LICENCE.mediatek",
+      "sha256": "a90d3f66704d85889945fec5525ea77622549da83aced1aac99828383f8f1805"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/mediatek/mt7988/mt7988_wo_0.bin",
+      "destination": "lib/firmware/mediatek/mt7988/mt7988_wo_0.bin",
+      "sha256": "a00b95235a9baa850fe5e9c08562b54279bb5528abad207de6f2e649a8009b15"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/mediatek/mt7988/mt7988_wo_1.bin",
+      "destination": "lib/firmware/mediatek/mt7988/mt7988_wo_1.bin",
+      "sha256": "6d9123b4e8400f93fc40cfe1adcfe67c5a2e9d7c07c168ca05f0eba739e8d39f"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/WHENCE",
+      "destination": "usr/share/doc/r4pro8x-firmware/WHENCE",
+      "sha256": "0dd59e46f1e5d33d112236b17cb6de9d8f46fbf8fd09685cb474eb70a55f4da1"
+    }
+  ]
+}

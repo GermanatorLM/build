@@ -1,0 +1,109 @@
+name: Private R4 Pro 8X build
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Full commit SHA from GermanatorLM/build
+        required: true
+        type: string
+      medium:
+        description: SD image or experimental eMMC bootloader packages
+        type: choice
+        options: [sd, emmc]
+        default: sd
+      minutes_available:
+        description: Verified remaining included Linux minutes (minimum 320)
+        required: true
+        type: number
+      artifact_budget_mb:
+        description: Verified free Actions storage in MiB (maximum 450)
+        required: true
+        type: number
+      no_paid_usage:
+        description: Actions budget blocks paid overage; quota and storage checked
+        required: true
+        type: boolean
+        default: false
+permissions:
+  contents: read
+concurrency:
+  group: r4pro8x-private
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 300
+    env:
+      SOURCE_COMMIT: ${{ inputs.source_commit }}
+      MEDIUM: ${{ inputs.medium }}
+      MINUTES_AVAILABLE: ${{ inputs.minutes_available }}
+      ARTIFACT_BUDGET_MB: ${{ inputs.artifact_budget_mb }}
+      NO_PAID_USAGE: ${{ inputs.no_paid_usage }}
+      PRIVATE_REPO: ${{ github.event.repository.private }}
+    steps:
+      - name: Check privacy and resource approval
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$GITHUB_REPOSITORY" == GermanatorLM/armbian-r4pro-build-private ]]
+          [[ "$PRIVATE_REPO" == true && "$NO_PAID_USAGE" == true ]]
+          [[ "$SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$MEDIUM" == sd || "$MEDIUM" == emmc ]]
+          [[ "$MINUTES_AVAILABLE" =~ ^[0-9]+$ && "$ARTIFACT_BUDGET_MB" =~ ^[0-9]+$ ]]
+          (( MINUTES_AVAILABLE >= 320 && ARTIFACT_BUDGET_MB >= 1 && ARTIFACT_BUDGET_MB <= 450 ))
+      - name: Check out the exact public source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          repository: GermanatorLM/build
+          ref: ${{ inputs.source_commit }}
+          persist-credentials: false
+          path: source
+      - name: Prepare standard runner storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /opt/hostedtoolcache
+          test "$(df --output=avail -BG "$GITHUB_WORKSPACE" | tail -1 | tr -dc 0-9)" -ge 45
+          mkdir -p bundle
+          {
+            printf 'ImageOS=%s\nImageVersion=%s\n' "$ImageOS" "$ImageVersion"
+            uname -a
+            df -h .
+            free -h
+            git -C source rev-parse HEAD
+          } > bundle/runner.txt
+      - name: Build privately
+        shell: bash
+        working-directory: source
+        run: |
+          set -euo pipefail
+          [[ "$(git rev-parse HEAD)" == "$SOURCE_COMMIT" ]]
+          mkdir -p userpatches
+          cp config/optional/boards/bananapir4pro8x/build.conf userpatches/config-r4pro8x.conf
+          target=()
+          [[ "$MEDIUM" == emmc ]] && target=(uboot)
+          ./compile.sh "${target[@]}" r4pro8x R4PRO_BOOT_MEDIA="$MEDIUM" PREFER_DOCKER=no 2>&1 | tee ../bundle/build.log
+      - name: Collect build evidence
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ -f source/tools/r4pro8x/bundle.py ]]; then
+            python3 source/tools/r4pro8x/bundle.py source bundle
+          fi
+          [[ -d bundle ]]
+          actual=$(du -sb bundle | cut -f1)
+          if (( actual > ARTIFACT_BUDGET_MB * 1048576 )); then
+            echo 'Artifact exceeds the verified free storage budget' >&2
+            exit 1
+          fi
+          echo 'BUNDLE_WITHIN_BUDGET=yes' >> "$GITHUB_ENV"
+      - name: Store private artifacts for one day
+        if: always() && env.BUNDLE_WITHIN_BUDGET == 'yes'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: r4pro8x-${{ inputs.medium }}-${{ github.run_id }}
+          path: bundle/
+          retention-days: 1
+          compression-level: 0
+          if-no-files-found: error
