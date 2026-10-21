@@ -39,8 +39,8 @@ Linux shutdown does not prove physical power removal.
 | --- | --- | --- |
 | lan1–lan4 | MaxLinear 2.5G PHYs | Pending |
 | lan5 | Internal 1G switch | Pending |
-| lan6 | MaxLinear 10G combo | Pending |
-| wan | MT7988 10G combo | Pending |
+| lan6 | Aeonsemi PHY through MaxLinear switch; RJ45/SFP combo | Pending |
+| wan | Aeonsemi PHY through MT7988; RJ45/SFP combo | Pending |
 
 Verify actual port mapping, negotiated speed, bidirectional traffic, and packet errors.
 Test RJ45/SFP combo selection and link recovery. Record each tested speed.

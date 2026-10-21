@@ -53,6 +53,21 @@ function post_family_tweaks__r4pro8x_regdb() {
 	chroot_sdcard update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 }
 
+function post_family_tweaks__r4pro8x_combo_dhcp() {
+	cat > "${SDCARD}/etc/netplan/20-r4pro8x-combo.yaml" <<-'NETWORK'
+		network:
+		  version: 2
+		  renderer: networkd
+		  ethernets:
+		    r4pro8x-combo:
+		      match:
+		        name: "sfp-*"
+		      dhcp4: yes
+		      dhcp6: yes
+	NETWORK
+	chmod 600 "${SDCARD}/etc/netplan/20-r4pro8x-combo.yaml"
+}
+
 function armbian_kernel_config__r4pro8x() {
 	opts_y+=("SRAM" "GPIO_PCA953X" "I2C_MT65XX" "PHYLINK" "NET_DSA"
 		"NET_DSA_MT7530" "NET_DSA_MXL862" "AS21XXX_PHY" "MEDIATEK_GE_SOC_PHY"
@@ -65,6 +80,8 @@ function armbian_kernel_config__r4pro8x() {
 function post_install_kernel_debs__r4pro8x_overlay_path() {
 	mkdir -p "${SDCARD}/boot/dtb/mediatek/overlay"
 	cp "${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-${R4PRO_BOOT_MEDIA}.dtbo" \
+		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-8x-lan-phy.dtbo" \
+		"${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-8x-lan-sfp.dtbo" \
 		"${SDCARD}/boot/dtb/mediatek/overlay/"
 }
 

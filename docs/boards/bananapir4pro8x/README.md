@@ -44,6 +44,7 @@ For experimental eMMC **bootloader packages only**:
 ```
 
 The SD writer refuses eMMC packages. No eMMC installer is supplied yet.
+The writer accepts build loop devices only.
 Do not use the generic Armbian installer for this board before eMMC validation.
 SD and eMMC share a controller. Do not assume simultaneous access.
 SPI-NAND installation is outside this project stage.
@@ -80,6 +81,9 @@ TF-A builds `fiptool` through its top-level target.
 U-Boot probes memory up to 8 GiB. Verify actual RAM through UART and Linux.
 U-Boot uses a volatile environment and loads extlinux from SD partition five.
 The overlay address is `0x62080000`.
+The default LAN6 overlay selects the RJ45 PHY through GPIO54.
+For LAN6 SFP tests, replace `8x-lan-phy` with `8x-lan-sfp` in the extlinux overlay path.
+Keep the boot medium overlay. Never load both LAN6 overlays together.
 The image includes Aeonsemi firmware in the initramfs.
 Ethernet SRAM and the PCA9555 driver are enabled.
 
@@ -87,6 +91,7 @@ Ethernet SRAM and the PCA9555 driver are enabled.
 
 Keep Armbian first-login setup enabled.
 Ethernet uses DHCP clients through systemd-networkd.
+The DHCP configuration includes `e*`, `lan*`, `wan*`, and `sfp-*` interface names.
 There is no configured router, forwarding rule, bridge, Wi-Fi client, or AP.
 Install antennas before any scan, client connection, or AP test.
 The image contains no custom password, SSH host key, MAC address, or calibration backup.
