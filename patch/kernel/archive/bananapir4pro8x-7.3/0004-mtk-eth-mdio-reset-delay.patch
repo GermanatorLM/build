@@ -1,0 +1,38 @@
+From: Bo-Cun Chen <bc-bocun.chen@mediatek.com>
+Subject: [PATCH] net: ethernet: mtk_eth_soc: delay the MDIO scan
+
+Wait 150 ms before scanning external PHYs.
+This addresses stale Aeonsemi IDs on the R4 Pro 8X.
+Port patch 984 from OpenWrt PR #25841 to Linux 7.3.
+Keep the sleeping delay and reset callback from the referenced patch.
+Hardware verification remains pending.
+
+Origin: https://github.com/openwrt/openwrt/pull/25841
+Origin-Commit: 79d2df17ad98373c84bfcb412fdf1026519ee09d
+Origin-Path: target/linux/mediatek/patches-6.18/984-net-ethernet-mtk_eth_soc-add-mdio-reset-delay.patch
+
+--- a/drivers/net/ethernet/mediatek/mtk_eth_soc.c
++++ b/drivers/net/ethernet/mediatek/mtk_eth_soc.c
+@@ -510,6 +510,14 @@
+ 	return _mtk_mdio_read_c45(eth, phy_addr, devad, phy_reg);
+ }
+ 
++static int mtk_mdio_reset(struct mii_bus *bus)
++{
++	/* Wait for external PHYs before scanning the MDIO bus. */
++	msleep(150);
++
++	return 0;
++}
++
+ static int mt7621_gmac0_rgmii_adjust(struct mtk_eth *eth,
+ 				     phy_interface_t interface)
+ {
+@@ -1204,6 +1212,7 @@
+ 	eth->mii_bus->write = mtk_mdio_write_c22;
+ 	eth->mii_bus->read_c45 = mtk_mdio_read_c45;
+ 	eth->mii_bus->write_c45 = mtk_mdio_write_c45;
++	eth->mii_bus->reset = mtk_mdio_reset;
+ 	eth->mii_bus->priv = eth;
+ 	eth->mii_bus->parent = eth->dev;
+ 

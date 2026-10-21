@@ -71,6 +71,12 @@ Already merged GPIO and xHCI fixes remain unchanged.
 The port includes Frank's dependent network changes and experimental switch support.
 No feature claim follows from inclusion alone.
 
+The MDIO patch ports patch 984 from [OpenWrt PR #25841](https://github.com/openwrt/openwrt/pull/25841).
+Its source revision is `79d2df17ad98373c84bfcb412fdf1026519ee09d`.
+The reset callback sleeps for 150 ms before the MDIO scan.
+This targets stale Aeonsemi PHY IDs on the 8X board.
+Hardware verification remains pending. This patch does not address BE14 initialization.
+
 The separate mt7996 patch suppresses recovery before hardware registration.
 It returns the original timeout. It does **not** fix intermittent BE14 initialization.
 Do not force the 233 or 444 firmware selection.
