@@ -4,11 +4,19 @@ Community build by GermanatorLM, based on Armbian.
 Target: R4 Pro **8X**, **8 GiB DDR4**, **BE14 Rev. 1.0** only.
 System: Debian Trixie Minimal, Linux **7.3**.
 
+Follow the [Armbian host requirements](https://docs.armbian.com/build-framework/getting-started/).
+Use Debian 13 inside Docker on this Linux host.
+Reserve about 50 GB of disk space.
+The build configuration disables BTF for hosts with limited RAM.
+Use `CPUTHREADS=2 FORCE_USE_RAMDISK=no` on the current host.
+Keep `SHARE_LOG=no`. Logs remain under `output/logs`.
+
 **Development only. No image has hardware acceptance. Keep all test images private.**
 
 ## Build
 
-Use `GermanatorLM/armbian-r4pro-build-private` for GitHub builds.
+Build locally first. Actions builds remain deferred until included usage is available.
+Use `GermanatorLM/armbian-r4pro-build-private` for later GitHub builds.
 Install `tools/r4pro8x/private-build.yml` as `.github/workflows/build.yml` there.
 Start the workflow manually with a full `GermanatorLM/build` commit SHA.
 The workflow rejects public repositories and unapproved resource inputs.
@@ -21,7 +29,7 @@ The job limit is 300 minutes. Reserve at least 320 minutes.
 The artifact limit is 450 MiB. Retention is one day. Download artifacts before expiration.
 Oversized artifacts stop the upload. Use approved private storage before increasing this limit.
 
-For a local SD build on a supported Armbian build host:
+For a local SD build on a supported Debian/Ubuntu host or Debian build container:
 
 ```bash
 mkdir -p userpatches

@@ -26,6 +26,15 @@ function post_family_tweaks_bsp__r4pro8x_initramfs() {
 	run_host_command_logged chmod +x "${file_added_to_bsp_destination}"
 }
 
+function post_family_tweaks_bsp__r4pro8x_led_restore() {
+	declare file_added_to_bsp_destination
+	add_file_from_stdin_to_bsp_destination "/usr/lib/armbian/armbian-led-state-restore.sh" < <(
+		sed '/^\tVALUE=${BASH_REMATCH\[2\]}/a\	[[ "$PARAM" == device_name && -z "$VALUE" ]] \&\& continue' \
+			"${SRC}/packages/bsp/common/usr/lib/armbian/armbian-led-state-restore.sh"
+	)
+	run_host_command_logged chmod +x "${file_added_to_bsp_destination}"
+}
+
 function post_family_tweaks__r4pro8x_firmware() {
 	run_host_command_logged python3 "${SRC}/tools/r4pro8x/firmware.py" "${SDCARD}"
 	install -Dm644 "${SRC}/config/optional/boards/bananapir4pro8x/sources.lock.json" \
