@@ -12,7 +12,7 @@ SRC_EXTLINUX="yes"
 SRC_CMDLINE="console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11000000 rootwait"
 HAS_VIDEO_OUTPUT="no"
 INSTALL_ARMBIAN_FIRMWARE="no"
-PACKAGE_LIST_BOARD+=" iw wpasupplicant rfkill ethtool iperf3 linuxptp"
+PACKAGE_LIST_BOARD+=" iw wpasupplicant rfkill wireless-regdb ethtool iperf3 linuxptp"
 
 function post_family_tweaks_bsp__r4pro8x_initramfs() {
 	declare file_added_to_bsp_destination
@@ -45,6 +45,12 @@ function post_family_tweaks__r4pro8x_firmware() {
 		Pin: version *
 		Pin-Priority: -1
 	PINS
+}
+
+function post_family_tweaks__r4pro8x_regdb() {
+	[[ -f "${SDCARD}/lib/firmware/regulatory.db-upstream" ]] ||
+		exit_with_error "Missing upstream wireless regulatory database"
+	chroot_sdcard update-alternatives --set regulatory.db /lib/firmware/regulatory.db-upstream
 }
 
 function armbian_kernel_config__r4pro8x() {
