@@ -30,6 +30,11 @@
   },
   "firmware": [
     {
+      "url": "https://raw.githubusercontent.com/kernelorg-mirror/linux_kernel_git_firmware_linux-firmware/a2dcb924f0897368b0b4f305cbf9808cdda90ce0/mediatek/mt7988/i2p5ge-phy-pmb.bin",
+      "destination": "lib/firmware/mediatek/mt7988/i2p5ge-phy-pmb.bin",
+      "sha256": "643157e984732eccad6aa5e1f80a2be82a6cbf747aac25b54c75eefeccaf8aec"
+    },
+    {
       "url": "https://raw.githubusercontent.com/openwrt/mt76/467ae2e3f190baf737e15e318906da0dc7d0ab91/firmware/mt7996/mt7996_dsp.bin",
       "destination": "lib/firmware/mediatek/mt7996/mt7996_dsp.bin",
       "sha256": "c2d9e048cc1ce29d472f5bb342445a41bdb2d11c5c904bc904a498ae60ece3f7"

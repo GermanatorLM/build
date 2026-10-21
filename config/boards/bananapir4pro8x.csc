@@ -18,7 +18,7 @@ function post_family_tweaks_bsp__r4pro8x_initramfs() {
 	declare file_added_to_bsp_destination
 	add_file_from_stdin_to_bsp_destination "/etc/initramfs-tools/hooks/r4pro8x-phy-firmware" <<-'HOOK'
 		#!/bin/sh
-		set -eu
+		set -e
 		[ "${1:-}" = prereqs ] && exit 0
 		. /usr/share/initramfs-tools/hook-functions
 		add_firmware aeonsemi/as21x1x_fw.bin

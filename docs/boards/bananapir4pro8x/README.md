@@ -8,7 +8,7 @@ Follow the [Armbian host requirements](https://docs.armbian.com/build-framework/
 Use Debian 13 inside Docker on this Linux host.
 Reserve about 50 GB of disk space.
 The build configuration disables BTF for hosts with limited RAM.
-Use `CPUTHREADS=2 FORCE_USE_RAMDISK=no` on the current host.
+Use `CPUTHREADS=6 FORCE_USE_RAMDISK=no` on the current host.
 Keep `SHARE_LOG=no`. Logs remain under `output/logs`.
 
 **Development only. No image has hardware acceptance. Keep all test images private.**
