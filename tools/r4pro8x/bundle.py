@@ -30,6 +30,7 @@ def main(source: Path, bundle: Path) -> None:
     (bundle / "build-manifest.json").write_text(json.dumps({"build_commit": build_sha, "collector_commit": collector_sha, "source_cache_checkouts": records}, indent=2) + "\n")
     shutil.copy(source / "config/optional/boards/bananapir4pro8x/sources.lock.json", bundle)
     shutil.copytree(source / "patch/kernel/archive/bananapir4pro8x-7.3", bundle / "kernel-patches", dirs_exist_ok=True)
+    shutil.copytree(source / "patch/u-boot/u-boot-r4pro8x", bundle / "uboot-patches", dirs_exist_ok=True)
     sums = []
     for path in sorted(bundle.rglob("*")):
         if path.is_file() and path.name != "SHA256SUMS":

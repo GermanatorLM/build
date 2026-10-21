@@ -15,6 +15,10 @@ Use the same image for each comparison series. Change one variable at a time.
 6. Confirm DHCP clients. Confirm no router or Wi-Fi profile exists.
 7. Preserve `dmesg`, journal, device tree, firmware hashes, and package versions.
 
+Verify that U-Boot reports no RNG failure and Linux no longer reports a missing KASLR seed.
+Compare kernel address randomization across starts without archiving addresses or seed values.
+Redact `/chosen/kaslr-seed` and `/chosen/rng-seed` before archiving device trees.
+
 Record boot firmware choice, PAD_GPIO observations, PHY registrations, and all warnings.
 Do not repeat uncontrolled `/dev/mem`, PCIe reset, or link retraining experiments.
 GPIO54 controls the LAN combo mux. It is not a confirmed BE14 power reset.

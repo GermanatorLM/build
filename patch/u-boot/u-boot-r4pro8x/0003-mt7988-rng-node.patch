@@ -1,0 +1,21 @@
+From: Daniel Golle <daniel@makrotopia.org>
+Subject: [PATCH] arm: dts: mt7988: add secure-monitor RNG node
+
+Backport the MT7988 RNG node from Frank's U-Boot tree.
+
+Origin: https://github.com/frank-w/u-boot/commit/7d67d3784dfdf828fec76b3b2b5ce4a9ec59a5f2
+Signed-off-by: Daniel Golle <daniel@makrotopia.org>
+
+--- a/arch/arm/dts/mt7988.dtsi
++++ b/arch/arm/dts/mt7988.dtsi
+@@ -66,6 +66,10 @@
+ 	hwver: hwver {
+ 		compatible = "mediatek,hwver", "syscon";
+ 		reg = <0 0x8000000 0 0x1000>;
++	};
++
++	rng {
++		compatible = "mediatek,mt7988-rng";
+ 	};
+ 
+ 	timer {

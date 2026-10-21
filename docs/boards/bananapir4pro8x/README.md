@@ -89,6 +89,13 @@ One observed SD start passes DDR initialization and reports 8 GiB with the combi
 Repeated starts and full memory testing remain pending.
 TF-A builds `fiptool` through its top-level target.
 U-Boot probes memory up to 8 GiB. Verify actual RAM through UART and Linux.
+
+U-Boot enables `DM_RNG` and `RNG_MTK_V2` for SD and eMMC builds.
+The port includes Daniel Golle's secure-monitor RNG driver and MT7988 node from Frank's tree.
+The existing TF-A TRNG service supplies fresh hardware randomness.
+U-Boot passes a 64-bit `/chosen/kaslr-seed` to Linux during boot.
+No static seed is stored in the image or environment.
+Verify KASLR activation on hardware. Do not record seed values in test logs.
 U-Boot uses a volatile environment and loads extlinux from SD partition five.
 The overlay address is `0x62080000`.
 The default LAN6 overlay selects the RJ45 PHY through GPIO54.

@@ -16,7 +16,19 @@
   "uboot": {
     "url": "https://github.com/frank-w/u-boot.git",
     "revision": "6d0874983b52980d02b2b98e2009ccc8e1117e0d",
-    "archive_sha256": "8cd312edbb74deaeea66dd2f965c2289116eb24f7c77d41658f3fdef2357beab"
+    "archive_sha256": "8cd312edbb74deaeea66dd2f965c2289116eb24f7c77d41658f3fdef2357beab",
+    "backports": [
+      {
+        "revision": "92dc1d1ae43a316cbfa44e613862d1b1f96c3d36",
+        "patch": "0002-mtk-rng-v2-smc.patch",
+        "patch_sha256": "2fd2e8a08551ec0b590f0e42d3eb6b25e2e4faca38db775a89cd24ed4368dea3"
+      },
+      {
+        "revision": "7d67d3784dfdf828fec76b3b2b5ce4a9ec59a5f2",
+        "patch": "0003-mt7988-rng-node.patch",
+        "patch_sha256": "4089e0dbde1439ba2b846be17ada8adde7fe9deb3a416acbc19eefbbfaa7e9d7"
+      }
+    ]
   },
   "tfa": {
     "url": "https://github.com/frank-w/u-boot.git",
