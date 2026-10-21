@@ -106,8 +106,9 @@ The overlay address is `0x62080000`.
 The default LAN6 overlay selects the RJ45 PHY through GPIO54.
 For LAN6 SFP tests, replace `8x-lan-phy` with `8x-lan-sfp` in the extlinux overlay path.
 Keep the boot medium overlay. Never load both LAN6 overlays together.
-Select the installed NVMe socket with `R4PRO_NVME_SLOT=cn13` or `R4PRO_NVME_SLOT=cn14`.
-The default `none` preserves the board slot selection.
+The default `R4PRO_NVME_SLOT=both` selects both M-key sockets, CN13 and CN14.
+Use `cn13` or `cn14` for individual slot tests. Use `none` to omit both slot overlays.
+The M-key selection excludes the alternative PCIe paths to B-key sockets CN15 and CN18.
 Both slot overlays are included for later extlinux configuration.
 Example: `./compile.sh r4pro8x R4PRO_BOOT_MEDIA=sd R4PRO_NVME_SLOT=cn14 PREFER_DOCKER=no`.
 

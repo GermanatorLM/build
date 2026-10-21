@@ -50,4 +50,6 @@ The NVMe negotiates PCIe Gen3 x1. Both BE14 endpoints also register.
 Kernel, initramfs, base DTB, and command line hashes remain unchanged.
 The unpopulated CN13 host still reports link down.
 Cold-start reliability and storage integrity remain untested.
-Use `R4PRO_NVME_SLOT=cn14` to include this slot selection in a new build.
+New builds select both CN13 and CN14 by default with `R4PRO_NVME_SLOT=both`.
+Use `R4PRO_NVME_SLOT=cn14` to reproduce the isolated CN14 comparison.
+The prepared hardware cold-start test still uses only CN14.
