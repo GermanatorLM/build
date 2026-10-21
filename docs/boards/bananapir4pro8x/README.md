@@ -48,6 +48,7 @@ The writer accepts build loop devices only.
 Do not use the generic Armbian installer for this board before eMMC validation.
 SD and eMMC share a controller. Do not assume simultaneous access.
 SPI-NAND installation is outside this project stage.
+The 8X device tree disables SPI-NAND probing during SD and eMMC validation.
 
 ## Sources
 
@@ -78,7 +79,8 @@ No board EEPROM writer or personal calibration data is included.
 
 TF-A uses `DRAM_USE_COMB=1 DDR4_4BG_MODE=1` for both media, matching Frank's MT7988 build configuration.
 The first hardware boot fails DDR calibration with the forced `DRAM_USE_DDR4=1` configuration.
-The combined DDR configuration still needs hardware verification.
+One observed SD start passes DDR initialization and reports 8 GiB with the combined configuration.
+Repeated starts and full memory testing remain pending.
 TF-A builds `fiptool` through its top-level target.
 U-Boot probes memory up to 8 GiB. Verify actual RAM through UART and Linux.
 U-Boot uses a volatile environment and loads extlinux from SD partition five.
