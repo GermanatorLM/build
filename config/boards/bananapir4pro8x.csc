@@ -61,3 +61,21 @@ function post_install_kernel_debs__r4pro8x_overlay_path() {
 	cp "${SDCARD}/boot/dtb/mediatek/mt7988a-bananapi-bpi-r4-pro-${R4PRO_BOOT_MEDIA}.dtbo" \
 		"${SDCARD}/boot/dtb/mediatek/overlay/"
 }
+
+function pre_umount_final_image__900_r4pro8x_identities() {
+	[[ -n "${MOUNT:-}" && "${MOUNT}" != / && -f "${MOUNT}/etc/armbian-release" ]] ||
+		exit_with_error "Invalid R4 Pro image mount"
+	rm -f -- "${MOUNT}"/etc/ssh/ssh_host_*
+	rm -f "${MOUNT}/etc/machine-id" "${MOUNT}/var/lib/dbus/machine-id" \
+		"${MOUNT}/var/lib/systemd/random-seed"
+	install -m644 /dev/null "${MOUNT}/etc/machine-id"
+	local file directory
+	for file in "${MOUNT}"/etc/NetworkManager/system-connections/* "${MOUNT}"/etc/wpa_supplicant/*.conf; do
+		[[ ! -s "${file}" ]] || exit_with_error "Unexpected network profile in image" "${file}"
+	done
+	for directory in "${MOUNT}/root" "${MOUNT}/home"; do
+		[[ -d "${directory}" ]] || continue
+		[[ -z "$(find "${directory}" -name authorized_keys -type f -print -quit)" ]] ||
+			exit_with_error "Unexpected SSH authorization in image" "${directory}"
+	done
+}
