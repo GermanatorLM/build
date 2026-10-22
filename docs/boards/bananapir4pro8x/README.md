@@ -7,7 +7,9 @@ System: Debian Trixie Minimal, Linux **7.3**.
 Follow the [Armbian host requirements](https://docs.armbian.com/build-framework/getting-started/).
 Use Debian 13 inside Docker on this Linux host.
 Reserve about 50 GB of disk space.
-The build configuration disables BTF for hosts with limited RAM.
+The build requires `KERNEL_BTF=yes` for BPF-LSM support.
+BTF generation increases build memory and disk requirements.
+Use swap and reduce parallel jobs when memory is limited.
 Use `CPUTHREADS=6 FORCE_USE_RAMDISK=no` on the current host.
 Keep `SHARE_LOG=no`. Logs remain under `output/logs`.
 
@@ -142,6 +144,20 @@ Keep this configuration specific to the isolated board family.
 Verify scaling, governors, and temperature behavior on the next hardware candidate.
 
 Frank source: [R4 defconfig](https://github.com/frank-w/BPI-Router-Linux/blob/32b3bd5458be1657056f9852b0b309f73b65a4d7/arch/arm64/configs/mt7988a_bpi-r4_defconfig).
+
+## ACL and BPF-LSM support
+
+The kernel enables POSIX ACLs for ext4, tmpfs, and devtmpfs.
+The kernel enables BPF-LSM, securityfs, and BTF metadata.
+The default LSM list contains `bpf`. The capability module remains active.
+No additional access policy is installed.
+Do not override the boot LSM list with a value that excludes `bpf`.
+
+After booting the new kernel, check `/sys/kernel/security/lsm` and `/sys/kernel/btf/vmlinux`.
+Mount securityfs when the LSM list is unavailable.
+Repeat ACL tests on ext4, `/run`, `/dev`, and `/dev/shm`.
+Test BPF-LSM attachment and systemd `RestrictFileSystems=` enforcement before accepting this feature.
+Configuration checks do not prove runtime enforcement.
 
 ## First boot and updates
 
