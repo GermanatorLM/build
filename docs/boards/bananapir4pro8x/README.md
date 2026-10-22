@@ -128,6 +128,21 @@ The backport accepts the Debian partial fix and the complete upstream fix.
 
 See [pcie.md](pcie.md) for the current PCIe state and controlled comparison tests.
 
+## CPU frequency driver
+
+The board profile follows Frank's R4 configuration and enables the MediaTek CPUfreq drivers.
+The generic CPUFREQ_DT driver and its platform device are disabled.
+The board hook enforces those settings for reused configurations.
+MediaTek CCI devfreq, CPUfreq statistics, and governor settings remain enabled.
+
+The running baseline already uses mtk-cpufreq at 800, 1100, 1500, and 1800 MHz.
+This change removes duplicate registration. It does not promise a performance increase.
+If the MediaTek driver fails, the generic driver cannot provide an alternative path.
+Keep this configuration specific to the isolated board family.
+Verify scaling, governors, and temperature behavior on the next hardware candidate.
+
+Frank source: [R4 defconfig](https://github.com/frank-w/BPI-Router-Linux/blob/32b3bd5458be1657056f9852b0b309f73b65a4d7/arch/arm64/configs/mt7988a_bpi-r4_defconfig).
+
 ## First boot and updates
 
 Keep Armbian first-login setup enabled.
