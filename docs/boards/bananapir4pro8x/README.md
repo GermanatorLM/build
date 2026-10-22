@@ -79,6 +79,13 @@ The reset callback sleeps for 150 ms before the MDIO scan.
 This targets stale Aeonsemi PHY IDs on the 8X board.
 Hardware verification remains pending. This patch does not address BE14 initialization.
 
+The PCIe patches port patches 991 and 992 from the same PR.
+Their source revision is `81fcdc849ae8905e1b4ab4f43036de6d5e7576e8`.
+Each MT7988 PCIe host declares its own PEXTP reference clock.
+The existing driver enables listed clocks before link training.
+Binding validation and SD/eMMC DT compilation pass. Hardware verification remains pending.
+No `CLK_IS_CRITICAL` workaround or CPUfreq change accompanies this port.
+
 The separate mt7996 patch suppresses recovery before hardware registration.
 It returns the original timeout. It does **not** fix intermittent BE14 initialization.
 Do not force the 233 or 444 firmware selection.

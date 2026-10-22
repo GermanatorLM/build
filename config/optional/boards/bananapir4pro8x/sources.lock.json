@@ -6,7 +6,25 @@
     "revision": "c03c1a14507dfaf8b856c2608f9ac216021fc222",
     "version": "7.3",
     "archive": "https://cdn.kernel.org/pub/linux/kernel/v7.x/linux-7.3.tar.xz",
-    "archive_sha256": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953"
+    "archive_sha256": "87363c24f10e06321eb362765521094e94471f6bff8bce2d6b3e40f39f004953",
+    "backports": [
+      {
+        "url": "https://github.com/openwrt/openwrt/pull/25841",
+        "revision": "81fcdc849ae8905e1b4ab4f43036de6d5e7576e8",
+        "upstream_file": "target/linux/mediatek/patches-6.18/991-dt-bindings-PCI-mediatek-add-MT7988-with-its-PEXTP-r.patch",
+        "upstream_sha256": "52dbd920f796d8156aad21fc4df1348b784fedaae1ec9926132ae7d7493e69f8",
+        "patch": "0005-mt7988-pcie-pextp-binding.patch",
+        "patch_sha256": "a60c95cf44604a31560696646b8ef31035fb743276502b322786df2735b49092"
+      },
+      {
+        "url": "https://github.com/openwrt/openwrt/pull/25841",
+        "revision": "81fcdc849ae8905e1b4ab4f43036de6d5e7576e8",
+        "upstream_file": "target/linux/mediatek/patches-6.18/992-arm64-dts-mediatek-mt7988a-give-each-PCIe-host-its-PEX.patch",
+        "upstream_sha256": "a07274ff0abede1563bb9e2b9e5f64a32492dd7cd90e57d17ac4dac81a42e596",
+        "patch": "0006-mt7988-pcie-pextp-clocks.patch",
+        "patch_sha256": "edfaf56c06c35bfbf2bb15cf5b686fa96836647cda8c955a8aac443bd298197a"
+      }
+    ]
   },
   "frank": {
     "url": "https://github.com/frank-w/BPI-Router-Linux.git",
