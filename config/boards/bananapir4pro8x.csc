@@ -84,7 +84,11 @@ function armbian_kernel_config__r4pro8x() {
 		"BPF_SYSCALL" "BPF_JIT" "BPF_EVENTS" "BPF_LSM"
 		"DEBUG_KERNEL" "DEBUG_INFO_DWARF5" "DEBUG_INFO_BTF")
 	opts_n+=("CPUFREQ_DT" "CPUFREQ_DT_PLATDEV" "DEBUG_INFO_NONE" "DEBUG_INFO_REDUCED" "DEBUG_INFO_SPLIT")
-	opts_val["LSM"]='"bpf"'
+	if [[ -f .config ]]; then
+		kernel_config_set_string "LSM" "bpf"
+	else
+		kernel_config_modifying_hashes+=('LSM="bpf"')
+	fi
 	opts_m+=("MT7996E" "USB_SERIAL_OPTION" "USB_NET_QMI_WWAN" "USB_NET_CDC_MBIM"
 		"USB_NET_CDC_NCM" "USB_SERIAL_CP210X" "USB_SERIAL_CH341" "USB_SERIAL_FTDI_SIO")
 }
