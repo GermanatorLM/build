@@ -66,6 +66,13 @@ An empty CPU governor setting preserves the kernel default.
 The ext4 profile masks journal CoW rules, which cannot apply to the ramlog symlink.
 Other journal permission rules remain active.
 The board excludes unsupported MTK_SOCINFO. MediaTek eFuse access remains enabled.
+The first boot generates nine unique, locally administered unicast MAC addresses for built-in Ethernet devices.
+The board stores the addresses in `/var/lib/r4pro8x/mac-addresses.json` and reuses them before networkd starts.
+Device Tree paths select the interfaces. USB Ethernet, BE14 and modem identities remain unchanged.
+Generated link files also preserve the addresses when a built-in interface reappears.
+Invalid state blocks networkd startup. Preserve the state file for recovery instead of generating replacement identities.
+Image cleanup removes generated MAC state and link files.
+Kernel messages about initial random MAC addresses can precede the userspace assignment.
 
 Frank's hostname reference: [BPI-Router-Images at 8ff8bfb](https://github.com/frank-w/BPI-Router-Images/blob/8ff8bfb8de1b199c6ca425b2baa592ced277e5c6/buildchroot.sh#L171).
 SoC information reference: [OpenWrt 8097cbc](https://github.com/openwrt/openwrt/commit/8097cbc14a21d5ae6867ea76d5d4ba4b19e579bd).

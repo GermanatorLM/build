@@ -123,6 +123,8 @@ function pre_umount_final_image__900_r4pro8x_identities() {
 	rm -f "${MOUNT}/etc/machine-id" "${MOUNT}/var/lib/dbus/machine-id" \
 		"${MOUNT}/var/lib/systemd/random-seed"
 	install -m644 /dev/null "${MOUNT}/etc/machine-id"
+	rm -f "${MOUNT}/var/lib/r4pro8x/mac-addresses.json" "${MOUNT}/var/lib/r4pro8x/mac-addresses.lock"
+	rm -f -- "${MOUNT}"/etc/systemd/network/10-r4pro8x-mac-*.link
 	local file directory
 	for file in "${MOUNT}"/etc/NetworkManager/system-connections/* "${MOUNT}"/etc/wpa_supplicant/*.conf; do
 		[[ ! -s "${file}" ]] || exit_with_error "Unexpected network profile in image" "${file}"
