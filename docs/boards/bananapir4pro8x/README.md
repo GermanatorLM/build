@@ -54,6 +54,22 @@ The 8X device tree enables SPI-NAND and exposes the inherited BL2 and UBI MTD pa
 The board patch removes automatic UBI attachment. Explicit UBI attachment remains available.
 No backup prerequisite or NAND installation workflow is imposed.
 
+## Userspace defaults
+
+The default hostname is `bpi`, following Frank's image configuration.
+Set `HOST` explicitly to select another name.
+DHCP may supply a transient hostname. `polkitd` enables the packaged systemd-networkd authorization rule.
+SSH generates missing host keys before startup, independently of systemd first-boot detection.
+Armbian firstrun preserves those keys. Images still contain no host keys.
+The serial-only board skips console font setup.
+An empty CPU governor setting preserves the kernel default.
+The ext4 profile masks journal CoW rules, which cannot apply to the ramlog symlink.
+Other journal permission rules remain active.
+The board excludes unsupported MTK_SOCINFO. MediaTek eFuse access remains enabled.
+
+Frank's hostname reference: [BPI-Router-Images at 8ff8bfb](https://github.com/frank-w/BPI-Router-Images/blob/8ff8bfb8de1b199c6ca425b2baa592ced277e5c6/buildchroot.sh#L171).
+SoC information reference: [OpenWrt 8097cbc](https://github.com/openwrt/openwrt/commit/8097cbc14a21d5ae6867ea76d5d4ba4b19e579bd).
+
 ## Sources
 
 See [sources.lock.json](../../../config/optional/boards/bananapir4pro8x/sources.lock.json).

@@ -12,8 +12,14 @@ BOOT_FDT_FILE="mediatek/mt7988a-bananapi-bpi-r4-pro-8x.dtb"
 SRC_EXTLINUX="yes"
 SRC_CMDLINE="console=ttyS0,115200n1 earlycon=uart8250,mmio32,0x11000000 rootwait"
 HAS_VIDEO_OUTPUT="no"
+HOST="${HOST:-bpi}"
+OPENSSHD_REGENERATE_HOST_KEYS=false
 INSTALL_ARMBIAN_FIRMWARE="no"
-PACKAGE_LIST_BOARD+=" iw wpasupplicant rfkill wireless-regdb ethtool iperf3 linuxptp"
+PACKAGE_LIST_BOARD+=" iw wpasupplicant rfkill wireless-regdb ethtool iperf3 linuxptp polkitd"
+
+function post_family_tweaks_bsp__r4pro8x_userspace() {
+	run_host_command_logged python3 "${SRC}/tools/r4pro8x/userspace.py" "${destination}"
+}
 
 function post_family_tweaks_bsp__r4pro8x_initramfs() {
 	declare file_added_to_bsp_destination
@@ -52,6 +58,12 @@ function post_family_tweaks__r4pro8x_alsa_restore() {
 	run_host_command_logged python3 "${SRC}/tools/r4pro8x/alsa.py" "${SDCARD}"
 }
 
+function post_family_tweaks__r4pro8x_journal_flags() {
+	[[ "${ROOTFS_TYPE}" == ext4 ]] || return 0
+	mkdir -p "${SDCARD}/etc/tmpfiles.d"
+	ln -sfn /dev/null "${SDCARD}/etc/tmpfiles.d/journal-nocow.conf"
+}
+
 function post_family_tweaks__r4pro8x_regdb() {
 	[[ -f "${SDCARD}/lib/firmware/regulatory.db-upstream" ]] ||
 		exit_with_error "Missing upstream wireless regulatory database"
@@ -83,7 +95,8 @@ function armbian_kernel_config__r4pro8x() {
 		"TMPFS_POSIX_ACL" "SECURITY" "SECURITYFS"
 		"BPF_SYSCALL" "BPF_JIT" "BPF_EVENTS" "BPF_LSM"
 		"DEBUG_KERNEL" "DEBUG_INFO_DWARF5" "DEBUG_INFO_BTF")
-	opts_n+=("CPUFREQ_DT" "CPUFREQ_DT_PLATDEV" "DEBUG_INFO_NONE" "DEBUG_INFO_REDUCED" "DEBUG_INFO_SPLIT")
+	opts_n+=("CPUFREQ_DT" "CPUFREQ_DT_PLATDEV" "MTK_SOCINFO"
+		"DEBUG_INFO_NONE" "DEBUG_INFO_REDUCED" "DEBUG_INFO_SPLIT")
 	if [[ -f .config ]]; then
 		kernel_config_set_string "LSM" "bpf"
 	else
